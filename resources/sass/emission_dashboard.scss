@@ -1,0 +1,27 @@
+
+@use 'variables' as *;
+
+.card-board{
+  border: 1px solid red !important;
+}
+.client_economy .cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  height: 500px;
+}
+.client_economy .cards .card{
+  height: 300px !important;
+  width: 100%;
+  min-width: 300px;
+  max-width: 25%;
+}
+.card-title{
+  background-color: $secondary;
+  color: white;
+  border-radius: 8px 8px 0 0;
+}
+
+#myChart{
+  height: 400px !important;
+}

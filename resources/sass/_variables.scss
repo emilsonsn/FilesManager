@@ -1,0 +1,35 @@
+// Body
+$body-bg: #f8fafc;
+
+// Typography
+$font-family-sans-serif: 'Nunito', sans-serif;
+$font-size-base: 0.9rem;
+$line-height-base: 1.6;
+
+$primary: #303237;
+$secondary: #0e2238;
+$dourado: #ddaf3b;
+$font_color: #0e2238;
+
+
+
+// _variables.scss
+
+// Cores
+$sidebar-background: #ffffff; // Cor de fundo do sidebar
+$sidebar-text-color: #000000; // Cor do texto do sidebar
+$sidebar-background-hover: #f0f0f0; // Cor de fundo ao passar o mouse sobre os itens do sidebar
+$sidebar-background-active: #cccccc; // Cor de fundo do item de menu ativo no sidebar
+$sidebar-text-active-color: #ffffff; // Cor do texto do item de menu ativo no sidebar
+$sidebar-icon-color: #333333; // Cor dos ícones do sidebar
+$sidebar-icon-hover-color: #555555; // Cor dos ícones ao passar o mouse sobre os itens do sidebar
+$sidebar-icon-active-color: #ffffff; // Cor dos ícones do item de menu ativo no sidebar
+
+// Tamanhos
+$sidebar-width: 250px; // Largura do sidebar
+$sidebar-min-width: 60px; // Largura mínima do sidebar
+$sidebar-border-radius: 8px; // Raio da borda do sidebar
+$topbar-height: 60px; // Altura da barra superior
+
+// Outros
+$sidebar-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); // Sombra do sidebar

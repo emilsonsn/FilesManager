@@ -1,0 +1,93 @@
+@use 'variables' as *;
+
+.client_info {
+  max-height: 500px;
+}
+
+.client-container {
+  // width: 100% !important;
+  flex-grow: 1;
+  margin-top: 10px;
+//  max-width: calc(100vw - 260px) !important;
+  // Tem algo bugado
+}
+
+.accordion{
+  max-width: calc(100vw - 120px) !important;
+}
+
+.card-blue {
+  background-color: #3498db;
+  color: white;
+  font-size: 1rem;
+  display: inline-block;
+  margin-right: 5px;
+}
+
+.card-red {
+  background-color: #e74c3c;
+  color: white;
+  font-size: 1rem;
+  display: inline-block;
+  margin-right: 5px;
+}
+
+.card-green {
+  background-color: #2ecc71;
+  color: white;
+  display: inline-block;
+  font-size: 1rem;
+  margin-right: 5px;
+}
+
+.accordion{
+  box-shadow: 0px 9px 15px -10px rgba(0,0,0,0.4);
+}
+
+
+
+.accordion-button:focus {
+  z-index: 3;
+  outline: 0;
+  box-shadow: 0px 9px 15px -10px rgba(0,0,0,0.4);
+}
+
+.accordion-button {
+  background-color: $secondary;
+  color: white;
+  box-shadow: 0px 9px 15px -10px rgba(0,0,0,0.4) !important;
+}
+.accordion-button:after {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+}
+.accordion-button:not(.collapsed):after{
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: $secondary;
+  color: white;
+}
+
+/*
+.accordion-item {
+  background-color: #e1f5fe;
+  font: 16px Roboto, sans-serif;
+}
+*/
+
+
+.client_info textarea {
+  max-height: 150px;
+}
+
+.questions-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.questions-container > div {
+  width: 23%;
+  margin: 10px;
+}
+

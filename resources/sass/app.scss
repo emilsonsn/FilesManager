@@ -1,0 +1,28 @@
+// Fonts
+@import url('https://fonts.bunny.net/css?family=Nunito');
+@import 'variables';
+@import 'bootstrap/scss/bootstrap';
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Track */
+
+::-webkit-scrollbar-track {
+  background: #377eb6;
+}
+
+/* Handler */
+
+::-webkit-scrollbar-thumb {
+  background: #d0d3d5;
+  /*background: #f88938;*/
+}
+
+/* Handler on Hover */
+
+::-webkit-scrollbar-track:hover {
+  /*background: #555;*/
+}

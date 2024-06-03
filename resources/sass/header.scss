@@ -1,0 +1,282 @@
+.main-header {
+  top: 0;
+  position: fixed;
+  width: 100%;
+  height: 60px;
+  box-shadow: 0 1px 15px rgba(0, 0, 0, 0.29), 0 1px 6px rgba(0, 0, 0, 0.2);
+  background: #38528a;
+  
+  z-index: 100;
+  //font-weight: bold;
+  color: white;
+  padding-right: 2rem;
+}
+
+.logo {
+  color: white !important;
+  font-weight: bold;
+  width: 260px;
+  height: 60px;
+  -webkit-transform: skew(20deg);
+  background: #e1af45;
+  transition: 0.5s;
+  font-size: 1.2rem;
+}
+
+.action {
+  position: fixed;
+  right: 30px;
+}
+
+.action .profile {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+
+.action .menu {
+  position: absolute;
+  top: 120px;
+  right: -10px;
+  padding: 10px 20px;
+  background: #0e2238;
+  width: 200px;
+  box-shadow: 0 1px 15px rgba(0, 0, 0, 0.29), 0 1px 6px rgba(0, 0, 0, 0.2);
+  border-radius: 15px;
+  transition: 0.5s;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.action .menu.active {
+  top: 70px;
+  visibility: visible;
+  opacity: 1;
+}
+
+.action .menu::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  right: 28px;
+  width: 20px;
+  height: 20px;
+  background: #0e2238;
+  transform: rotate(45deg);
+}
+
+.action .menu h3 {
+  width: 100%;
+  text-align: center;
+  font-size: 18px;
+  padding: 20px 0;
+  font-weight: 500;
+  color: #555;
+  line-height: 1.5em;
+}
+
+.action .menu h3 span {
+  font-size: 14px;
+  color: #cecece;
+  font-weight: 300;
+}
+
+.action .menu ul li {
+  list-style: none;
+  padding: 16px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+}
+
+.action .menu ul li img {
+  max-width: 20px;
+  margin-right: 10px;
+  opacity: 0.5;
+  transition: 0.5s;
+}
+
+.action .menu ul li:hover img {
+  opacity: 1;
+}
+
+.action .menu ul li a {
+  display: inline-block;
+  text-decoration: none;
+  color: #c3c3c3;
+  font-weight: 500;
+  transition: 0.5s;
+}
+
+.action .menu ul li:hover a {
+  color: #ddaf3b;
+}
+
+.user-menu {
+  padding-right: 2rem !important;
+  padding-left: 2rem !important;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background: #233b6e;
+}
+
+.bnt-notify {
+  cursor: pointer;
+  padding: 0.7rem;
+  border-radius: 0.5rem;
+}
+
+.bnt-notify:hover {
+  background: #163353;
+}
+
+.scrollable-menu {
+  height: auto;
+  max-height: 150px;
+  overflow-x: hidden;
+
+  li {
+    margin: 1rem;
+  }
+}
+
+
+//para notificação
+
+.action {
+  position: fixed;
+  right: 30px;
+}
+
+.action .profile {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+
+.action .notify {
+  overflow-y: scroll;
+  max-height: 150px;
+  position: absolute;
+  top: 120px;
+  right: 160px;
+  padding: 10px 20px;
+  background: #0e2238;
+  width: 300px;
+  box-shadow: 0 1px 15px rgba(0, 0, 0, 0.29), 0 1px 6px rgba(0, 0, 0, 0.2);
+  border-radius: 15px;
+  transition: 0.5s;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.action .notify.active-notify {
+  overflow-y: scroll;
+  max-height: 350px;
+  width: 300px;
+  right: 160px;
+  top: 60px;
+  visibility: visible;
+  opacity: 1;
+}
+
+.action .notify::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  right: 28px;
+  width: 20px;
+  height: 20px;
+  background: #0e2238;
+  transform: rotate(45deg);
+}
+
+.action .notify h3 {
+  width: 100%;
+  text-align: center;
+  font-size: 18px;
+  padding: 20px 0;
+  font-weight: 500;
+  color: #555;
+  line-height: 1.5em;
+}
+
+.action .notify h3 span {
+  font-size: 14px;
+  color: #cecece;
+  font-weight: 300;
+}
+
+.action .notify ul li {
+  list-style: none;
+  padding: 16px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+}
+
+.action .notify ul li img {
+  max-width: 20px;
+  margin-right: 10px;
+  opacity: 0.5;
+  transition: 0.5s;
+}
+
+.action .notify ul li:hover img {
+  opacity: 1;
+}
+
+.action .notify ul li a {
+  display: inline-block;
+  text-decoration: none;
+  color: #c3c3c3;
+  font-weight: 500;
+  transition: 0.5s;
+}
+
+.action .notify ul li:hover a {
+  color: #ddaf3b;
+}
+
+.notify-card {
+  background: #ddaf3b;
+  color: #0e2238 !important;
+  padding-right: 2rem !important;
+  padding-left: 2rem !important;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+}
+
+
+@media only screen and (max-width: 500px) {
+  .logo-text {
+    display: none;
+  }
+  .logo {
+    font-weight: bold;
+    width: 70px;
+    height: 60px;
+    background: #ddaf3b !important;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .action .notify.active-notify {
+    overflow-y: scroll;
+    max-height: 350px;
+    width: 200px;
+    left: 0px;
+    top: 60px;
+    visibility: visible;
+    opacity: 1;
+  }
+}
+

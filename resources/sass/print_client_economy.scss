@@ -1,0 +1,93 @@
+body {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f8f8f8;
+  color: #333;
+}
+.container {
+  width: 90%;
+  height: 100vh;
+  max-width: 800px;
+  margin: auto;
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.programs{
+  width: 90%;
+  margin: 10px auto;
+
+  h5{
+    font-size: 1rem !important;
+    font-weight: 600;
+  }
+  .program-info{
+    background: #f8f8f8;
+    padding: 10px;
+    p{
+      color: green;
+      margin-bottom: 0 !important;
+    }
+  }
+}
+
+.logo{
+  height: 80px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.header img {
+  max-width: 100px;
+  margin-bottom: 10px;
+}
+.header h1 {
+  margin: 0;
+  font-size: 24px;
+}
+.report-info {
+  margin-bottom: 20px;
+  width: 90%;
+  margin: 0 auto;
+}
+.info-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+.info-content {
+  background: #f1f1f1;
+  padding: 10px;
+  border-radius: 4px;
+}
+.summary {
+  margin-bottom: 30px;
+}
+.summary-item {
+  margin-bottom: 10px;
+}
+.label {
+  font-weight: bold;
+}
+.value {
+  float: right;
+}
+.clear {
+  clear: both;
+}
+
+
+.chart-container {
+position: relative;
+margin: auto;
+
+width: 90% !important;
+
+canvas{
+  width: 100% !important;
+}
+}

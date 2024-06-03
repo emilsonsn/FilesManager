@@ -1,0 +1,212 @@
+@use 'variables' as *;
+
+:root {
+  --cloud-size: 500px; /* Tamanho base da nuvem */
+}
+
+main > div > div > div {
+  height: calc(100vh - 55.05px);
+}
+.login-animation{
+  position: relative;
+}
+
+.login-animation svg g::after{
+  content: '';
+  width: 150px;
+  height: 150px;
+  position: absolute;
+  background: red;
+  top: 10%;
+  right: 5%;
+}
+
+.bg-login {
+  position: relative;
+  background-color: white;
+}
+
+
+.logo {
+  height: 170px;
+  width: 200px;
+  margin: 20px auto;
+  mix-blend-mode: multiply;
+}
+
+.form-container {
+  color: rgb(0, 0, 0);
+  font-weight: 600;
+  background-color:rgb(243, 243, 243);
+  display: flex;
+  flex-direction: column;
+  padding-top: 10%;
+}
+
+.form-container button {
+  background: green;
+  color: white;
+}
+
+
+.bubbles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+  top: 0;
+  left: 0;
+}
+
+.bubble {
+  position: absolute;
+  bottom: -100px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  opacity: 0.5;
+  animation: rise 10s infinite ease-in;
+}
+
+.bubble:nth-child(1) {
+  width: 40px;
+  height: 40px;
+  left: 10%;
+  animation-duration: 8s;
+}
+
+.bubble:nth-child(2) {
+  width: 20px;
+  height: 20px;
+  left: 20%;
+  animation-duration: 5s;
+  animation-delay: 1s;
+}
+
+.bubble:nth-child(3) {
+  width: 50px;
+  height: 50px;
+  left: 35%;
+  animation-duration: 7s;
+  animation-delay: 2s;
+}
+
+.bubble:nth-child(4) {
+  width: 80px;
+  height: 80px;
+  left: 50%;
+  animation-duration: 11s;
+  animation-delay: 0s;
+}
+
+.bubble:nth-child(5) {
+  width: 35px;
+  height: 35px;
+  left: 55%;
+  animation-duration: 6s;
+  animation-delay: 1s;
+}
+
+.bubble:nth-child(6) {
+  width: 45px;
+  height: 45px;
+  left: 65%;
+  animation-duration: 8s;
+  animation-delay: 3s;
+}
+
+.bubble:nth-child(7) {
+  width: 90px;
+  height: 90px;
+  left: 70%;
+  animation-duration: 12s;
+  animation-delay: 2s;
+}
+
+.bubble:nth-child(8) {
+  width: 25px;
+  height: 25px;
+  left: 80%;
+  animation-duration: 6s;
+  animation-delay: 2s;
+}
+
+.bubble:nth-child(9) {
+  width: 15px;
+  height: 15px;
+  left: 70%;
+  animation-duration: 5s;
+  animation-delay: 1s;
+}
+
+.bubble:nth-child(10) {
+  width: 90px;
+  height: 90px;
+  left: 25%;
+  animation-duration: 10s;
+  animation-delay: 4s;
+}
+
+@keyframes rise {
+  0% {
+    bottom: -100px;
+    transform: translateX(0);
+  }
+  50% {
+    transform: translate(100px);
+  }
+  100% {
+    bottom: 1080px;
+    transform: translateX(-200px);
+  }
+}
+
+#cloud {
+  width: var(--cloud-size);
+  height: calc(var(--cloud-size) * 0.36); /* Ajustando a altura proporcionalmente */
+  background: #f2f9fe;
+  background: -webkit-linear-gradient(#f2f9fe 5%, #d6f0fd 100%);
+  background: -moz-linear-gradient(#f2f9fe 5%, #d6f0fd 100%);
+  background: -o-linear-gradient(#f2f9fe 5%, #d6f0fd 100%);
+  background: linear-gradient(#f2f9fe 5%, #d6f0fd 100%);
+  border-radius: calc(var(--cloud-size) * 0.28); /* Ajustando o raio da borda proporcionalmente */
+  position: relative;
+  margin: calc(var(--cloud-size) * 0.72) auto calc(var(--cloud-size) * 0.4);
+}
+
+#cloud:after, #cloud:before {
+  content: "";
+  position: absolute;
+  background: #f2f9fe;
+  z-index: -1;
+}
+
+#cloud:after {
+  width: calc(var(--cloud-size) * 0.28); /* Ajustando a largura proporcionalmente */
+  height: calc(var(--cloud-size) * 0.28); /* Ajustando a altura proporcionalmente */
+  top: calc(var(--cloud-size) * -0.14); /* Ajustando a posição vertical proporcionalmente */
+  left: calc(var(--cloud-size) * 0.14); /* Ajustando a posição horizontal proporcionalmente */
+  border-radius: calc(var(--cloud-size) * 0.28); /* Ajustando o raio da borda proporcionalmente */
+}
+
+#cloud:before {
+  width: calc(var(--cloud-size) * 0.504); /* Ajustando a largura proporcionalmente */
+  height: calc(var(--cloud-size) * 0.504); /* Ajustando a altura proporcionalmente */
+  top: calc(var(--cloud-size) * -0.252); /* Ajustando a posição vertical proporcionalmente */
+  right: calc(var(--cloud-size) * 0.14); /* Ajustando a posição horizontal proporcionalmente */
+  border-radius: calc(var(--cloud-size) * 0.4); /* Ajustando o raio da borda proporcionalmente */
+}
+
+.shadow {
+  width: calc(var(--cloud-size) * 0.8); /* Ajustando a largura proporcionalmente */
+  position: absolute;
+  bottom: calc(var(--cloud-size) * -0.032); /* Ajustando a posição vertical proporcionalmente */
+  left: calc(var(--cloud-size) * 0.052); /* Ajustando a posição horizontal proporcionalmente */
+  background: #000;
+  z-index: -1;
+  -webkit-box-shadow: 0 0 calc(var(--cloud-size) * 0.06) calc(var(--cloud-size) * 0.02) rgba(0, 0, 0, 0.4); /* Ajustando o tamanho da sombra proporcionalmente */
+  box-shadow: 0 0 calc(var(--cloud-size) * 0.06) calc(var(--cloud-size) * 0.012) rgba(0, 0, 0, 0.3); /* Ajustando o tamanho da sombra proporcionalmente */
+  border-radius: 50%; /* Reduzi o tamanho do raio de borda */
+}
+
