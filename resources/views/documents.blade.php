@@ -135,7 +135,7 @@
                   <i class="fa-solid fa-box-open"></i>
                 </a>
                 @if($auth->edit_doc)
-                  <a href="#" class="edit-document" data-gender="{{$doc->gender}}" data-archive_date="{{$doc->archive_date}}" data-initial_date="{{$doc->initial_date}}" data-id="{{ $doc->id }}" data-observations="{{ $doc->observations }}" data-project_id="{{ $doc->project_id }}" data-temporality_id="{{ $doc->temporality_id }}" data-doc_number="{{ $doc->doc_number }}" data-holder_name="{{ $doc->holder_name }}" data-description="{{ $doc->description }}" data-box="{{ $doc->box }}" data-qtpasta="{{ $doc->qtpasta }}" data-file="{{ $doc->file }}" data-cabinet="{{ $doc->cabinet }}" data-drawer="{{ $doc->drawer }}" data-classification="{{ $doc->classification }}" data-version="{{ $doc->version }}" data-situationac="{{ $doc->situationAC }}" data-situationai="{{ $doc->situationAI }}">
+                  <a href="#" class="edit-document" data-archive_date="{{$doc->archive_date}}" data-initial_date="{{$doc->initial_date}}" data-id="{{ $doc->id }}" data-observations="{{ $doc->observations }}" data-project_id="{{ $doc->project_id }}" data-temporality_id="{{ $doc->temporality_id }}" data-doc_number="{{ $doc->doc_number }}" data-holder_name="{{ $doc->holder_name }}" data-description="{{ $doc->description }}" data-box="{{ $doc->box }}" data-qtpasta="{{ $doc->qtpasta }}" data-file="{{ $doc->file }}" data-cabinet="{{ $doc->cabinet }}" data-drawer="{{ $doc->drawer }}" data-classification="{{ $doc->classification }}" data-version="{{ $doc->version }}" data-situationac="{{ $doc->situationAC }}" data-situationai="{{ $doc->situationAI }}">
                     <i class="fa-solid fa-pen"></i>
                   </a>
                 @endif
@@ -266,18 +266,6 @@
                   <label for="drawer" class="form-label">Gaveta</label>
                   <input type="text" class="form-control" id="drawer" name="drawer">
                 </div>
-              </div>
-
-              <div class="mb-3 col-md-3">
-                <label for="gender" class="form-label">Gênero</label>
-                <select class="form-control" id="gender" name="gender" required>
-                  <option value="Textual">Textual</option>
-                  <option value="Cartográfico">Cartográfico</option>
-                  <option value="Audiovisual">Audiovisual</option>
-                  <option value="Multimídia">Multimídia</option>
-                  <option value="Micrográfico">Micrográfico</option>
-                  <option value="Digital">Digital</option>
-                </select>
               </div>
               
               <div class="mb-3 col-md-3">
@@ -518,9 +506,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var classification = button.getAttribute('data-classification');
       var version = button.getAttribute('data-version');
       var situationAC = button.getAttribute('data-situationac');
-      var situationAI = button.getAttribute('data-situationai');
-      var gender = button.getAttribute('data-gender');
-      
+      var situationAI = button.getAttribute('data-situationai');      
 
       modalForm.querySelector('[name="id"]').value = id;
       modalForm.querySelector('[name="project_id"]').value = project_id;
@@ -539,8 +525,7 @@ document.addEventListener('DOMContentLoaded', function () {
       modalForm.querySelector('[name="version"]').value = version;
       modalForm.querySelector('[name="situationAC"]').value = situationAC;
       modalForm.querySelector('[name="situationAI"]').value = situationAI;
-      modalForm.querySelector('[name="gender"]').value = gender;
-
+      
       if (box) {
         document.getElementById('type').value = '1';
       } else if (cabinet) {

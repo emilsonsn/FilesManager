@@ -78,6 +78,7 @@
             <th scope="col">Data do Empréstimo</th>
             <th class="text-center" scope="col">Autor do Empréstimo</th>
             <th class="text-center" scope="col">Recebedor do Empréstimo</th>
+            <th class="text-center" scope="col">Gênero</th>
             <th class="text-center" scope="col">Data de Devolução</th>
             <th class="text-center" scope="col">Autor da Devolução</th>
             <th class="text-center" scope="col">Recebedor da Devolução</th>
@@ -93,7 +94,8 @@
               <td class="text-center">{{ Carbon::parse($collection->loan_date)->format('d/m/Y') }}</td>
               <td class="text-center">{{ $collection->loan_author }}</td>
               <td class="text-center">{{ $collection->loan_receiver }}</td>
-              <td class="text-center">{{ Carbon::parse($collection->return_date)->format('d/m/Y') ?? '----' }}</td>
+              <td class="text-center">{{ $collection->gender }}</td>
+              <td class="text-center">{{ $collection->return_date? Carbon::parse($collection->return_date)->format('d/m/Y') : '----' }}</td>
               <td class="text-center">{{ $collection->return_author ?? '----' }}</td>
               <td class="text-center">{{ $collection->receiver_author ?? '----' }}</td>
               <td class="text-center">{{ $collection->document->doc_number }}</td>
@@ -103,7 +105,7 @@
                   <i class="fa-solid fa-print"></i>
                 </a>
                 @if($auth->edit_collection)
-                  <a href="#" class="edit-collection" data-id="{{ $collection->id }}" data-loan_date="{{ $collection->loan_date }}" data-loan_author="{{ $collection->loan_author }}" data-loan_receiver="{{ $collection->loan_receiver }}" data-return_date="{{ $collection->return_date }}" data-return_author="{{ $collection->return_author }}" data-receiver_author="{{ $collection->receiver_author }}" data-document_id="{{ $collection->document_id }}" data-user_id="{{ $collection->user_id }}">
+                  <a href="#" class="edit-collection" data-gender="{{$collection->gender}}" data-id="{{ $collection->id }}" data-loan_date="{{ $collection->loan_date }}" data-loan_author="{{ $collection->loan_author }}" data-loan_receiver="{{ $collection->loan_receiver }}" data-return_date="{{ $collection->return_date }}" data-return_author="{{ $collection->return_author }}" data-receiver_author="{{ $collection->receiver_author }}" data-document_id="{{ $collection->document_id }}" data-user_id="{{ $collection->user_id }}">
                     <i class="fa-solid fa-pen"></i>
                   </a>
                 @endif
@@ -141,17 +143,29 @@
             </div>
 
             <div class="row">
-              <div class="mb-3 col-md-4">
+              <div class="mb-3 col-md-3">
                 <label for="loan_date" class="form-label">Data do Empréstimo</label>
                 <input type="date" class="form-control" id="loan_date" name="loan_date" required>
               </div>
-              <div class="mb-3 col-md-4">
+              <div class="mb-3 col-md-3">
                 <label for="loan_author" class="form-label">Autor do Empréstimo</label>
                 <input type="text" class="form-control" id="loan_author" name="loan_author" required>
               </div>
-              <div class="mb-3 col-md-4">
+              <div class="mb-3 col-md-3">
                 <label for="loan_receiver" class="form-label">Recebedor do Empréstimo</label>
                 <input type="text" class="form-control" id="loan_receiver" name="loan_receiver" required>
+              </div>
+              <div class="mb-3 col-md-3">
+                <label for="gender" class="form-label">Gênero</label>
+                <select class="form-control" id="gender" name="gender" required>
+                  <option value="Textual">Selecione uma opção</option>
+                  <option value="Textual">Textual</option>
+                  <option value="Cartográfico">Cartográfico</option>
+                  <option value="Audiovisual">Audiovisual</option>
+                  <option value="Multimídia">Multimídia</option>
+                  <option value="Micrográfico">Micrográfico</option>
+                  <option value="Digital">Digital</option>
+                </select>
               </div>
               <div class="mb-3 col-md-4">
                 <label for="return_date" class="form-label">Data de Devolução</label>
@@ -212,6 +226,7 @@
           var loan_date = button.getAttribute('data-loan_date');
           var loan_author = button.getAttribute('data-loan_author');
           var loan_receiver = button.getAttribute('data-loan_receiver');
+          var gender = button.getAttribute('data-gender');
           var return_date = button.getAttribute('data-return_date');
           var return_author = button.getAttribute('data-return_author');
           var receiver_author = button.getAttribute('data-receiver_author');
@@ -222,6 +237,7 @@
           modalForm.querySelector('[name="loan_date"]').value = loan_date;
           modalForm.querySelector('[name="loan_author"]').value = loan_author;
           modalForm.querySelector('[name="loan_receiver"]').value = loan_receiver;
+          modalForm.querySelector('[name="gender"]').value = gender;
           modalForm.querySelector('[name="return_date"]').value = return_date;
           modalForm.querySelector('[name="return_author"]').value = return_author;
           modalForm.querySelector('[name="receiver_author"]').value = receiver_author;
@@ -240,6 +256,7 @@
           modalForm.querySelector('[name="id"]').value = collectionData.id;
           modalForm.querySelector('[name="loan_date"]').value = collectionData.loan_date;
           modalForm.querySelector('[name="loan_author"]').value = collectionData.loan_author;
+          modalForm.querySelector('[name="gender"]').value = collectionData.gender;
           modalForm.querySelector('[name="loan_receiver"]').value = collectionData.loan_receiver;
           modalForm.querySelector('[name="return_date"]').value = collectionData.return_date;
           modalForm.querySelector('[name="return_author"]').value = collectionData.return_author;

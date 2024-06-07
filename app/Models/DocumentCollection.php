@@ -18,6 +18,7 @@ class DocumentCollection extends Model
         'loan_date',
         'loan_author',
         'loan_receiver',
+        'gender',
         'return_date',
         'return_author',
         'receiver_author',

@@ -22,7 +22,6 @@ class Document extends Model
         'qtpasta',
         'cabinet',
         'drawer',
-        'gender',
         'classification',
         'version',
         'situationAC',

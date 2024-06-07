@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('documents', function (Blueprint $table) {
-            $table->renameColumn('decription', 'description');
+        Schema::table('document_collections', function (Blueprint $table) {
+            $table->string('gender')->after('loan_receiver');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('documents', function (Blueprint $table) {
-            $table->renameColumn('description', 'description');
+        Schema::table('document_collections', function (Blueprint $table) {
+            $table->dropColumn('gender');
         });
     }
 };

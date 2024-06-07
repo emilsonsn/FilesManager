@@ -115,7 +115,7 @@
                     @endif
                     <td>{{$documentCollection->document->classification}}</td>
                     <td>{{$documentCollection->document->version}}</td>
-                    <td>{{$documentCollection->document->gender}}</td>
+                    <td>{{$documentCollection->gender}}</td>
                     <td colspan="3">{{$documentCollection->document->description}}</td>
                 </tr>
                 <tr>
