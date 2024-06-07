@@ -104,7 +104,7 @@
         </thead>
         <tbody>
           @foreach ($documents as $doc)
-            <tr class="{{strpos($doc->situationAC . ' ' . $doc->situationAI, "Descartado") ? 'tr-grey' : ''}}">
+            <tr class="{{strpos($doc->situationAC . ' ' . $doc->situationAI, "Descartado") !== false ? 'tr-grey' : ''}}">
               <th scope="row">{{ $doc->id }}</th>
               <td class="text-center">{{ $doc->doc_number }}</td>
               <td class="text-center">{{ $doc->holder_name }}</td>
@@ -167,7 +167,7 @@
               <div class="mb-3 col-md-3">
                 <label for="temporality_id" class="form-label">Código de classificação</label>
                 <select name="temporality_id" id="temporality_id" class="form-control">
-                  <option value="">Escolha uma opção</option>
+                  <option value="">Selecione uma opção</option>
                   @foreach ($temporalitys as $temporality)
                       <option value="{{$temporality->id}}">{{$temporality->code}}</option>
                   @endforeach
@@ -175,39 +175,39 @@
               </div>
               <div class="mb-3 col-md-3">
                 <label for="area" class="form-label">Área</label>
-                <input type="text" class="form-control" id="area" required readonly>
+                <input type="text" class="form-control" id="area"  readonly>
               </div>
               <div class="mb-3 col-md-3">
                 <label for="function" class="form-label">Função</label>
-                <input type="text" class="form-control" id="function" required readonly>
+                <input type="text" class="form-control" id="function"  readonly>
               </div>
               <div class="mb-3 col-md-3">
                 <label for="sub_function" class="form-label">Sub-função</label>
-                <input type="text" class="form-control" id="sub_function" required readonly>
+                <input type="text" class="form-control" id="sub_function"  readonly>
               </div>
               <div class="mb-3 col-md-3">
                 <label for="activity" class="form-label">Atividade</label>
-                <input type="text" class="form-control" id="activity" required readonly>
+                <input type="text" class="form-control" id="activity"  readonly>
               </div>
               <div class="mb-3 col-md-3">
                 <label for="tipology" class="form-label">Tipologia</label>
-                <input type="text" class="form-control" id="tipology" required readonly>
+                <input type="text" class="form-control" id="tipology"  readonly>
               </div>
               <div class="mb-3 col-md-3">
                 <label for="current_custody_period" class="form-label">Prazo de Guarda Corrente</label>
-                <input type="number" step="1" class="form-control" id="current_custody_period" required readonly>
+                <input type="number" step="1" class="form-control" id="current_custody_period"  readonly>
               </div>
               <div class="mb-3 col-md-3">
                 <label for="intermediate_custody_period" class="form-label">Prazo de Guarda Intermediária</label>
-                <input type="number" step="1" class="form-control" id="intermediate_custody_period" required readonly>
+                <input type="number" step="1" class="form-control" id="intermediate_custody_period"  readonly>
               </div>
               <div class="mb-3 col-md-3">
                 <label for="final_destination" class="form-label">Destinação Final</label>
-                <input type="text" class="form-control" id="final_destination" required readonly>
+                <input type="text" class="form-control" id="final_destination"  readonly>
               </div>
               <div class="mb-3 col-md-3">
                 <label for="doc_number" class="form-label">Nª do documento</label>
-                <input type="text" class="form-control" id="doc_number" name="doc_number" required>
+                <input type="text" class="form-control" id="doc_number" name="doc_number" >
               </div>
               <div class="mb-3 col-md-3">
                 <label for="initial_date" class="form-label">
@@ -225,21 +225,22 @@
               </div>
               <div class="mb-3 col-md-3">
                 <label for="expiration_date_A_C" class="form-label">Data de expiração A.C</label>
-                <input type="date" class="form-control" id="expiration_date_A_C" name="expiration_date_A_C" required readonly>
+                <input type="date" class="form-control" id="expiration_date_A_C" name="expiration_date_A_C"  readonly>
               </div>
               <div class="mb-3 col-md-3">
                 <label for="expiration_date_A_I" class="form-label">Data de expiração A.I</label>
-                <input type="date" class="form-control" id="expiration_date_A_I" name="expiration_date_A_I" required readonly>
+                <input type="date" class="form-control" id="expiration_date_A_I" name="expiration_date_A_I"  readonly>
               </div>
 
               <div class="mb-3 col-md-3">
                 <label for="holder_name" class="form-label">Nome do Titular</label>
-                <input type="text" class="form-control" id="holder_name" name="holder_name" required>
+                <input type="text" class="form-control" id="holder_name" name="holder_name" >
               </div>
 
               <div class="mb-3 col-md-3">
                 <label for="type" class="form-label">Tipo de arquivamento</label>
                 <select class="form-control" id="type" name="type">
+                  <option value="">Selecione uma opção</option>
                   <option value="">Selecione caixa ou armário</option>
                   <option value="1">Caixa</option>
                   <option value="2">Armário</option>
@@ -270,7 +271,8 @@
               
               <div class="mb-3 col-md-3">
                 <label for="classification" class="form-label">Classificação da informação</label>
-                <select class="form-control" id="classification" name="classification" required>
+                <select class="form-control" id="classification" name="classification" >
+                  <option value="">Selecione uma opção</option>
                   <option value="Pública">Pública</option>
                   <option value="Interna">Interna</option>
                   <option value="Confidencial">Confidencial</option>
@@ -278,7 +280,7 @@
               </div>
               <div class="mb-3 col-md-3">
                 <label for="version" class="form-label">Versão</label>
-                <select class="form-control" id="version" name="version" required>
+                <select class="form-control" id="version" name="version" >
                   <option value="Físico">Físico</option>
                   <option value="Físico">Digital</option>
                   <option value="Físico">Híbrido</option>
@@ -286,7 +288,8 @@
               </div>              
               <div class="mb-3 col-md-3">
                 <label for="situationAC" class="form-label">Situação A.C</label>
-                <select class="form-control" id="situationAC" name="situationAC" required>
+                <select class="form-control" id="situationAC" name="situationAC" >
+                  <option value="">Selecione uma opção</option>
                   <option value="Transferido A.I">Transferido A.i</option>
                   <option value="Ativo">Ativo</option>
                   <option value="Descartado">Descartado</option>
@@ -294,7 +297,8 @@
               </div>
               <div class="mb-3 col-md-3">
                 <label for="situationAI" class="form-label">Situação A.I</label>
-                <select class="form-control" id="situationAI" name="situationAI" required>
+                <select class="form-control" id="situationAI" name="situationAI" >
+                  <option value="">Selecione uma opção</option>
                   <option value="Recolhido A.P">Recolhido A.P</option>
                   <option value="Ativo">Ativo</option>
                   <option value="Descartado">Descartado</option>
@@ -303,11 +307,11 @@
             </div>
             <div class="mb-3">
               <label for="description" class="form-label">Descrição</label>
-              <textarea class="form-control" id="description" name="description" required></textarea>
+              <textarea class="form-control" id="description" name="description" ></textarea>
             </div>
             <div class="mb-3">
               <label for="observations" class="form-label">Observações</label>
-              <textarea class="form-control" id="observations" name="observations" required></textarea>
+              <textarea class="form-control" id="observations" name="observations" ></textarea>
             </div>
             <div class="mb-3">
               <label for="file" class="form-label">Arquivos</label>
@@ -439,9 +443,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   addDocumentButton.addEventListener('click', function () {
     modalForm.reset(); // Limpa todos os campos do formulário
-    modalForm.querySelectorAll('input[type="hidden"]').forEach(function(input) {
-      input.value = ''; // Limpa campos ocultos
-    });
+    const token = modalForm.querySelectorAll('input[name="_token"]')[0].value
     modalForm.querySelectorAll('select').forEach(function(select) {
       select.value = ''; // Reseta os selects
     });
@@ -457,6 +459,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('intermediate_custody_period').value = '';
     document.getElementById('final_destination').value = '';
     toggleFields();
+    modalForm.querySelectorAll('input[name="_token"]')[0].value = token
   });
 
   function toggleFields() {
