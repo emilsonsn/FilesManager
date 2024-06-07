@@ -145,9 +145,14 @@
               <label for="activity" class="form-label">Atividade</label>
               <input type="text" class="form-control" id="activity" name="activity" required>
             </div>
-            <div class="mb-3 col-md-6">
+            <div class="mb-3 col-md-12">
               <label for="tipology" class="form-label">Tipologia</label>
               <input type="text" class="form-control" id="tipology" name="tipology" required>
+            </div>
+            <div class="mb-3 col-md-12">
+              <label for="volatile_columns" class="form-label">Campos Adicionais</label>
+              <div id="volatile_columns_container"></div>
+              <button type="button" class="btn btn-secondary mt-2" id="add_volatile_column">Adicionar Campo</button>
             </div>
             <div class="mb-3 col-md-6">
               <label for="current_custody_period" class="form-label">Prazo de Guarda Corrente</label>
@@ -160,11 +165,6 @@
             <div class="mb-3 col-md-6">
               <label for="final_destination" class="form-label">Destinação final</label>
               <input type="text" class="form-control" id="final_destination" name="final_destination" required>
-            </div>
-            <div class="mb-3 col-md-12">
-              <label for="volatile_columns" class="form-label">Campos Adicionais</label>
-              <div id="volatile_columns_container"></div>
-              <button type="button" class="btn btn-secondary mt-2" id="add_volatile_column">Adicionar Campo</button>
             </div>
           </div>
           <div class="modal-footer">

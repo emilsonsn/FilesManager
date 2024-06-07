@@ -6,15 +6,38 @@
     use App\Models\Project;
     use App\Models\Temporality;
     $search = $_GET['search'] ?? null;
+    $initial_date = $_GET['initial_date'] ?? null;
+    $archive_date = $_GET['archive_date'] ?? null;
+    
     $auth = auth()->user();
 
-    $document = Document::query();
+    $document = Document::orderBy('id', 'desc');
 
     if($auth->is_admin) $projectIds = Project::get()->pluck('id');
     else $projectIds = $auth->projects()->pluck('project_id');
   
-    if($search){
-        $document->where('doc_number', 'like', "%{$search}%");
+    if($search){      
+        $document->where('doc_number', 'like', "%$search%")
+          ->orWhere('description', 'like', "%$search%")
+          ->orWhere('observations', 'like', "%$search%")
+          ->orWhere('holder_name', 'like', "%$search%")
+          ->orWhere('classification', 'like', "%$search%")
+          ->orWhereHas('temporality', function($query) use ($search){
+            $query->where('code','like',"%$search%" )
+              ->orWhere('activity','like',"%$search%" )
+              ->orWhere('tipology','like',"%$search%" )
+              ->orWhere('function','like',"%$search%" )
+              ->orWhere('sub_function','like',"%$search%" )
+              ;
+          });
+    }
+
+    if($initial_date){      
+        $document->whereDate('initial_date', $initial_date);
+    }
+
+    if($archive_date){      
+        $document->whereDate('archive_date', $initial_date);
     }
 
     if($auth->read_doc){
@@ -22,7 +45,6 @@
       $projects = Project::whereIn('id', $projectIds)->get();
       $temporalitys = Temporality::get();
     }
-
 
   @endphp
     
@@ -37,10 +59,19 @@
 
     <form action="" class="row mb-3">
       <div class="col-md-3">
-        <input value="{{$search}}" type="text" name="search" placeholder="Buscar por número do documento" class="form-control">
+        <label for="search">Buscar</label>
+        <input value="{{$search}}" type="text" id="search" name="search" placeholder="Buscar pelos dados do documento" class="form-control">
+      </div>
+      <div class="col-md-3">
+        <label for="initial_date_filter">Data inicial</label>
+        <input value="{{$initial_date}}" type="date" id="initial_date_filter" name="initial_date" class="form-control">
+      </div>
+      <div class="col-md-3">
+        <label for="archive_date_filter">Data de arquivamento</label>
+        <input value="{{$archive_date}}" type="date" id="archive_date_filter" name="archive_date" class="form-control">
       </div>
       <div class="col-md-2">
-        <input type="submit" class="btn btn-primary" value="Filtrar">
+        <input type="submit" class="btn btn-primary mt-4" value="Filtrar">
       </div>
     </form>
 
@@ -54,6 +85,8 @@
             <th scope="col">Descrição</th>
             <th scope="col">Caixa</th>
             <th scope="col">Quantidade de Pastas</th>
+            <th scope="col">Arḿario</th>
+            <th scope="col">Gavetas</th>
             <th scope="col">Código de Classificação</th>
             <th scope="col">Área</th>
             <th scope="col">Função</th>
@@ -63,28 +96,34 @@
             <th scope="col">Prazo de Guarda Corrente</th>
             <th scope="col">Prazo de Guarda Intermediário</th>
             <th scope="col">Destinação Final</th>
+            <th scope="col">Situação A.C</th>
+            <th scope="col">Situação A.I</th>
             <th scope="col">Arquivos</th>
             <th scope="col">Ações</th>
           </tr>
         </thead>
         <tbody>
           @foreach ($documents as $doc)
-            <tr>
+            <tr class="{{strpos($doc->situationAC . ' ' . $doc->situationAI, "Descartado") ? 'tr-grey' : ''}}">
               <th scope="row">{{ $doc->id }}</th>
-              <td>{{ $doc->doc_number }}</td>
-              <td>{{ $doc->holder_name }}</td>
-              <td>{{ $doc->decription }}</td>
-              <td>{{ $doc->box }}</td>
-              <td>{{ $doc->qtpasta }}</td>
-              <td>{{ $doc->temporality->code }}</td>
-              <td>{{ $doc->temporality->area }}</td>
-              <td>{{ $doc->temporality->function }}</td>
-              <td>{{ $doc->temporality->sub_function }}</td>
-              <td>{{ $doc->temporality->activity }}</td>
-              <td>{{ $doc->temporality->tipology }}</td>
-              <td>{{ $doc->temporality->current_custody_period }}</td>
-              <td>{{ $doc->temporality->intermediate_custody_period }}</td>
-              <td>{{ $doc->temporality->final_destination }}</td>
+              <td class="text-center">{{ $doc->doc_number }}</td>
+              <td class="text-center">{{ $doc->holder_name }}</td>
+              <td class="text-center">{{ $doc->description }}</td>
+              <td class="text-center">{{ $doc->box ?? '----' }}</td>
+              <td class="text-center">{{ $doc->qtpasta ?? '----' }}</td>
+              <td class="text-center">{{ $doc->cabinet ?? '----' }}</td>
+              <td class="text-center">{{ $doc->drawer ?? '----' }}</td>
+              <td class="text-center">{{ $doc->temporality->code }}</td>
+              <td class="text-center">{{ $doc->temporality->area }}</td>
+              <td class="text-center">{{ $doc->temporality->function }}</td>
+              <td class="text-center">{{ $doc->temporality->sub_function }}</td>
+              <td class="text-center">{{ $doc->temporality->activity }}</td>
+              <td class="text-center">{{ $doc->temporality->tipology }}</td>
+              <td class="text-center">{{ $doc->temporality->current_custody_period }} ano(s)</td>
+              <td class="text-center">{{ $doc->temporality->intermediate_custody_period }} ano(s)</td>
+              <td class="text-center">{{ $doc->situationAC }}</td>
+              <td class="text-center">{{ $doc->situationAI }}</td>
+              <td class="text-center">{{ $doc->temporality->final_destination }}</td>
               <td>
                 <a href="#" class="c-green view-files" data-id="{{ $doc->id }}">Ver/baixar</a>
               </td>
@@ -92,8 +131,11 @@
                 <a href="#" class="me-2 print-label" data-url="{{ route('label', ['id' => $doc->id]) }}">
                   <i class="fa-solid fa-print"></i>
                 </a>
+                <a href="{{ route('document.collections', ['document_id' => $doc->id]) }}" class="me-2">                  
+                  <i class="fa-solid fa-box-open"></i>
+                </a>
                 @if($auth->edit_doc)
-                  <a href="#" class="edit-document" data-archive_date="{{$doc->archive_date}}" data-initial_date="{{$doc->initial_date}}" data-id="{{ $doc->id }}" data-observations="{{ $doc->observations }}" data-project_id="{{ $doc->project_id }}" data-temporality_id="{{ $doc->temporality_id }}" data-doc_number="{{ $doc->doc_number }}" data-holder_name="{{ $doc->holder_name }}" data-decription="{{ $doc->decription }}" data-box="{{ $doc->box }}" data-qtpasta="{{ $doc->qtpasta }}" data-file="{{ $doc->file }}" data-cabinet="{{ $doc->cabinet }}" data-drawer="{{ $doc->drawer }}" data-classification="{{ $doc->classification }}" data-version="{{ $doc->version }}" data-situationac="{{ $doc->situationAC }}" data-situationai="{{ $doc->situationAI }}">
+                  <a href="#" class="edit-document" data-gender="{{$doc->gender}}" data-archive_date="{{$doc->archive_date}}" data-initial_date="{{$doc->initial_date}}" data-id="{{ $doc->id }}" data-observations="{{ $doc->observations }}" data-project_id="{{ $doc->project_id }}" data-temporality_id="{{ $doc->temporality_id }}" data-doc_number="{{ $doc->doc_number }}" data-holder_name="{{ $doc->holder_name }}" data-description="{{ $doc->description }}" data-box="{{ $doc->box }}" data-qtpasta="{{ $doc->qtpasta }}" data-file="{{ $doc->file }}" data-cabinet="{{ $doc->cabinet }}" data-drawer="{{ $doc->drawer }}" data-classification="{{ $doc->classification }}" data-version="{{ $doc->version }}" data-situationac="{{ $doc->situationAC }}" data-situationai="{{ $doc->situationAI }}">
                     <i class="fa-solid fa-pen"></i>
                   </a>
                 @endif
@@ -170,14 +212,14 @@
               <div class="mb-3 col-md-3">
                 <label for="initial_date" class="form-label">
                   Data inicial
-                  <button onclick="setDates('initial_date')" class="btn btn-sm"><i class="fa-regular fa-calendar-check"></i></button>
+                  <div onclick="setDates('initial_date')" class="btn btn-sm"><i class="fa-regular fa-calendar-check"></i></div>
                 </label>
                 <input type="date" class="form-control" id="initial_date" name="initial_date" required>
               </div>
               <div class="mb-3 col-md-3">
                 <label for="archive_date" class="form-label">
                   Data de arquivamento
-                  <button onclick="setDates('archive_date')" class="btn btn-sm"><i class="fa-regular fa-calendar-check"></i></button>
+                  <div onclick="setDates('archive_date')" class="btn btn-sm"><i class="fa-regular fa-calendar-check"></i></div>
                 </label>
                 <input type="date" class="form-control" id="archive_date" name="archive_date" required>
               </div>
@@ -194,22 +236,50 @@
                 <label for="holder_name" class="form-label">Nome do Titular</label>
                 <input type="text" class="form-control" id="holder_name" name="holder_name" required>
               </div>
+
               <div class="mb-3 col-md-3">
-                <label for="box" class="form-label">Caixa</label>
-                <input type="text" class="form-control" id="box" name="box" required>
+                <label for="type" class="form-label">Tipo de arquivamento</label>
+                <select class="form-control" id="type" name="type">
+                  <option value="">Selecione caixa ou armário</option>
+                  <option value="1">Caixa</option>
+                  <option value="2">Armário</option>
+                </select>
               </div>
-              <div class="mb-3 col-md-3">
-                <label for="qtpasta" class="form-label">Quantidade de Pastas</label>
-                <input type="number" step="1" class="form-control" id="qtpasta" name="qtpasta" required>
-              </div>              
-              <div class="mb-3 col-md-3">
-                <label for="cabinet" class="form-label">Armário</label>
-                <input type="text" class="form-control" id="cabinet" name="cabinet" required>
+              
+              <div id="boxFields" class="row col-md-6" style="display:none;">
+                <div class="mb-3 col-md-6">
+                  <label for="box" class="form-label">Caixa</label>
+                  <input type="text" class="form-control" id="box" name="box">
+                </div>
+                <div class="mb-3 col-md-6">
+                  <label for="qtpasta" class="form-label">Quantidade de Pastas</label>
+                  <input type="number" step="1" class="form-control" id="qtpasta" name="qtpasta">
+                </div>
               </div>
-              <div class="mb-3 col-md-3">
-                <label for="drawer" class="form-label">Gaveta</label>
-                <input type="text" class="form-control" id="drawer" name="drawer" required>
+              
+              <div id="cabinetFields" class="row col-md-6" style="display:none;">
+                <div class="mb-3 col-md-6">
+                  <label for="cabinet" class="form-label">Armário</label>
+                  <input type="text" class="form-control" id="cabinet" name="cabinet">
+                </div>
+                <div class="mb-3 col-md-6">
+                  <label for="drawer" class="form-label">Gaveta</label>
+                  <input type="text" class="form-control" id="drawer" name="drawer">
+                </div>
               </div>
+
+              <div class="mb-3 col-md-3">
+                <label for="gender" class="form-label">Gênero</label>
+                <select class="form-control" id="gender" name="gender" required>
+                  <option value="Textual">Textual</option>
+                  <option value="Cartográfico">Cartográfico</option>
+                  <option value="Audiovisual">Audiovisual</option>
+                  <option value="Multimídia">Multimídia</option>
+                  <option value="Micrográfico">Micrográfico</option>
+                  <option value="Digital">Digital</option>
+                </select>
+              </div>
+              
               <div class="mb-3 col-md-3">
                 <label for="classification" class="form-label">Classificação da informação</label>
                 <select class="form-control" id="classification" name="classification" required>
@@ -228,16 +298,24 @@
               </div>              
               <div class="mb-3 col-md-3">
                 <label for="situationAC" class="form-label">Situação A.C</label>
-                <input type="text" class="form-control" id="situationAC" name="situationAC" required>
+                <select class="form-control" id="situationAC" name="situationAC" required>
+                  <option value="Transferido A.I">Transferido A.i</option>
+                  <option value="Ativo">Ativo</option>
+                  <option value="Descartado">Descartado</option>
+                </select>
               </div>
               <div class="mb-3 col-md-3">
                 <label for="situationAI" class="form-label">Situação A.I</label>
-                <input type="text" class="form-control" id="situationAI" name="situationAI" required>
+                <select class="form-control" id="situationAI" name="situationAI" required>
+                  <option value="Recolhido A.P">Recolhido A.P</option>
+                  <option value="Ativo">Ativo</option>
+                  <option value="Descartado">Descartado</option>
+                </select>
               </div>
             </div>
             <div class="mb-3">
-              <label for="decription" class="form-label">Descrição</label>
-              <textarea class="form-control" id="decription" name="decription" required></textarea>
+              <label for="description" class="form-label">Descrição</label>
+              <textarea class="form-control" id="description" name="description" required></textarea>
             </div>
             <div class="mb-3">
               <label for="observations" class="form-label">Observações</label>
@@ -280,56 +358,55 @@
     </div>
   </div>
 
-
   <script>
+    document.addEventListener('DOMContentLoaded', function () {
+  var printButtons = document.querySelectorAll('.print-label');
 
-    document.addEventListener('DOMContentLoaded', function() {
-      var printButtons = document.querySelectorAll('.print-label');
+  printButtons.forEach(function (button) {
+    button.addEventListener('click', function (event) {
+      event.preventDefault();
+      var url = button.getAttribute('data-url');
+      var width = 1000;
+      var height = 600;
+      var left = (screen.width - width) / 2;
+      var top = (screen.height - height) / 2;
 
-      printButtons.forEach(function(button) {
-        button.addEventListener('click', function(event) {
-          event.preventDefault();
-          var url = button.getAttribute('data-url');
-          var width = 1000;
-          var height = 600;
-          var left = (screen.width - width) / 2;
-          var top = (screen.height - height) / 2;
-
-          var popup = window.open(url, 'popup', 'width=' + width + ',height=' + height + ',top=' + top + ',left=' + left + ',scrollbars=no,resizable=no');
-          popup.addEventListener('load', function() {
-            popup.print();
-          });
-        });
+      var popup = window.open(url, 'popup', 'width=' + width + ',height=' + height + ',top=' + top + ',left=' + left + ',scrollbars=no,resizable=no');
+      popup.addEventListener('load', function () {
+        popup.print();
       });
     });
+  });
+});
 
-  function setDates(input) {
-    var initialDateInput = document.querySelector(`input#${input}`);
-    var currentDate = new Date(initialDateInput.value);
+function setDates(input) {
+  var initialDateInput = document.querySelector(`input#${input}`);
+  var currentDate = new Date(initialDateInput.value);
 
-    if (isNaN(currentDate.getTime())) {
-      alert("Por favor, insira uma data inicial válida.");
-      return;
-    }
-
-    var current_custody_period = parseInt(document.querySelector('#current_custody_period').value);
-    var intermediate_custody_period = parseInt(document.querySelector('#intermediate_custody_period').value);
-
-    if (isNaN(current_custody_period) || isNaN(intermediate_custody_period)) {
-      alert("Por favor, selecione uma temporalidade válida.");
-      return;
-    }
-
-    var expiration_date_A_C = new Date(currentDate);
-    expiration_date_A_C.setFullYear(currentDate.getFullYear() + current_custody_period);
-    document.getElementById('expiration_date_A_C').value = expiration_date_A_C.toISOString().split('T')[0];
-
-    var expiration_date_A_I = new Date(currentDate);
-    expiration_date_A_I.setFullYear(currentDate.getFullYear() + intermediate_custody_period);
-    document.getElementById('expiration_date_A_I').value = expiration_date_A_I.toISOString().split('T')[0];
+  if (isNaN(currentDate.getTime())) {
+    console.log(1)
+    alert("Por favor, insira uma data inicial válida.");
+    return;
   }
 
-  document.addEventListener('DOMContentLoaded', function () {
+  var current_custody_period = parseInt(document.querySelector('#current_custody_period').value);
+  var intermediate_custody_period = parseInt(document.querySelector('#intermediate_custody_period').value);
+
+  if (isNaN(current_custody_period) || isNaN(intermediate_custody_period)) {
+    alert("Por favor, selecione uma temporalidade válida.");
+    return;
+  }
+
+  var expiration_date_A_C = new Date(currentDate);
+  expiration_date_A_C.setFullYear(currentDate.getFullYear() + current_custody_period);
+  document.getElementById('expiration_date_A_C').value = expiration_date_A_C.toISOString().split('T')[0];
+
+  var expiration_date_A_I = new Date(currentDate);
+  expiration_date_A_I.setFullYear(currentDate.getFullYear() + intermediate_custody_period);
+  document.getElementById('expiration_date_A_I').value = expiration_date_A_I.toISOString().split('T')[0];
+}
+
+document.addEventListener('DOMContentLoaded', function () {
   var viewButtons = document.querySelectorAll('.view-files');
   var fileList = document.getElementById('fileList');
   var viewFilesModal = new bootstrap.Modal(document.getElementById('viewFilesModal'));
@@ -346,7 +423,7 @@
               var listItem = document.createElement('li');
               listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
               listItem.innerHTML = `
-                ${file.name}
+                ${new Date(file.created_at).toLocaleDateString('pt-BR')} - ${file.name}
                 <a href="/storage/${file.file_path}" target="_blank" class="btn btn-sm btn-primary">Abrir</a>
               `;
               fileList.appendChild(listItem);
@@ -365,113 +442,171 @@
   });
 });
 
+document.addEventListener('DOMContentLoaded', function () {
+  var editButtons = document.querySelectorAll('.edit-document');
+  var addDocumentButton = document.querySelector('.add');
+  var modal = document.getElementById('addDocumentModal');
+  var modalForm = modal.querySelector('form');
+  var temporalitys = @json($temporalitys);
 
-  document.addEventListener('DOMContentLoaded', function () {
-    var editButtons = document.querySelectorAll('.edit-document');
-    var modal = document.getElementById('addDocumentModal');
-    var modalForm = modal.querySelector('form');
-    var temporalitys = @json($temporalitys);
-
-    modal.addEventListener('show.bs.modal', function () {
-      modalForm.reset();
-      modalForm.querySelector('[name="id"]').value = '';
+  addDocumentButton.addEventListener('click', function () {
+    modalForm.reset(); // Limpa todos os campos do formulário
+    modalForm.querySelectorAll('input[type="hidden"]').forEach(function(input) {
+      input.value = ''; // Limpa campos ocultos
     });
-
-    editButtons.forEach(function (button) {
-      button.addEventListener('click', function () {
-        var id = button.getAttribute('data-id');
-        var project_id = button.getAttribute('data-project_id');
-        var doc_number = button.getAttribute('data-doc_number');
-        var temporality_id = button.getAttribute('data-temporality_id');
-        var holder_name = button.getAttribute('data-holder_name');
-        var decription = button.getAttribute('data-decription');
-        var box = button.getAttribute('data-box');
-        var qtpasta = button.getAttribute('data-qtpasta');
-        var file = button.getAttribute('data-file');
-        var cabinet = button.getAttribute('data-cabinet');
-        var observations = button.getAttribute('data-observations');
-        var drawer = button.getAttribute('data-drawer');
-        var initial_date = button.getAttribute('data-initial_date');
-        var archive_date = button.getAttribute('data-archive_date');
-        var drawer = button.getAttribute('data-drawer');
-        var classification = button.getAttribute('data-classification');
-        var version = button.getAttribute('data-version');
-        var situationAC = button.getAttribute('data-situationac');
-        var situationAI = button.getAttribute('data-situationai');
-
-        modalForm.querySelector('[name="id"]').value = id;
-        modalForm.querySelector('[name="project_id"]').value = project_id;
-        modalForm.querySelector('[name="temporality_id"]').value = temporality_id;
-        modalForm.querySelector('[name="holder_name"]').value = holder_name;
-        modalForm.querySelector('[name="decription"]').value = decription;
-        modalForm.querySelector('[name="box"]').value = box;
-        modalForm.querySelector('[name="qtpasta"]').value = qtpasta;
-        modalForm.querySelector('[name="doc_number"]').value = doc_number;
-        modalForm.querySelector('[name="cabinet"]').value = cabinet;
-        modalForm.querySelector('[name="observations"]').value = observations;
-        modalForm.querySelector('[name="drawer"]').value = drawer;
-        modalForm.querySelector('[name="initial_date"]').value = initial_date;
-        modalForm.querySelector('[name="archive_date"]').value = archive_date;
-        modalForm.querySelector('[name="classification"]').value = classification;
-        modalForm.querySelector('[name="version"]').value = version;
-        modalForm.querySelector('[name="situationAC"]').value = situationAC;
-        modalForm.querySelector('[name="situationAI"]').value = situationAI;
-
-        var temporality = temporalitys.find(t => t.id == temporality_id);
-        if (temporality) {
-          modalForm.querySelector('#area').value = temporality.area;
-          modalForm.querySelector('#function').value = temporality.function;
-          modalForm.querySelector('#sub_function').value = temporality.sub_function;
-          modalForm.querySelector('#activity').value = temporality.activity;
-          modalForm.querySelector('#tipology').value = temporality.tipology;
-          modalForm.querySelector('#current_custody_period').value = temporality.current_custody_period;
-          modalForm.querySelector('#intermediate_custody_period').value = temporality.intermediate_custody_period;
-          modalForm.querySelector('#final_destination').value = temporality.final_destination;
-
-          var current_date = new Date();
-          var expiration_date_A_C = new Date(current_date.setFullYear(current_date.getFullYear() + parseInt(temporality.current_custody_period)));
-          var expiration_date_A_I = new Date(current_date.setFullYear(current_date.getFullYear() + parseInt(temporality.intermediate_custody_period)));
-
-          modalForm.querySelector('#expiration_date_A_C').value = expiration_date_A_C.toISOString().split('T')[0];
-          modalForm.querySelector('#expiration_date_A_I').value = expiration_date_A_I.toISOString().split('T')[0];
-        }
-
-        var modalInstance = new bootstrap.Modal(modal);
-        modalInstance.show();
-      });
+    modalForm.querySelectorAll('select').forEach(function(select) {
+      select.value = ''; // Reseta os selects
     });
+    modalForm.querySelectorAll('textarea').forEach(function(textarea) {
+      textarea.value = ''; // Limpa textareas
+    });
+    document.getElementById('area').value = '';
+    document.getElementById('function').value = '';
+    document.getElementById('sub_function').value = '';
+    document.getElementById('activity').value = '';
+    document.getElementById('tipology').value = '';
+    document.getElementById('current_custody_period').value = '';
+    document.getElementById('intermediate_custody_period').value = '';
+    document.getElementById('final_destination').value = '';
+    toggleFields();
+  });
 
-    document.getElementById('temporality_id').addEventListener('change', function() {
-      var temporality_id = this.value;
+  function toggleFields() {
+    var typeSelect = document.getElementById('type');
+    var boxFields = document.getElementById('boxFields');
+    var cabinetFields = document.getElementById('cabinetFields');
+
+    if (typeSelect.value == '1') {
+      boxFields.style.display = 'flex';
+      cabinetFields.style.display = 'none';
+      document.getElementById('cabinet').value = '';
+      document.getElementById('drawer').value = '';
+    } else if (typeSelect.value == '2') {
+      boxFields.style.display = 'none';
+      cabinetFields.style.display = 'flex';
+      document.getElementById('box').value = '';
+      document.getElementById('qtpasta').value = '';
+    } else {
+      boxFields.style.display = 'none';
+      cabinetFields.style.display = 'none';
+      document.getElementById('box').value = '';
+      document.getElementById('qtpasta').value = '';
+      document.getElementById('cabinet').value = '';
+      document.getElementById('drawer').value = '';
+    }
+  }
+
+  document.getElementById('type').addEventListener('change', toggleFields);
+  toggleFields(); // Inicializa o estado dos campos
+
+  editButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      var id = button.getAttribute('data-id');
+      var project_id = button.getAttribute('data-project_id');
+      var doc_number = button.getAttribute('data-doc_number');
+      var temporality_id = button.getAttribute('data-temporality_id');
+      var holder_name = button.getAttribute('data-holder_name');
+      var description = button.getAttribute('data-description');
+      var box = button.getAttribute('data-box');
+      var qtpasta = button.getAttribute('data-qtpasta');
+      var file = button.getAttribute('data-file');
+      var cabinet = button.getAttribute('data-cabinet');
+      var observations = button.getAttribute('data-observations');
+      var drawer = button.getAttribute('data-drawer');
+      var initial_date = button.getAttribute('data-initial_date');
+      var archive_date = button.getAttribute('data-archive_date');
+      var classification = button.getAttribute('data-classification');
+      var version = button.getAttribute('data-version');
+      var situationAC = button.getAttribute('data-situationac');
+      var situationAI = button.getAttribute('data-situationai');
+      var gender = button.getAttribute('data-gender');
+      
+
+      modalForm.querySelector('[name="id"]').value = id;
+      modalForm.querySelector('[name="project_id"]').value = project_id;
+      modalForm.querySelector('[name="temporality_id"]').value = temporality_id;
+      modalForm.querySelector('[name="holder_name"]').value = holder_name;
+      modalForm.querySelector('[name="description"]').value = description;
+      modalForm.querySelector('[name="box"]').value = box;
+      modalForm.querySelector('[name="qtpasta"]').value = qtpasta;
+      modalForm.querySelector('[name="doc_number"]').value = doc_number;
+      modalForm.querySelector('[name="cabinet"]').value = cabinet;
+      modalForm.querySelector('[name="observations"]').value = observations;
+      modalForm.querySelector('[name="drawer"]').value = drawer;
+      modalForm.querySelector('[name="initial_date"]').value = initial_date;
+      modalForm.querySelector('[name="archive_date"]').value = archive_date;
+      modalForm.querySelector('[name="classification"]').value = classification;
+      modalForm.querySelector('[name="version"]').value = version;
+      modalForm.querySelector('[name="situationAC"]').value = situationAC;
+      modalForm.querySelector('[name="situationAI"]').value = situationAI;
+      modalForm.querySelector('[name="gender"]').value = gender;
+
+      if (box) {
+        document.getElementById('type').value = '1';
+      } else if (cabinet) {
+        document.getElementById('type').value = '2';
+      } else {
+        document.getElementById('type').value = '';
+      }
+
+      toggleFields();
+
       var temporality = temporalitys.find(t => t.id == temporality_id);
       if (temporality) {
-        document.getElementById('area').value = temporality.area;
-        document.getElementById('function').value = temporality.function;
-        document.getElementById('sub_function').value = temporality.sub_function;
-        document.getElementById('current_custody_period').value = temporality.current_custody_period;
-        document.getElementById('intermediate_custody_period').value = temporality.intermediate_custody_period;
-        document.getElementById('final_destination').value = temporality.final_destination;
+        modalForm.querySelector('#area').value = temporality.area;
+        modalForm.querySelector('#function').value = temporality.function;
+        modalForm.querySelector('#sub_function').value = temporality.sub_function;
+        modalForm.querySelector('#activity').value = temporality.activity;
+        modalForm.querySelector('#tipology').value = temporality.tipology;
+        modalForm.querySelector('#current_custody_period').value = temporality.current_custody_period;
+        modalForm.querySelector('#intermediate_custody_period').value = temporality.intermediate_custody_period;
+        modalForm.querySelector('#final_destination').value = temporality.final_destination;
+
+        var expiration_date_A_C = new Date(new Date(initial_date).setFullYear(new Date(initial_date).getFullYear() + parseInt(temporality.current_custody_period)));
+        var expiration_date_A_I = new Date(new Date(initial_date).setFullYear(new Date(initial_date).getFullYear() + parseInt(temporality.intermediate_custody_period)));
+
+        modalForm.querySelector('#expiration_date_A_C').value = expiration_date_A_C.toISOString().split('T')[0];
+        modalForm.querySelector('#expiration_date_A_I').value = expiration_date_A_I.toISOString().split('T')[0];
       }
-    });
 
-    $('.delete-document').on('click', function(e) {
-      e.preventDefault();
-      var deleteUrl = $(this).attr('href');
-
-      Swal.fire({
-        title: 'Você tem certeza?',
-        text: "Você não poderá reverter isso!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sim, exclua isso!'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          window.location.href = deleteUrl;
-        }
-      })
+      var modalInstance = new bootstrap.Modal(modal);
+      modalInstance.show();
     });
+  });
+
+  document.getElementById('temporality_id').addEventListener('change', function() {
+    var temporality_id = this.value;
+    var temporality = temporalitys.find(t => t.id == temporality_id);
+    if (temporality) {
+      document.getElementById('area').value = temporality.area;
+      document.getElementById('function').value = temporality.function;
+      document.getElementById('sub_function').value = temporality.sub_function;
+      modalForm.querySelector('#activity').value = temporality.activity;
+      modalForm.querySelector('#tipology').value = temporality.tipology;
+      document.getElementById('current_custody_period').value = temporality.current_custody_period;
+      document.getElementById('intermediate_custody_period').value = temporality.intermediate_custody_period;
+      document.getElementById('final_destination').value = temporality.final_destination;
+    }
+  });
+
+  $('.delete-document').on('click', function(e) {
+    e.preventDefault();
+    var deleteUrl = $(this).attr('href');
+
+    Swal.fire({
+      title: 'Você tem certeza?',
+      text: "Você não poderá reverter isso!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sim, exclua isso!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = deleteUrl;
+      }
+    })
+  });
 });
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -492,7 +627,7 @@ document.addEventListener('DOMContentLoaded', function () {
               var listItem = document.createElement('li');
               listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
               listItem.innerHTML = `
-                ${file.name}
+              ${new Date(file.created_at).toLocaleDateString('pt-BR')} - ${file.name}
                 <a href="/storage/${file.file_path}" target="_blank" class="btn btn-sm btn-primary">Abrir</a>
               `;
               fileList.appendChild(listItem);
@@ -512,7 +647,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 });
-
 
   </script>
 

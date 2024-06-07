@@ -10,31 +10,40 @@
     $search = $_GET['search'] ?? null;
     $auth = auth()->user();
     $document_search = $_GET['document_search'] ?? null;
+    $requested_document_id = $_GET['document_id'] ?? null;
+    $autoOpenModal = false;
+    $collectionData = null;
 
-    if($auth->is_admin) $projectIds = Project::get()->pluck('id');
+    if ($auth->is_admin) $projectIds = Project::get()->pluck('id');
     else $projectIds = $auth->projects()->pluck('project_id');
   
-    $documentCollections = DocumentCollection::whereHas('document', function($query) use ($projectIds){
+    $documentCollections = DocumentCollection::whereHas('document', function($query) use ($projectIds) {
       $query->whereIn('project_id', $projectIds);
     });
 
-    if($search){
+    if ($search) {
         $documentCollections->where('loan_author', 'like', "%{$search}%")
                            ->orWhere('loan_receiver', 'like', "%{$search}%");
     }
 
-    if($document_search){
+    if ($document_search) {
       $documentCollections->where('document_id', $document_search);
     }
 
-    if($auth->read_collection){
+    if ($auth->read_collection) {
       $documentCollections = $documentCollections->get();
       $documents = Document::get();
-      $users = User::get();    
+      $users = User::get();
     }
 
+    if ($requested_document_id) {
+      $collectionData = DocumentCollection::where('document_id', $requested_document_id)
+                                          ->whereNull('return_date')
+                                          ->first();
+      $autoOpenModal = true;
+    }
   @endphp
-    
+
   @vite(['resources/sass/dashboard.scss'])
   <div class="col-md-10 mt-4 content w-100 h-100">
     <h1 class="pt-4">Controle de Acervo e Protocolo</h1>
@@ -48,11 +57,11 @@
       <div class="col-md-3">
         <input value="{{$search}}" type="text" name="search" placeholder="Buscar por Autor/Recebedor do Empréstimo" class="form-control">
       </div>
-      <div class="col-md-3">
+      <div class="col-md-6">
         <select name="document_search" id="" class="form-control">
           <option value="">Filtre por documento</option>
             @foreach ($documents as $document)
-                <option {{$document->id == $document_search ? 'selected' : ''}} value="{{$document->id}}">{{$document->doc_number}}</option>
+                <option {{$document->id == $document_search ? 'selected' : ''}} value="{{$document->id}}">{{$document->id}} - {{$document->doc_number}}</option>
             @endforeach
         </select>
       </div>
@@ -115,19 +124,18 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="addDocumentCollectionModalLabel">Adicionar Coleção de Documentos</h5>
-          
         </div>
         <form action="{{ route('create.loan') }}" method="POST" enctype="multipart/form-data">
           @csrf
           <div class="modal-body">
             <input type="hidden" name="id">
 
-            <div class="mb-3 col-md-3">
+            <div class="mb-3 col-md-6">
               <label for="document_id" class="form-label">Documento</label>
               <select name="document_id" id="document_id" class="form-control" required>
                 <option value="">Escolha um documento</option>
                 @foreach ($documents as $document)
-                    <option value="{{$document->id}}">{{$document->doc_number}}</option>
+                    <option value="{{$document->id}}">{{$document->id}} - {{$document->description}}</option>
                 @endforeach
               </select>
             </div>
@@ -160,7 +168,6 @@
             </div>
           </div>
           <div class="modal-footer">
-            
             <button type="submit" class="btn btn-primary">Salvar</button>
           </div>
         </form>
@@ -169,12 +176,11 @@
   </div>
 
   <script>
-
-  document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       var printButtons = document.querySelectorAll('.print-loan_form');
 
-      printButtons.forEach(function(button) {
-        button.addEventListener('click', function(event) {
+      printButtons.forEach(function (button) {
+        button.addEventListener('click', function (event) {
           event.preventDefault();
           var url = button.getAttribute('data-url');
           var width = 1000;
@@ -183,7 +189,7 @@
           var top = (screen.height - height) / 2;
 
           var popup = window.open(url, 'popup', 'width=' + width + ',height=' + height + ',top=' + top + ',left=' + left + ',scrollbars=no,resizable=no');
-          popup.addEventListener('load', function() {
+          popup.addEventListener('load', function () {
             popup.print();
           });
         });
@@ -191,60 +197,83 @@
     });
 
     document.addEventListener('DOMContentLoaded', function () {
-  var editButtons = document.querySelectorAll('.edit-collection');
-  var modal = document.getElementById('addDocumentCollectionModal');
-  var modalForm = modal.querySelector('form');
+      var editButtons = document.querySelectorAll('.edit-collection');
+      var modal = document.getElementById('addDocumentCollectionModal');
+      var modalForm = modal.querySelector('form');
 
-  modal.addEventListener('show.bs.modal', function () {
-    modalForm.reset();
-    modalForm.querySelector('[name="id"]').value = '';
-  });
+      modal.addEventListener('show.bs.modal', function () {
+        modalForm.reset();
+        modalForm.querySelector('[name="id"]').value = '';
+      });
 
-  editButtons.forEach(function (button) {
-    button.addEventListener('click', function () {
-      var id = button.getAttribute('data-id');
-      var loan_date = button.getAttribute('data-loan_date');
-      var loan_author = button.getAttribute('data-loan_author');
-      var loan_receiver = button.getAttribute('data-loan_receiver');
-      var return_date = button.getAttribute('data-return_date');
-      var return_author = button.getAttribute('data-return_author');
-      var receiver_author = button.getAttribute('data-receiver_author');
-      var document_id = button.getAttribute('data-document_id');
-      var user_id = button.getAttribute('data-user_id');
+      editButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+          var id = button.getAttribute('data-id');
+          var loan_date = button.getAttribute('data-loan_date');
+          var loan_author = button.getAttribute('data-loan_author');
+          var loan_receiver = button.getAttribute('data-loan_receiver');
+          var return_date = button.getAttribute('data-return_date');
+          var return_author = button.getAttribute('data-return_author');
+          var receiver_author = button.getAttribute('data-receiver_author');
+          var document_id = button.getAttribute('data-document_id');
+          var user_id = button.getAttribute('data-user_id');
 
-      modalForm.querySelector('[name="id"]').value = id;
-      modalForm.querySelector('[name="loan_date"]').value = loan_date;
-      modalForm.querySelector('[name="loan_author"]').value = loan_author;
-      modalForm.querySelector('[name="loan_receiver"]').value = loan_receiver;
-      modalForm.querySelector('[name="return_date"]').value = return_date;
-      modalForm.querySelector('[name="return_author"]').value = return_author;
-      modalForm.querySelector('[name="receiver_author"]').value = receiver_author;
-      modalForm.querySelector('[name="document_id"]').value = document_id;
+          modalForm.querySelector('[name="id"]').value = id;
+          modalForm.querySelector('[name="loan_date"]').value = loan_date;
+          modalForm.querySelector('[name="loan_author"]').value = loan_author;
+          modalForm.querySelector('[name="loan_receiver"]').value = loan_receiver;
+          modalForm.querySelector('[name="return_date"]').value = return_date;
+          modalForm.querySelector('[name="return_author"]').value = return_author;
+          modalForm.querySelector('[name="receiver_author"]').value = receiver_author;
+          modalForm.querySelector('[name="document_id"]').value = document_id;
 
-      var modalInstance = new bootstrap.Modal(modal);
-      modalInstance.show();
+          var modalInstance = new bootstrap.Modal(modal);
+          modalInstance.show();
+        });
+      });
+
+      @if($autoOpenModal)
+        var autoOpenModal = true;
+        var collectionData = @json($collectionData);
+
+        if (autoOpenModal && collectionData) {
+          modalForm.querySelector('[name="id"]').value = collectionData.id;
+          modalForm.querySelector('[name="loan_date"]').value = collectionData.loan_date;
+          modalForm.querySelector('[name="loan_author"]').value = collectionData.loan_author;
+          modalForm.querySelector('[name="loan_receiver"]').value = collectionData.loan_receiver;
+          modalForm.querySelector('[name="return_date"]').value = collectionData.return_date;
+          modalForm.querySelector('[name="return_author"]').value = collectionData.return_author;
+          modalForm.querySelector('[name="receiver_author"]').value = collectionData.receiver_author;
+          modalForm.querySelector('[name="document_id"]').value = collectionData.document_id;
+
+          var modalInstance = new bootstrap.Modal(modal);
+          modalInstance.show();
+        } else if (autoOpenModal && !collectionData) {
+          modalForm.querySelector('[name="document_id"]').value = '{{ $requested_document_id }}';
+
+          var modalInstance = new bootstrap.Modal(modal);
+          modalInstance.show();
+        }
+      @endif
     });
-  });
 
-  $('.delete-collection').on('click', function(e) {
-    e.preventDefault();
-    var deleteUrl = $(this).attr('href');
+    $('.delete-collection').on('click', function(e) {
+      e.preventDefault();
+      var deleteUrl = $(this).attr('href');
 
-    Swal.fire({
-      title: 'Você tem certeza?',
-      text: "Você não poderá reverter isso!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sim, exclua isso!'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        window.location.href = deleteUrl;
-      }
-    })
-  });
-});
+      Swal.fire({
+        title: 'Você tem certeza?',
+        text: "Você não poderá reverter isso!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sim, exclua isso!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = deleteUrl;
+        }
+      })
+    });
   </script>
-
 @endsection

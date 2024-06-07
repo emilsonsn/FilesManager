@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('doc_number');
             $table->string('holder_name');
-            $table->text('decription');
+            $table->text('description');
             $table->string('box')->nullable();
             $table->string('qtpasta')->nullable();
             $table->string('cabinet')->nullable();

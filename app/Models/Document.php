@@ -17,11 +17,12 @@ class Document extends Model
     public $fillable = [
         'doc_number',
         'holder_name',
-        'decription',
+        'description',
         'box',
         'qtpasta',
         'cabinet',
         'drawer',
+        'gender',
         'classification',
         'version',
         'situationAC',

@@ -41,10 +41,10 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <!-- Styles -->
-  @vite(['resources/sass/app.scss', 'resources/sass/normalize.scss', 'resources/sass/menu.scss', 'resources/sass/notify.scss'])
+  @vite(['resources/sass/app.scss', 'resources/sass/normalize.scss', 'resources/sass/menu.scss'])
 
   <!-- Scripts -->
-  @vite(['resources/js/app.js', 'resources/js/notify.js'])
+  @vite(['resources/js/app.js'])
 
 </head>
 

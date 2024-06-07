@@ -45,6 +45,7 @@
             <th scope="col">ID</th>
             <th scope="col">Nome</th>
             <th scope="col">Email</th>
+            <th scope="col">Projetos</th>
             <th scope="col">Ações</th>
           </tr>
         </thead>
@@ -54,6 +55,11 @@
                 <th scope="row">{{ $user->id }}</th>
                 <td>{{ $user->name }}</td>
                 <td>{{ $user->email }}</td>
+                <td>
+                  @foreach ($user->projects as $project)
+                    {{$project->project->name . ' ,'}}
+                  @endforeach
+                </td>
                 <td>
                   <a href="#" class="me-2 projects" data-id="{{ $user->id }}" data-bs-toggle="modal" data-bs-target="#projectsModal">
                     <i class="fa-solid fa-house-chimney-medical"></i>

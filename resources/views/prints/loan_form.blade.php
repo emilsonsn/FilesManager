@@ -1,5 +1,6 @@
 @php
     use App\Models\DocumentCollection;
+    use Carbon\Carbon;
 
     $documentCollection = DocumentCollection::find($id);
 @endphp
@@ -84,28 +85,38 @@
                 </tr>
                 <tr>
                     <td colspan="2"><strong>SOLICITANTE:</strong></td>
-                    <td colspan="6"></td>
+                    <td colspan="6">{{$documentCollection->loan_receiver}}</td>
                     <td colspan="2"><strong>TEL. / RAMAL:</strong></td>
                 </tr>
                 <tr>
-                    <td><strong>DATA-LIMITE</strong></td>
+                    <td><strong>DATA DE ARQUIVAMENTO</strong></td>
                     <td><strong>CÓD. DE CLASSIFICAÇÃO</strong></td>
-                    <td><strong>CAIXA Nº</strong></td>
-                    <td><strong>PASTA Nº</strong></td>
+                    @if($documentCollection->document->box)
+                        <td><strong>CAIXA Nº</strong></td>
+                        <td><strong>PASTA Nº</strong></td>
+                    @else
+                        <td><strong>ARMÁRIO</strong></td>
+                        <td><strong>GAVETA</strong></td>
+                    @endif
                     <td><strong>CLASSIFICAÇÃO DA INFORMAÇÃO</strong></td>
                     <td><strong>VERSÃO DOC</strong></td>
                     <td><strong>GÊNERO</strong></td>
                     <td colspan="3"><strong>DESCRIÇÃO DOS DOCUMENTOS</strong></td>
                 </tr>
                 <tr>
-                    <td></td>
-                    <td></td>
-                    <td>{{$documentCollection->document->box}}</td>
-                    <td></td>
+                    <td>{{Carbon::parse($documentCollection->document->archive_date)->format('d/m/Y')}}</td>
+                    <td>{{$documentCollection->document->classification}}</td>
+                    @if($documentCollection->document->box)
+                        <td>{{$documentCollection->document->box}}</td>
+                        <td>{{$documentCollection->document->qtpasta}}</td>
+                    @else
+                        <td>{{$documentCollection->document->cabinet}}</td>
+                        <td>{{$documentCollection->document->drawer}}</td>
+                    @endif
                     <td>{{$documentCollection->document->classification}}</td>
                     <td>{{$documentCollection->document->version}}</td>
-                    <td></td>
-                    <td colspan="3"></td>
+                    <td>{{$documentCollection->document->gender}}</td>
+                    <td colspan="3">{{$documentCollection->document->description}}</td>
                 </tr>
                 <tr>
                     <td></td>
@@ -152,23 +163,21 @@
                     <td colspan="3"></td>
                 </tr>
                 <tr>
-                    <td colspan="5"><strong>NOME/ASSINATURA DO SOLICITANTE:</strong></td>
+                    <td colspan="5"><strong>NOME/ASSINATURA DO SOLICITANTE: {{$documentCollection->loan_receiver}}</strong></td>
                     <td colspan="5"><strong>DEVOLUÇÃO</strong></td>
                 </tr>
                 <tr>
-                    <td colspan="5"><strong>NOME DO RESPONSÁVEL PELO EMPRÉSTIMO:</strong></td>
+                    <td colspan="5"><strong>NOME DO RESPONSÁVEL PELO EMPRÉSTIMO: {{$documentCollection->loan_author}}</strong></td>
                     <td colspan="5"><strong>NOME DO RESPONSÁVEL PELO RECEBIMENTO:</strong></td>
                 </tr>
                 <tr>
-                    <td colspan="5"><strong>DATA DO EMPRÉSTIMO:</strong></td>
+                    <td colspan="5"><strong>DATA DO EMPRÉSTIMO: {{Carbon::parse($documentCollection->loan_date)->format('d/m/Y')}}</strong></td>
                     <td colspan="5"><strong>DATA DA DEVOLUÇÃO:</strong></td>
                 </tr>
             </tbody>
         </table>
+        <hr style="margin-top: 40px;">
         
-        <div style="margin-top: 30px">
-            
-        </div>
     </div>
 </body>
 </html>
