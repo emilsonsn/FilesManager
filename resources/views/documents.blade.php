@@ -121,9 +121,9 @@
               <td class="text-center">{{ $doc->temporality->tipology }}</td>
               <td class="text-center">{{ $doc->temporality->current_custody_period }} ano(s)</td>
               <td class="text-center">{{ $doc->temporality->intermediate_custody_period }} ano(s)</td>
+              <td class="text-center">{{ $doc->temporality->final_destination }}</td>
               <td class="text-center">{{ $doc->situationAC }}</td>
               <td class="text-center">{{ $doc->situationAI }}</td>
-              <td class="text-center">{{ $doc->temporality->final_destination }}</td>
               <td>
                 <a href="#" class="c-green view-files" data-id="{{ $doc->id }}">Ver/baixar</a>
               </td>
@@ -525,7 +525,7 @@ document.addEventListener('DOMContentLoaded', function () {
       modalForm.querySelector('[name="version"]').value = version;
       modalForm.querySelector('[name="situationAC"]').value = situationAC;
       modalForm.querySelector('[name="situationAI"]').value = situationAI;
-      
+
       if (box) {
         document.getElementById('type').value = '1';
       } else if (cabinet) {
