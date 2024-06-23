@@ -3,6 +3,10 @@
     use Carbon\Carbon;
 
     $documentCollection = DocumentCollection::find($id);
+    $url = route('show.document_collection', ['id' => $documentCollection->id]);
+    
+    $documentLoans = $documentCollection->documentLoans;
+
 @endphp
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -15,13 +19,16 @@
             font-family: Arial, sans-serif;
         }
         .container {
-            width: 80%;
+            width: 80% !important;
             margin: 0 auto;
+            margin-left: 10px;
         }
-        .table {
-            width: 100%;
+        .container .table {
+            width: 90%;
+            margin: 0 auto;
             border-collapse: collapse;
             margin-top: 20px;
+            font-size: 0.9rem;
         }
         .table th, .table td {
             border: 1px solid black;
@@ -69,115 +76,83 @@
     </style>
 </head>
 <body>
-    <div class="container">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th colspan="2" class="logo"><img src="{{asset('assets/logoCaio.png')}}"alt="Logo da Empresa"></th>
-                    <th colspan="7" class="title">FORMULÁRIO DE EMPRÉSTIMO DE DOCUMENTOS</th>
-                    <th class="number">Nº {{$documentCollection->id}}</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td colspan="2"><strong>SETOR/UNIDADE:</strong></td>
-                    <td colspan="8"></td>
-                </tr>
-                <tr>
-                    <td colspan="2"><strong>SOLICITANTE:</strong></td>
-                    <td colspan="6">{{$documentCollection->loan_receiver}}</td>
-                    <td colspan="2"><strong>TEL. / RAMAL:</strong></td>
-                </tr>
-                <tr>
-                    <td><strong>DATA DE ARQUIVAMENTO</strong></td>
-                    <td><strong>CÓD. DE CLASSIFICAÇÃO</strong></td>
-                    @if($documentCollection->document->box)
+    @for($i = 0; $i < 2; $i++)
+        <div class="container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th colspan="2" class="logo"><img src="{{asset('assets/logoCaio.png')}}"alt="Logo da Empresa"></th>
+                        <th colspan="7" class="title">FORMULÁRIO DE EMPRÉSTIMO DE DOCUMENTOS</th>
+                        <th class="number">
+                            <div class="d-flex">
+                                CAD{{ $documentCollection->id }}/2024
+                                {{QrCode::size(100)->generate($url)}}
+                            </div>
+                        </th>
+                    </tr>                
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="2"><strong>SETOR/UNIDADE:</strong></td>
+                        <td colspan="8"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><strong>SOLICITANTE:</strong></td>
+                        <td colspan="6">{{$documentCollection->loan_receiver}}</td>
+                        <td colspan="2"><strong>TEL. / RAMAL:</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>DATA DE ARQUIVAMENTO</strong></td>
+                        <td><strong>CÓD. DE CLASSIFICAÇÃO</strong></td>
+                        <td><strong>SETOR/UNIDADE</strong></td>
                         <td><strong>CAIXA Nº</strong></td>
-                        <td><strong>PASTA Nº</strong></td>
-                    @else
                         <td><strong>ARMÁRIO</strong></td>
                         <td><strong>GAVETA</strong></td>
-                    @endif
-                    <td><strong>CLASSIFICAÇÃO DA INFORMAÇÃO</strong></td>
-                    <td><strong>VERSÃO DOC</strong></td>
-                    <td><strong>GÊNERO</strong></td>
-                    <td colspan="3"><strong>DESCRIÇÃO DOS DOCUMENTOS</strong></td>
-                </tr>
-                <tr>
-                    <td>{{Carbon::parse($documentCollection->document->archive_date)->format('d/m/Y')}}</td>
-                    <td>{{$documentCollection->document->classification}}</td>
-                    @if($documentCollection->document->box)
-                        <td>{{$documentCollection->document->box}}</td>
-                        <td>{{$documentCollection->document->qtpasta}}</td>
-                    @else
-                        <td>{{$documentCollection->document->cabinet}}</td>
-                        <td>{{$documentCollection->document->drawer}}</td>
-                    @endif
-                    <td>{{$documentCollection->document->classification}}</td>
-                    <td>{{$documentCollection->document->version}}</td>
-                    <td>{{$documentCollection->gender}}</td>
-                    <td colspan="3">{{$documentCollection->document->description}}</td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td colspan="3"></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td colspan="3"></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td colspan="3"></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td colspan="3"></td>
-                </tr>
-                <tr>
-                    <td colspan="7"><strong>TOTAL</strong></td>
-                    <td colspan="3"></td>
-                </tr>
-                <tr>
-                    <td colspan="5"><strong>NOME/ASSINATURA DO SOLICITANTE: {{$documentCollection->loan_receiver}}</strong></td>
-                    <td colspan="5"><strong>DEVOLUÇÃO</strong></td>
-                </tr>
-                <tr>
-                    <td colspan="5"><strong>NOME DO RESPONSÁVEL PELO EMPRÉSTIMO: {{$documentCollection->loan_author}}</strong></td>
-                    <td colspan="5"><strong>NOME DO RESPONSÁVEL PELO RECEBIMENTO:</strong></td>
-                </tr>
-                <tr>
-                    <td colspan="5"><strong>DATA DO EMPRÉSTIMO: {{Carbon::parse($documentCollection->loan_date)->format('d/m/Y')}}</strong></td>
-                    <td colspan="5"><strong>DATA DA DEVOLUÇÃO:</strong></td>
-                </tr>
-            </tbody>
-        </table>
-        <hr style="margin-top: 40px;">
-        
-    </div>
+                        <td><strong>PASTA Nº</strong></td>
+                        <td><strong>CLASSIFICAÇÃO DA INFORMAÇÃO</strong></td>
+                        <td><strong>GÊNERO</strong></td>
+                        <td colspan="3"><strong>DESCRIÇÃO DOS DOCUMENTOS</strong></td>
+                    </tr>
+                    @foreach ($documentLoans as $documentLoan)
+                        <tr>                        
+                            <td>{{Carbon::parse($documentLoan->document->archive_date)->format('d/m/Y')}}</td>
+                            <td>{{$documentLoan->document->temporality->code}}</td>
+                            <td>{{$documentCollection->sector}}</td>
+                            <td>{{$documentLoan->document->box}}</td>
+                            <td>{{$documentLoan->document->cabinet}}</td>
+                            <td>{{$documentLoan->document->drawer}}</td>
+                            <td>{{$documentLoan->document->qtpasta}}</td>
+                            <td>{{$documentLoan->document->classification}}</td>
+                            <td>{{$documentCollection->gender}}</td>
+                            <td colspan="3">{{$documentLoan->document->id}} - {{$documentLoan->document->description}}</td>
+                        </tr>                        
+                    @endforeach
+                    <tr>
+                        <td colspan="1"><strong>OBSERVAÇÕES</strong></td>
+                        <td colspan="9">{{$documentCollection->observations}}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="7"><strong>TOTAL</strong></td>
+                        <td colspan="3"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="5"><strong>NOME/ASSINATURA DO SOLICITANTE: {{$documentCollection->loan_receiver}}</strong></td>
+                        <td colspan="5"><strong>AUTOR DA DEVOLUÇÃO: </strong> {{$documentCollection->return_author}}</td>
+                        
+                    </tr>
+                    <tr>
+                        <td colspan="5"><strong>NOME DO RESPONSÁVEL PELO EMPRÉSTIMO: {{$documentCollection->loan_author}}</strong></td>
+                        <td colspan="5"><strong>NOME DO RESPONSÁVEL PELO RECEBIMENTO: {{$documentCollection->receiver_author}}</strong></td>
+                    </tr>
+                    <tr>
+                        <td colspan="5"><strong>DATA DO EMPRÉSTIMO: {{Carbon::parse($documentCollection->loan_date)->format('d/m/Y')}}</strong></td>
+                        <td colspan="5"><strong>DATA DA DEVOLUÇÃO: {{Carbon::parse($documentCollection->return_date)->format('d/m/Y')}}</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+            <hr style="margin-top: 40px;">
+            
+        </div>
+    @endfor
 </body>
 </html>

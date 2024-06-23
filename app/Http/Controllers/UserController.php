@@ -25,7 +25,8 @@ class UserController extends Controller
                 'read_collection'=> false,
                 'create_collection'=> false,
                 'edit_collection'=> false,
-                'delete_collection'=> false
+                'delete_collection'=> false,
+                'is_active'=> false
             ];
 
             $user = User::find($request['id']);

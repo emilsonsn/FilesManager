@@ -4,7 +4,7 @@
 @php
   $currentRoute = request()->route()->getName();
   $isSidebarExpanded = false;
-  $auth = auth()->user();
+  $auth = auth()->user();  
 @endphp
 
 <aside id="sidebar">
@@ -18,6 +18,15 @@
         <span>Projetos</span>
       </a>
     </li>
+
+    <li class="sidebar-item">
+      <a href="{{route('documents', ['project_id' => session('project_id')])}}" class="sidebar-link {{ $currentRoute == 'documents' ? 'active-sidebar-link' : '' }}">
+        <i class="fa-solid fa-layer-group"></i>
+        <span>Documentos</span>
+      </a>
+    </li>
+
+    
 
     @if($auth->read_temporality)
       <li class="sidebar-item">
@@ -44,18 +53,28 @@
       </a>
     </li>
 
-    {{-- <li class="sidebar-item">
-      <a href="{{route('dashboard')}}" class="sidebar-link {{ $currentRoute == 'reports' ? 'active-sidebar-link' : '' }}">
+    <li class="sidebar-item">
+      <a href="{{route('reports')}}" class="sidebar-link {{ $currentRoute == 'reports' ? 'active-sidebar-link' : '' }}">
         <i class="fa-solid fa-file-lines"></i>
         <span>Relatórios</span>
       </a>
-    </li> --}}
+    </li>
+
 
     @if($auth->is_admin)
       <li class="sidebar-item">
         <a href="{{route('users')}}" class="sidebar-link {{ $currentRoute == 'users' ? 'active-sidebar-link' : '' }}">
           <i class="fa-solid fa-users-line"></i>
           <span>Usuários</span>
+        </a>
+      </li>
+    @endif
+
+    @if($auth->is_admin)
+      <li class="sidebar-item">
+        <a href="{{route('logs')}}" class="sidebar-link {{ $currentRoute == 'logs' ? 'active-sidebar-link' : '' }}">
+          <i class="fa-solid fa-clipboard-list"></i>
+          <span>Logs</span>
         </a>
       </li>
     @endif

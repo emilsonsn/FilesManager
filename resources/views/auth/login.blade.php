@@ -22,7 +22,6 @@
             host.shadowRoot.appendChild( style )            
         </script>
         </div>
-
       </div>
       <div class="form-container col-md-4 r-bg-login">
         <img class="logo" src="{{asset('assets/logoCaio.png')}}" alt="">
@@ -73,16 +72,19 @@
           </div>
 
           <div class="row mb-0">
-            <div class="col-md-8 offset-md-4">
-              <button type="submit" class="btn btn-primary">
+            <div class="col-md-6 offset-md-4">
+              <button type="submit" class="btn" style="width: 100%; ">
                 {{ __('Entrar') }}
               </button>
 
-              @if (Route::has('password.request'))
+            </div>
+            <div class="col-md-8 offset-md-4">
+              {{-- @if (Route::has('password.request'))
                 <a class="btn btn-link" href="{{ route('password.request') }}">
                   {{ __('Esqueceu sua senha?') }}
                 </a>
-              @endif
+              @endif --}}
+
             </div>
           </div>
         </form>

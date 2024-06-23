@@ -33,7 +33,9 @@ class User extends Authenticatable
         'create_collection',
         'edit_collection',
         'delete_collection',
-        'upload_limit'
+        'create_projects',
+        'upload_limit',
+        'is_active'
     ];
 
     public function projects(){

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Log;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,6 +20,12 @@ class AuthenticateUser
         if (!Auth::check()) {
             return redirect('login');
         }
+
+        if(!auth()->user()->is_active){
+            auth()->logout();
+            return redirect('login');
+        }
+
         return $next($request);
     }
 }

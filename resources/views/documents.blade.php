@@ -1,35 +1,69 @@
 @extends('layouts.app')
 
 @section('content')
+@vite(['resources/js/tags.js'])
+
   @php
     use App\Models\Document;
     use App\Models\Project;
     use App\Models\Temporality;
-    $search = $_GET['search'] ?? null;
     $initial_date = $_GET['initial_date'] ?? null;
     $archive_date = $_GET['archive_date'] ?? null;
+
+    $classification_search = $_GET['classification_search'] ?? null;
+    $box_search = $_GET['box_search'] ?? null;
+    $cabinet_search = $_GET['cabinet_search'] ?? null;
+    $drawer_search = $_GET['drawer_search'] ?? null;
+    $destination_search = $_GET['destination_search'] ?? null;
+    $version_search = $_GET['version_search'] ?? null;
+    $loan_situation_search = $_GET['loan_situation_search'] ?? null;
+    $order_by = $_GET['order_by'] ?? 'id';
+    $order_form = $_GET['order_form'] ?? 'desc';
+    $tags_search = $_GET['tags_search'] ?? '';
     
     $auth = auth()->user();
-
-    $document = Document::orderBy('id', 'desc');
-
-    if($auth->is_admin) $projectIds = Project::get()->pluck('id');
-    else $projectIds = $auth->projects()->pluck('project_id');
+    $document = Document::orderBy($order_by, $order_form);
   
-    if($search){      
-        $document->where('doc_number', 'like', "%$search%")
-          ->orWhere('description', 'like', "%$search%")
-          ->orWhere('observations', 'like', "%$search%")
-          ->orWhere('holder_name', 'like', "%$search%")
-          ->orWhere('classification', 'like', "%$search%")
-          ->orWhereHas('temporality', function($query) use ($search){
-            $query->where('code','like',"%$search%" )
-              ->orWhere('activity','like',"%$search%" )
-              ->orWhere('tipology','like',"%$search%" )
-              ->orWhere('function','like',"%$search%" )
-              ->orWhere('sub_function','like',"%$search%" )
-              ;
-          });
+    if($classification_search){      
+        $document->where('classification', $classification_search);
+    }
+
+    if($box_search){      
+        $document->where('box', $box_search);
+    }
+
+    if($cabinet_search){      
+        $document->where('cabinet', $cabinet_search);
+    }
+
+    if($drawer_search){      
+        $document->where('drawer', $drawer_search);
+    }
+
+    if($destination_search){      
+        $document->whereHas('temporality', function($query) use($destination_search) {
+          $query->where('final_destination', $destination_search);
+        });
+    }
+
+    if($tags_search){
+      $document->where('tags', 'like', "%$tags_search%");
+    }
+
+    if($version_search){      
+        $document->where('version', $version_search);
+    }
+
+    if ($loan_situation_search) {
+      if($loan_situation_search === "Emprestado"){
+        $document->whereHas('documents_collections', function ($query) {
+            $query->whereNotNull('return_date');
+        });
+      }else{
+        $document->whereHas('documents_collections', function ($query) {
+            $query->whereNull('return_date');
+        });
+      }
     }
 
     if($initial_date){      
@@ -40,17 +74,34 @@
         $document->whereDate('archive_date', $initial_date);
     }
 
+    $documents = [];
+    $temporalitys = [];
+
     if($auth->read_doc){
       $documents = $document->where('project_id', $project_id)->get();
-      $projects = Project::whereIn('id', $projectIds)->get();
       $temporalitys = Temporality::get();
     }
+
+    $project = Project::find($project_id);    
+
+    // $url = route('show.document_collection', ['id' => $documentCollection->id]);    
 
   @endphp
     
   @vite(['resources/sass/dashboard.scss'])
   <div class="col-md-10 mt-4 content w-100 h-100">
-    <h1 class="pt-4">Documentos</h1>
+    <h1 class="pt-4 d-flex justify-content-space-around">
+      <div>
+        @if($project->image_path)      
+          <img src="{{ asset('storage/' . $project->image_path) }}" width="70">
+        @endif
+      </div>
+
+      Documentos
+      <div>
+        <button class="btn btn-sm btn-primary ms-2" id="generateBoxPrint">Gerar impressão de caixa</button>
+      </div>
+    </h1>
     @if($auth->create_doc)
       <a href="#" class="fs-1 c-green add" data-bs-toggle="modal" data-bs-target="#addDocumentModal">
         <i class="fa-solid fa-circle-plus"></i>
@@ -58,20 +109,97 @@
     @endif
 
     <form action="" class="row mb-3">
-      <div class="col-md-3">
-        <label for="search">Buscar</label>
-        <input value="{{$search}}" type="text" id="search" name="search" placeholder="Buscar pelos dados do documento" class="form-control">
+      <div class="col-md-2">
+        <label for="classification_search">Código de classificação</label>
+        <input value="{{$classification_search}}" type="text" id="classification_search" name="classification_search"  class="form-control">
       </div>
-      <div class="col-md-3">
+      <div class="col-md-2">
+        <label for="box_search">Caixa</label>
+        <input value="{{$box_search}}" type="text" id="box_search" name="box_search" class="form-control">
+      </div>
+      <div class="col-md-2">
+        <label for="cabinet_search">Armário</label>
+        <input value="{{$cabinet_search}}" type="text" id="cabinet_search" name="cabinet_search"class="form-control">
+      </div>
+      <div class="col-md-2">
+        <label for="search">Gavetas</label>
+        <input value="{{$drawer_search}}" type="text" id="drawer_search" name="drawer_search" class="form-control">
+      </div>
+      <div class="col-md-2">
+        <label for="search">Destinação final</label>
+        <select class="form-control" name="destination_search" id="">         
+          <option value="">Selecione uma opção</option> 
+          <option {{$destination_search == 'Permanente' ? 'selected' : ''}} value="Permanente">Permanente</option>          
+          <option {{$destination_search == 'Eliminação' ? 'selected' : ''}} value="Eliminação">Eliminação</option>
+        </select>      </div>
+      <div class="col-md-2">
+        <label for="search">Versão do documento</label>
+        <select class="form-control" name="version_search" id="">          
+          <option value="">Selecione uma opção</option>
+          <option {{$version_search == 'Físico' ? 'selected' : ''}} value="Físico">Físico</option>
+          <option {{$version_search == 'Digital' ? 'selected' : ''}} value="Digital">Digital</option>
+          <option {{$version_search == 'Híbrido' ? 'selected' : ''}} value="Híbrido">Híbrido</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label for="search">Situação do empréstimo</label>
+        <select class="form-control" name="loan_situation_search" id="">          
+          <option value="">Selecione uma opção</option>
+          <option {{$loan_situation_search == 'Emprestado' ? 'selected' : ''}} value="Emprestado">Emprestado</option>
+          <option {{$loan_situation_search == 'Devolvido' ? 'selected' : ''}} value="Devolvido">Devolvido</option>          
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label for="tags_search">Tags</label>
+        <input value="{{$tags_search}}" type="text" id="tags_search" name="tags_search" class="form-control">
+      </div>
+      <div class="col-md-2">
         <label for="initial_date_filter">Data inicial</label>
         <input value="{{$initial_date}}" type="date" id="initial_date_filter" name="initial_date" class="form-control">
       </div>
-      <div class="col-md-3">
+      <div class="col-md-2">
         <label for="archive_date_filter">Data de arquivamento</label>
         <input value="{{$archive_date}}" type="date" id="archive_date_filter" name="archive_date" class="form-control">
       </div>
-      <div class="col-md-2">
+      <div class="col-md-2 mt-3">
         <input type="submit" class="btn btn-primary mt-4" value="Filtrar">
+      </div>
+      <div class="col-12 row">
+        <div class="col-md-2">
+          <label for="order_by">Ordenar por</label>
+          <select class="form-control" name="order_by" id="order_by">          
+            <option value="">Selecione uma opção</option>
+            <option value="id" {{ $order_by == 'id' ? 'selected' : '' }}>ID</option>
+            <option value="doc_number" {{ $order_by == 'doc_number' ? 'selected' : '' }}>Número do Documento</option>
+            <option value="holder_name" {{ $order_by == 'holder_name' ? 'selected' : '' }}>Nome do Titular</option>
+            <option value="description" {{ $order_by == 'description' ? 'selected' : '' }}>Descrição</option>
+            <option value="box" {{ $order_by == 'box' ? 'selected' : '' }}>Caixa</option>
+            <option value="cabinet" {{ $order_by == 'cabinet' ? 'selected' : '' }}>Armário</option>
+            <option value="drawer" {{ $order_by == 'drawer' ? 'selected' : '' }}>Gavetas</option>
+            <option value="qtpasta" {{ $order_by == 'qtpasta' ? 'selected' : '' }}>Quantidade de Pastas</option>
+            <option value="version" {{ $order_by == 'version' ? 'selected' : '' }}>Versão</option>
+            <option value="classification" {{ $order_by == 'classification' ? 'selected' : '' }}>Código de Classificação</option>
+            <option value="area" {{ $order_by == 'area' ? 'selected' : '' }}>Área</option>
+            <option value="function" {{ $order_by == 'function' ? 'selected' : '' }}>Função</option>
+            <option value="sub_function" {{ $order_by == 'sub_function' ? 'selected' : '' }}>Sub-Função</option>
+            <option value="activity" {{ $order_by == 'activity' ? 'selected' : '' }}>Atividade</option>
+            <option value="tipology" {{ $order_by == 'tipology' ? 'selected' : '' }}>Tipologia</option>
+            <option value="current_custody_period" {{ $order_by == 'current_custody_period' ? 'selected' : '' }}>Prazo de Guarda Corrente</option>
+            <option value="intermediate_custody_period" {{ $order_by == 'intermediate_custody_period' ? 'selected' : '' }}>Prazo de Guarda Intermediária</option>
+            <option value="final_destination" {{ $order_by == 'final_destination' ? 'selected' : '' }}>Destinação Final</option>
+            <option value="situationAC" {{ $order_by == 'situationAC' ? 'selected' : '' }}>Situação A.C</option>
+            <option value="situationAI" {{ $order_by == 'situationAI' ? 'selected' : '' }}>Situação A.I</option>
+          </select>
+          
+        </div>
+        <div class="col-md-2">
+          <label for="order_form">Forma de ordenação</label>
+          <select class="form-control" name="order_form" id="order_form">          
+            <option value="">Selecione uma opção</option>
+            <option value="asc" {{ $order_form == 'asc' ? 'selected' : '' }}>Ascendente</option>          
+            <option value="desc" {{ $order_form == 'desc' ? 'selected' : '' }}>Descendente</option>
+          </select>
+        </div>
       </div>
     </form>
 
@@ -80,65 +208,58 @@
         <thead>
           <tr>
             <th scope="col">ID</th>
+            <th scope="col">Código de Classificação</th>
             <th scope="col">Número do Documento</th>
             <th scope="col">Nome do Titular</th>
             <th scope="col">Descrição</th>
             <th scope="col">Caixa</th>
-            <th scope="col">Quantidade de Pastas</th>
             <th scope="col">Arḿario</th>
             <th scope="col">Gavetas</th>
-            <th scope="col">Código de Classificação</th>
-            <th scope="col">Área</th>
-            <th scope="col">Função</th>
-            <th scope="col">Sub-Função</th>
-            <th scope="col">Atividade</th>
-            <th scope="col">Tipologia</th>
-            <th scope="col">Prazo de Guarda Corrente</th>
-            <th scope="col">Prazo de Guarda Intermediário</th>
-            <th scope="col">Destinação Final</th>
+            <th scope="col">Quantidade de Pastas</th>
             <th scope="col">Situação A.C</th>
-            <th scope="col">Situação A.I</th>
+            <th scope="col">Situação A.I</th>            
+            <th scope="col">Detalhes</th>
             <th scope="col">Arquivos</th>
-            <th scope="col">Ações</th>
+            <th scope="col" class="text-center">Ações</th>
           </tr>
         </thead>
         <tbody>
           @foreach ($documents as $doc)
             <tr class="{{strpos($doc->situationAC . ' ' . $doc->situationAI, "Descartado") !== false ? 'tr-grey' : ''}}">
               <th scope="row">{{ $doc->id }}</th>
+              <td class="text-center">{{ $doc->temporality->code }}</td>
               <td class="text-center">{{ $doc->doc_number }}</td>
               <td class="text-center">{{ $doc->holder_name }}</td>
               <td class="text-center">{{ $doc->description }}</td>
               <td class="text-center">{{ $doc->box ?? '----' }}</td>
-              <td class="text-center">{{ $doc->qtpasta ?? '----' }}</td>
               <td class="text-center">{{ $doc->cabinet ?? '----' }}</td>
               <td class="text-center">{{ $doc->drawer ?? '----' }}</td>
-              <td class="text-center">{{ $doc->temporality->code }}</td>
-              <td class="text-center">{{ $doc->temporality->area }}</td>
-              <td class="text-center">{{ $doc->temporality->function }}</td>
-              <td class="text-center">{{ $doc->temporality->sub_function }}</td>
-              <td class="text-center">{{ $doc->temporality->activity }}</td>
-              <td class="text-center">{{ $doc->temporality->tipology }}</td>
-              <td class="text-center">{{ $doc->temporality->current_custody_period }} ano(s)</td>
-              <td class="text-center">{{ $doc->temporality->intermediate_custody_period }} ano(s)</td>
-              <td class="text-center">{{ $doc->temporality->final_destination }}</td>
-              <td class="text-center">{{ $doc->situationAC }}</td>
-              <td class="text-center">{{ $doc->situationAI }}</td>
-              <td>
-                <a href="#" class="c-green view-files" data-id="{{ $doc->id }}">Ver/baixar</a>
+              <td class="text-center">{{ $doc->qtpasta ?? '----' }}</td>
+
+              <td class="text-center" style="font-weight: 600; color: {{!$doc->situationAC ? '' : ($doc->situationAC == 'Ativo' ? 'green' : 'red')}} !important;">{{ $doc->situationAC }}</td>
+              <td class="text-center" style="font-weight: 600; color: {{!$doc->situationAI ? '' : ($doc->situationAI == 'Ativo' ? 'green' : 'red')}} !important;">{{ $doc->situationAI }}</td>
+              <td class="text-center fs-4">
+                <a href="#" class="edit-document" style="color: rgb(50, 127, 243) !important;" data-edit="1" data-tags="{{$doc->tags}}" data-archive_date="{{$doc->archive_date}}" data-initial_date="{{$doc->initial_date}}" data-id="{{ $doc->id }}" data-observations="{{ $doc->observations }}" data-project_id="{{ $doc->project_id }}" data-temporality_id="{{ $doc->temporality_id }}" data-doc_number="{{ $doc->doc_number }}" data-holder_name="{{ $doc->holder_name }}" data-description="{{ $doc->description }}" data-box="{{ $doc->box }}" data-qtpasta="{{ $doc->qtpasta }}" data-file="{{ $doc->file }}" data-cabinet="{{ $doc->cabinet }}" data-drawer="{{ $doc->drawer }}" data-classification="{{ $doc->classification }}" data-version="{{ $doc->version }}" data-situationac="{{ $doc->situationAC }}" data-situationai="{{ $doc->situationAI }}">
+                  <i class="fa-solid fa-circle-info"></i>
+                </a>
               </td>
               <td>
-                <a href="#" class="me-2 print-label" data-url="{{ route('label', ['id' => $doc->id]) }}">
-                  <i class="fa-solid fa-print"></i>
+                <a href="#" class="c-blue view-files fs-4" data-id="{{ $doc->id }}">
+                  <i class="fa-solid fa-folder-open"></i>
                 </a>
-                <a href="{{ route('document.collections', ['document_id' => $doc->id]) }}" class="me-2">                  
-                  <i class="fa-solid fa-box-open"></i>
-                </a>
+              </td>
+              <td class="text-center">  
                 @if($auth->edit_doc)
-                  <a href="#" class="edit-document" data-archive_date="{{$doc->archive_date}}" data-initial_date="{{$doc->initial_date}}" data-id="{{ $doc->id }}" data-observations="{{ $doc->observations }}" data-project_id="{{ $doc->project_id }}" data-temporality_id="{{ $doc->temporality_id }}" data-doc_number="{{ $doc->doc_number }}" data-holder_name="{{ $doc->holder_name }}" data-description="{{ $doc->description }}" data-box="{{ $doc->box }}" data-qtpasta="{{ $doc->qtpasta }}" data-file="{{ $doc->file }}" data-cabinet="{{ $doc->cabinet }}" data-drawer="{{ $doc->drawer }}" data-classification="{{ $doc->classification }}" data-version="{{ $doc->version }}" data-situationac="{{ $doc->situationAC }}" data-situationai="{{ $doc->situationAI }}">
+                  <a href="#" class="me-2 edit-document" data-tags="{{$doc->tags}}" data-archive_date="{{$doc->archive_date}}" data-initial_date="{{$doc->initial_date}}" data-id="{{ $doc->id }}" data-observations="{{ $doc->observations }}" data-project_id="{{ $doc->project_id }}" data-temporality_id="{{ $doc->temporality_id }}" data-doc_number="{{ $doc->doc_number }}" data-holder_name="{{ $doc->holder_name }}" data-description="{{ $doc->description }}" data-box="{{ $doc->box }}" data-qtpasta="{{ $doc->qtpasta }}" data-file="{{ $doc->file }}" data-cabinet="{{ $doc->cabinet }}" data-drawer="{{ $doc->drawer }}" data-classification="{{ $doc->classification }}" data-version="{{ $doc->version }}" data-situationac="{{ $doc->situationAC }}" data-situationai="{{ $doc->situationAI }}">
                     <i class="fa-solid fa-pen"></i>
                   </a>
                 @endif
+                <a href="#" class="me-2 print-label" data-url="{{ route('label', ['id' => $doc->id]) }}">
+                  <i class="fa-solid fa-print"></i>
+                </a>
+                <a href="{{ route('document.collections', ['document_id' => $doc->id]) }}">                  
+                  <i class="fa-solid fa-box-open"></i>
+                </a>
                 @if($auth->delete_doc)
                   <a href="{{route('delete.document', ['id' => $doc->id])}}" class="delete-document"><i class="fa-solid fa-trash ms-3"></i></a> 
                 @endif
@@ -209,6 +330,12 @@
                 <label for="doc_number" class="form-label">Nª do documento</label>
                 <input type="text" class="form-control" id="doc_number" name="doc_number" >
               </div>
+
+              <div class="mb-3 col-md-3">
+                <label for="holder_name" class="form-label">Nome do Titular</label>
+                <input type="text" class="form-control" id="holder_name" name="holder_name" >
+              </div>
+
               <div class="mb-3 col-md-3">
                 <label for="initial_date" class="form-label">
                   Data inicial
@@ -221,7 +348,7 @@
                   Data de arquivamento
                   <div onclick="setDates('archive_date')" class="btn btn-sm"><i class="fa-regular fa-calendar-check"></i></div>
                 </label>
-                <input type="date" class="form-control" id="archive_date" name="archive_date" required>
+                <input type="date" class="form-control" id="archive_date" name="archive_date">
               </div>
               <div class="mb-3 col-md-3">
                 <label for="expiration_date_A_C" class="form-label">Data de expiração A.C</label>
@@ -233,31 +360,18 @@
               </div>
 
               <div class="mb-3 col-md-3">
-                <label for="holder_name" class="form-label">Nome do Titular</label>
-                <input type="text" class="form-control" id="holder_name" name="holder_name" >
-              </div>
-
-              <div class="mb-3 col-md-3">
                 <label for="type" class="form-label">Tipo de arquivamento</label>
                 <select class="form-control" id="type" name="type">
                   <option value="">Selecione uma opção</option>
-                  <option value="">Selecione caixa ou armário</option>
                   <option value="1">Caixa</option>
                   <option value="2">Armário</option>
                 </select>
               </div>
-              
-              <div id="boxFields" class="row col-md-6" style="display:none;">
-                <div class="mb-3 col-md-6">
+                <div  class="mb-3 col-md-3" id="boxFields" style="display:none;"> 
                   <label for="box" class="form-label">Caixa</label>
                   <input type="text" class="form-control" id="box" name="box">
                 </div>
-                <div class="mb-3 col-md-6">
-                  <label for="qtpasta" class="form-label">Quantidade de Pastas</label>
-                  <input type="number" step="1" class="form-control" id="qtpasta" name="qtpasta">
-                </div>
-              </div>
-              
+
               <div id="cabinetFields" class="row col-md-6" style="display:none;">
                 <div class="mb-3 col-md-6">
                   <label for="cabinet" class="form-label">Armário</label>
@@ -267,6 +381,11 @@
                   <label for="drawer" class="form-label">Gaveta</label>
                   <input type="text" class="form-control" id="drawer" name="drawer">
                 </div>
+              </div>
+
+              <div class="mb-3 col-md-3">
+                <label for="qtpasta" class="form-label">Quantidade de Pastas</label>
+                <input type="number"  class="form-control" id="qtpasta" name="qtpasta">
               </div>
               
               <div class="mb-3 col-md-3">
@@ -281,29 +400,33 @@
               <div class="mb-3 col-md-3">
                 <label for="version" class="form-label">Versão</label>
                 <select class="form-control" id="version" name="version" >
-                  <option value="Físico">Físico</option>
-                  <option value="Físico">Digital</option>
-                  <option value="Físico">Híbrido</option>
+                  <option  value="Físico">Físico</option>
+                  <option  value="Digital">Digital</option>
+                  <option  value="Híbrido">Híbrido</option>
                 </select>
               </div>              
               <div class="mb-3 col-md-3">
                 <label for="situationAC" class="form-label">Situação A.C</label>
                 <select class="form-control" id="situationAC" name="situationAC" >
                   <option value="">Selecione uma opção</option>
-                  <option value="Transferido A.I">Transferido A.i</option>
-                  <option value="Ativo">Ativo</option>
-                  <option value="Descartado">Descartado</option>
+                  <option style="background: red; color: white;" value="Transferido A.I">🔴 Transferido A.i</option>
+                  <option style="background: green; color: white;" value="Ativo">🟢 Ativo</option>
+                  <option style="background: red; color: white;" value="Descartado">🔴 Descartado</option>
                 </select>
               </div>
               <div class="mb-3 col-md-3">
                 <label for="situationAI" class="form-label">Situação A.I</label>
                 <select class="form-control" id="situationAI" name="situationAI" >
                   <option value="">Selecione uma opção</option>
-                  <option value="Recolhido A.P">Recolhido A.P</option>
-                  <option value="Ativo">Ativo</option>
-                  <option value="Descartado">Descartado</option>
+                  <option style="background: red; color: white;" value="Recolhido A.P">🔴 Recolhido A.P</option>
+                  <option style="background: green; color: white;" value="Ativo">🟢 Ativo</option>
+                  <option style="background: red; color: white;" value="Descartado">🔴 Descartado</option>
                 </select>
               </div>
+            </div>
+            <div class="mb-3">
+              <label for="description" class="form-label">Tags</label>
+              <input class="form-control" id="tags" name="tags" ></textarea>
             </div>
             <div class="mb-3">
               <label for="description" class="form-label">Descrição</label>
@@ -320,7 +443,7 @@
             
           </div>
           <div class="modal-footer">
-            <button type="submit" class="btn btn-primary">Salvar</button>
+            <button id="submit-button" type="submit" class="btn btn-primary">Salvar</button>
           </div>
         </form>
       </div>
@@ -350,25 +473,151 @@
     </div>
   </div>
 
+  <!-- Modal para gerar impressão da caixa -->
+  <div class="modal fade" id="generateBoxPrintModal" tabindex="-1" aria-labelledby="generateBoxPrintModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="generateBoxPrintModalLabel">Gerar Impressão da Caixa</h5>
+        </div>
+        <div class="modal-body">
+          <form id="boxPrintForm">
+            <div class="row">
+              <div class="mb-3 col-md-4">
+                <label for="central_archive" class="form-label">Arquivo Central</label>
+                <input type="text" class="form-control" id="central_archive" name="central_archive" required>
+              </div>
+              <div class="mb-3 col-md-4">
+                <label for="organization" class="form-label">Organização e Funcionamento</label>
+                <input type="text" class="form-control" id="organization" name="organization" required>
+              </div>
+              <div class="mb-3 col-md-4">
+                <label for="classification_code" class="form-label">Código de Classificação</label>
+                <input type="text" class="form-control" id="classification_code" name="classification_code" required>
+              </div>
+              <div class="mb-3 col-md-4">
+                <label for="area" class="form-label">Área</label>
+                <input type="text" class="form-control" id="area" name="area" required>
+              </div>
+              <div class="mb-3 col-md-4">
+                <label for="custody_period" class="form-label">Prazo de Guarda</label>
+                <input type="text" class="form-control" id="custody_period" name="custody_period" required>
+              </div>
+              <div class="mb-3 col-md-4">
+                <label for="archive_year" class="form-label">Ano de Arquivamento</label>
+                <input type="text" class="form-control" id="archive_year" name="archive_year" required>
+              </div>
+              <div class="mb-3 col-md-4">
+                <label for="location" class="form-label">Localização</label>
+                <input type="text" class="form-control" id="location" name="location" required>
+              </div>
+              <div class="mb-3 col-md-4">
+                <label for="final_destination" class="form-label">Destinação Final</label>
+                <select class="form-control" id="final_destination" name="final_destination" required>
+                  <option value="Permanente">Permanente</option>
+                  <option value="Eliminação">Eliminação</option>
+                </select>
+              </div>
+              <div class="mb-3 col-md-4">
+                <label for="box_number" class="form-label">Número da Caixa</label>
+                <input type="text" class="form-control" id="box_number" name="box_number" required>
+              </div>
+              <div class="mb-3 col-md-12">
+                <label for="observations" class="form-label">Observações</label>
+                <input type="text" class="form-control" id="observations" name="observations">
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary" id="addBoxPrint">Adicionar</button>
+            <button type="button" class="btn btn-success" id="printBox">Imprimir</button>
+          </form>
+
+          <div class="table-container mt-5" style="overflow-x: scroll">
+            <table class="table table-striped" id="boxPrintTable">
+              <thead>
+                <tr>
+                  <th>Arquivo Central</th>
+                  <th>Organização e Funcionamento</th>
+                  <th>Código de Classificação</th>
+                  <th>Área</th>
+                  <th>Prazo de Guarda</th>
+                  <th>Observações</th>
+                  <th>Ano de Arquivamento</th>
+                  <th>Localização</th>
+                  <th>Destinação Final</th>
+                  <th>Número da Caixa</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+    
+  </div>
+
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-  var printButtons = document.querySelectorAll('.print-label');
+    var printButtons = document.querySelectorAll('.print-label');
 
-  printButtons.forEach(function (button) {
-    button.addEventListener('click', function (event) {
-      event.preventDefault();
-      var url = button.getAttribute('data-url');
-      var width = 1000;
-      var height = 600;
-      var left = (screen.width - width) / 2;
-      var top = (screen.height - height) / 2;
+    printButtons.forEach(function (button) {
+      button.addEventListener('click', function (event) {
+        event.preventDefault();
+        var url = button.getAttribute('data-url');
+        var width = 1000;
+        var height = 600;
+        var left = (screen.width - width) / 2;
+        var top = (screen.height - height) / 2;
 
-      var popup = window.open(url, 'popup', 'width=' + width + ',height=' + height + ',top=' + top + ',left=' + left + ',scrollbars=no,resizable=no');
-      popup.addEventListener('load', function () {
-        popup.print();
+        var popup = window.open(url, 'popup', 'width=' + width + ',height=' + height + ',top=' + top + ',left=' + left + ',scrollbars=no,resizable=no');
+        popup.addEventListener('load', function () {
+          popup.print();
+        });
       });
     });
+
+  document.getElementById('generateBoxPrint').addEventListener('click', function () {
+    var modal = new bootstrap.Modal(document.getElementById('generateBoxPrintModal'));
+    modal.show();
   });
+
+  caixas = []
+  document.getElementById('addBoxPrint').addEventListener('click', function () {
+    var form = document.getElementById('boxPrintForm');
+    caixas.push([ form.central_archive.value, form.organization.value, form.classification_code.value, form.area.value, form.custody_period.value, form.observations.value, form.archive_year.value, form.location.value, form.final_destination.value, form.box_number.value, {{$project_id}}])
+    console.log(caixas)
+    addTableBox(caixas);
+    form.reset();
+  });
+
+  function addTableBox(caixas){
+    var table = document.getElementById('boxPrintTable').querySelector('tbody');
+
+    var row = table.insertRow();
+
+    caixas.forEach((caixa) => {
+          row.insertCell(0).innerText = caixa[0];
+          row.insertCell(1).innerText = caixa[1];
+          row.insertCell(2).innerText = caixa[2];
+          row.insertCell(3).innerText = caixa[3];
+          row.insertCell(4).innerText = caixa[4];
+          row.insertCell(5).innerText = caixa[5];
+          row.insertCell(6).innerText = caixa[6];
+          row.insertCell(7).innerText = caixa[7];
+          row.insertCell(8).innerText = caixa[8];
+          row.insertCell(9).innerText = caixa[9];
+    })
+  }
+
+  document.getElementById('printBox').addEventListener('click', function () {
+    var queryString = Object.keys(caixas).map(key => key + '=' + encodeURIComponent(caixas[key])).join('&');
+    window.location.href = '/box?' + queryString;
+  });
+
+
+
 });
 
 function setDates(input) {
@@ -444,6 +693,7 @@ document.addEventListener('DOMContentLoaded', function () {
   addDocumentButton.addEventListener('click', function () {
     modalForm.reset(); // Limpa todos os campos do formulário
     const token = modalForm.querySelectorAll('input[name="_token"]')[0].value
+    modalForm.querySelectorAll('input[name="id"]')[0].value = '';
     modalForm.querySelectorAll('select').forEach(function(select) {
       select.value = ''; // Reseta os selects
     });
@@ -468,7 +718,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var cabinetFields = document.getElementById('cabinetFields');
 
     if (typeSelect.value == '1') {
-      boxFields.style.display = 'flex';
+      boxFields.style.display = 'block';
       cabinetFields.style.display = 'none';
       document.getElementById('cabinet').value = '';
       document.getElementById('drawer').value = '';
@@ -509,7 +759,32 @@ document.addEventListener('DOMContentLoaded', function () {
       var classification = button.getAttribute('data-classification');
       var version = button.getAttribute('data-version');
       var situationAC = button.getAttribute('data-situationac');
-      var situationAI = button.getAttribute('data-situationai');      
+      var situationAI = button.getAttribute('data-situationai');    
+      var tags = button.getAttribute('data-tags');    
+      var edit = button.getAttribute('data-edit');
+
+      if (box) {
+        document.getElementById('type').value = '1';
+      } else if (cabinet) {
+        document.getElementById('type').value = '2';
+      } else {
+        document.getElementById('type').value = '';
+      }
+
+      if (edit) {
+        document.getElementById('submit-button').style.display = 'none';
+        modalForm.querySelectorAll('input, select, textarea').forEach(function(element) {
+            element.setAttribute('disabled', 'true');
+        });
+    } else {
+        document.getElementById('submit-button').style.display = 'block';
+        modalForm.querySelectorAll('input, select, textarea').forEach(function(element) {
+            element.removeAttribute('disabled');
+        });
+    }
+
+
+      toggleFields();
 
       modalForm.querySelector('[name="id"]').value = id;
       modalForm.querySelector('[name="project_id"]').value = project_id;
@@ -528,16 +803,7 @@ document.addEventListener('DOMContentLoaded', function () {
       modalForm.querySelector('[name="version"]').value = version;
       modalForm.querySelector('[name="situationAC"]').value = situationAC;
       modalForm.querySelector('[name="situationAI"]').value = situationAI;
-
-      if (box) {
-        document.getElementById('type').value = '1';
-      } else if (cabinet) {
-        document.getElementById('type').value = '2';
-      } else {
-        document.getElementById('type').value = '';
-      }
-
-      toggleFields();
+      modalForm.querySelector('[name="tags"]').value = tags;
 
       var temporality = temporalitys.find(t => t.id == temporality_id);
       if (temporality) {

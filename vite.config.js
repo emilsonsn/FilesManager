@@ -8,6 +8,7 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/js/bootstrap.js',
                 'resources/js/sidebar.js',
+                'resources/js/tags.js',
 
                 'resources/sass/_variables.scss',
                 'resources/sass/app.scss',

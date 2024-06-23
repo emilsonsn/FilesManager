@@ -1,7 +1,10 @@
 @php
     use App\Models\Document;
+    use App\Models\Project;
     use Carbon\Carbon;
     $document = Document::find($id);
+    $url = route('show.document', ['document_id' => $document->id]);
+    $project = Project::find($document->project_id);
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -43,13 +46,18 @@
 </head>
 <body>
     <div class="label-content">
-        @for($i=0; $i<8; $i++)
+        @for($i=0; $i< $document->qtpasta; $i++)
             <table class="table-container">
                 <thead>
                     <tr>
                         <th colspan="2" class="table-header">
-                            <div style="display: flex; justify-content: flex-start;">
-                                <img src="{{ asset('assets/logoCaio.png') }}" alt="Logo da Empresa" style="padding: 5px; margin-left: 30px;">
+                            <div style="display: flex; justify-content: space-around;">
+                                @if($project->image_path)
+                                    <img src="{{ asset('storage/' . $project->image_path) }}" style="padding: 5px; margin-left: 30px;">
+                                @else
+                                    <img src="{{ asset('assets/logoCaio.png') }}" alt="Logo da Empresa" style="padding: 5px; margin-left: 30px;">
+                                @endif
+                                {{QrCode::size(35)->generate($url)}}
                             </div>
                         </th>
                     </tr>
@@ -94,11 +102,6 @@
                             <td>{{ mb_strtoupper($document->cabinet, 'UTF-8') }}</td>
                         </tr>
                     @endif
-                    <tr>
-                        <td colspan="2" class="text-center p-2">
-                            <img src="data:image/png;base64,{{ DNS1D::getBarcodePNG($document->id, 'C39+', 3, 100) }}" alt="Código de Barras" class="barcode">
-                        </td>
-                    </tr>
                 </tbody>
             </table>
         @endfor

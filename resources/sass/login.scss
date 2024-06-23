@@ -37,14 +37,20 @@ main > div > div > div {
 .form-container {
   color: rgb(0, 0, 0);
   font-weight: 600;
-  background-color:rgb(243, 243, 243);
+  background-color:rgb(236, 236, 236);
   display: flex;
   flex-direction: column;
   padding-top: 10%;
 }
 
 .form-container button {
-  background: green;
+  background: rgb(0, 77, 128);
+  color: white;
+  transition: all 0.2s;
+}
+
+.form-container button:hover {
+  background: rgb(2, 107, 177);
   color: white;
 }
 

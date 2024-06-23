@@ -30,7 +30,8 @@ class Document extends Model
         'archive_date',
         'expiration_date_A_C',
         'expiration_date_A_I',
-        'observations',        
+        'observations',
+        'tags',
         'temporality_id',
         'project_id',
         'user_id',
@@ -38,6 +39,10 @@ class Document extends Model
 
     public function temporality(){
         return $this->belongsTo(Temporality::class);
+    }
+
+    public function documents_collections(){
+        return $this->hasMany(DocumentCollection::class);
     }
 
     public function project(){

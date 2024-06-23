@@ -5,7 +5,7 @@
     use App\Models\Temporality;
     use App\Models\Project;
     use App\Models\VolatileColumn;
-    $project_id = $_GET['project'] ?? null;
+    $project_id = session('project_id');    
     $search = $_GET['search'] ?? null;
     $auth = auth()->user();
 
@@ -38,14 +38,6 @@
     @endif
 
     <form action="" class="row mb-3 col-md-6">
-      <div class="col-md-3">
-        <select name="project" class="form-control">
-            <option value="">Selecione o projeto</option>
-          @foreach ($projects as $project)
-            <option {{$project_id == $project->id ? 'selected' : ''}} value="{{ $project->id }}">{{ $project->name }}</option>
-          @endforeach
-        </select>
-      </div>
       <div class="col-md-3">
         <input value="{{$search}}" type="text" name="search" placeholder="Buscar por código" class="form-control">
       </div>
@@ -164,7 +156,10 @@
             </div>
             <div class="mb-3 col-md-6">
               <label for="final_destination" class="form-label">Destinação final</label>
-              <input type="text" class="form-control" id="final_destination" name="final_destination" required>
+              <select class="form-control" id="final_destination" name="final_destination" required>
+                <option value="Permanente">Permanente</option>
+                <option value="Eliminação">Eliminação</option>
+              </select>
             </div>
           </div>
           <div class="modal-footer">

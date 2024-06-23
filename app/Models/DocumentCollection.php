@@ -20,19 +20,20 @@ class DocumentCollection extends Model
         'loan_receiver',
         'gender',
         'return_date',
+        'sector',
         'return_author',
         'receiver_author',
-        'document_id',
+        'observations',
+        'type',
         'user_id',
     ];
 
-
-    public function document(){
-        return $this->belongsTo(Document::class);
-    }
-
     public function user(){
         return $this->belongsTo(User::class);
+    }
+
+    public function  documentLoans() {
+        return $this->hasMany(DocumentLoan::class, 'document_collection_id', 'id')->with('document');
     }
 
 }

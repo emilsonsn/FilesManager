@@ -5,6 +5,10 @@
   padding: 0;
   box-sizing: border-box;
 }
+div.col-md-10.content{
+  overflow-y: auto !important;
+  padding-bottom: 10px !important;
+}
 
 .main {
   min-height: 100vh;
