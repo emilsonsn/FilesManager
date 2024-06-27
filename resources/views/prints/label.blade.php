@@ -73,7 +73,7 @@
                     </tr>
                     <tr>
                         <td style="padding-left: 10px;">CÓDIGO DE CLASSIFICAÇÃO:</td>
-                        <td>{{ mb_strtoupper($document->classification, 'UTF-8') }}</td>
+                        <td>{{ mb_strtoupper($document->temporality->code, 'UTF-8') }}</td>
                     </tr>
                     <tr>
                         <td style="padding-left: 10px;">ÁREA:</td>

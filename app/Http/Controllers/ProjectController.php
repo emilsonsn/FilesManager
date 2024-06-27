@@ -14,11 +14,16 @@ class ProjectController extends Controller
             $path = $request->file('image')->store('images', 'public');
             $data['image_path'] = $path;
         }
-        Project::create($data);
+
+        if(isset($data['id'])){
+            Project::find($data['id'])->update($data);
+        }else{
+            Project::create($data);
+        }
 
         Log::create([
             'user_id' => auth()->user()->id,
-            'description' => "Criou um projeto"
+            'description' => "Criou/Editou um projeto"
         ]);
 
         return redirect()->route('dashboard');

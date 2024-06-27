@@ -134,7 +134,7 @@
         <input value="{{$loan_date_search}}" type="date" name="loan_date_search" class="form-control">
       </div>
       <div class="col-md-2 mt-2">        
-        <label>Data de recebimento</label>
+        <label>Data da devolução</label>
         <input value="{{$return_date_search}}" type="date" name="return_date_search" class="form-control">
       </div>
       <div class="col-md-2 mt-2">
@@ -175,7 +175,7 @@
                   <i class="fa-solid fa-print"></i>
                 </a>
                 @if($auth->edit_collection)
-                  <a href="#" class="edit-collection" data-type="{{$collection->type}}" data-observations="{{$collection->observations}}" data-documents="{{json_encode($collection->documentLoans)}}" data-sector="{{$collection->sector}}" data-gender="{{$collection->gender}}" data-id="{{ $collection->id }}" data-loan_date="{{ $collection->loan_date }}" data-loan_author="{{ $collection->loan_author }}" data-loan_receiver="{{ $collection->loan_receiver }}" data-return_date="{{ $collection->return_date }}" data-return_author="{{ $collection->return_author }}" data-receiver_author="{{ $collection->receiver_author }}" data-user_id="{{ $collection->user_id }}">
+                  <a href="#" class="edit-collection" data-type="{{$collection->type}}" data-observations="{{$collection->observations}}" data-documents="{{json_encode($collection->documentLoans)}}" data-sector="{{$collection->sector}}" data-gender="{{$collection->gender}}" data-id="{{ $collection->id }}" data-loan_date="{{ $collection->loan_date }}" data-loan_author="{{ $collection->loan_author }}" data-loan_receiver="{{ $collection->loan_receiver }}" data-return_date="{{ $collection->return_date }}" data-tel="{{$collection->tel}}" data-return_author="{{ $collection->return_author }}" data-receiver_author="{{ $collection->receiver_author }}" data-user_id="{{ $collection->user_id }}">
                     <i class="fa-solid fa-pen"></i>
                   </a>
                 @endif
@@ -261,6 +261,11 @@
                           <input type="text" class="form-control" id="sector" name="sector">
                         </div>
 
+                        <div class="mb-3 col-md-3">
+                          <label for="tel" class="form-label">Tel/Ramal</label>
+                          <input type="text" class="form-control" id="tel" name="tel">
+                        </div>
+                        
                         <div class="mb-3 col-md-3">
                             <label for="return_date" class="form-label">Data de Devolução</label>
                             <input type="date" class="form-control" id="return_date" name="return_date">
@@ -355,6 +360,7 @@
               const documents = JSON.parse(button.getAttribute('data-documents'));
               const observations = button.getAttribute('data-observations');
               const type = button.getAttribute('data-type');
+              const tel = button.getAttribute('data-tel');
               
               modalForm.querySelector('[name="id"]').value = id;
               modalForm.querySelector('[name="loan_date"]').value = loan_date;
@@ -367,7 +373,9 @@
               modalForm.querySelector('[name="sector"]').value = sector;
               modalForm.querySelector('[name="observations"]').value = observations;
               modalForm.querySelector('[name="type"]').value = type;
+              modalForm.querySelector('[name="tel"]').value = tel;
 
+              selectedDocumentsList.innerHTML = '';
               documents.forEach(document => {
                   addDocumentToList(document.document.id, `${document.document.id} - ${document.document.description ?? ''}`);
               });

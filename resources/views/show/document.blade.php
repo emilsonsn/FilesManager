@@ -95,22 +95,22 @@
             </div>
             <div class="mb-3 col-md-3">
                 <label for="type" class="form-label">Tipo de arquivamento</label>
-                <p>{{ $document->type == 1 ? 'Caixa' : 'Armário' }}</p>
+                <p>{{ isset($document->box) ? 'Caixa' : 'Armário' }}</p>
             </div>
-            @if ($document->type == 1)
-            <div class="mb-3 col-md-3">
-                <label for="box" class="form-label">Caixa</label>
-                <p>{{ $document->box }}</p>
-            </div>
+            @if (isset($document->box) )
+                <div class="mb-3 col-md-3">
+                    <label for="box" class="form-label">Caixa</label>
+                    <p>{{ $document->box }}</p>
+                </div>
             @else
-            <div class="mb-3 col-md-3">
-                <label for="cabinet" class="form-label">Armário</label>
-                <p>{{ $document->cabinet }}</p>
-            </div>
-            <div class="mb-3 col-md-3">
-                <label for="drawer" class="form-label">Gaveta</label>
-                <p>{{ $document->drawer }}</p>
-            </div>
+                <div class="mb-3 col-md-3">
+                    <label for="cabinet" class="form-label">Armário</label>
+                    <p>{{ $document->cabinet }}</p>
+                </div>
+                <div class="mb-3 col-md-3">
+                    <label for="drawer" class="form-label">Gaveta</label>
+                    <p>{{ $document->drawer }}</p>
+                </div>
             @endif
             <div class="mb-3 col-md-3">
                 <label for="qtpasta" class="form-label">Quantidade de Pastas</label>

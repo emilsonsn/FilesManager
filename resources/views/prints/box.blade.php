@@ -12,15 +12,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Template</title>
     <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         .box-container {
             display: flex;
             flex-wrap: wrap;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: space-between;
+            margin: 0 auto;
         }
         .template-container {
             margin-left: 20px;
-            width: 300px;
+            width: 280px;
             border: 1px solid black;
             padding: 10px;
             font-family: Arial, sans-serif;
@@ -64,20 +70,29 @@
             color: red;
         }
         table {
-            margin-top:  10px;
-            max-width: 210px;
-            height: 400px;
-            margin-left: 20px;
+            margin-bottom: 40px;
+            min-width: 345px;
+            height: 480px;
             border-collapse: collapse;
+            border: 1px solid rgb(223, 223, 223);
         }
         td, th {
             border: 1px solid black;
             padding: 0 !important;
             text-align: center;
-            font-size: 0.8rem;
+            border: none;
+            font-size: 0.7rem;
         }
         .value{
+            font-size: 0.9rem;
             font-weight: 600;
+        }
+        .code{
+            font-size: 2rem;
+        }
+        .box{
+            color: red;
+            font-size: 3rem;
         }
         img{
             width: 60px;
@@ -85,7 +100,6 @@
     </style>
 </head>
 <body>
-    <a href="{{route('documents', ['project_id' => $project->id])}}" style="width:40px; display:block; margin: 20px; text-decoration: none; border: none; background: rgb(47, 139, 226); border-radius: 20%; padding: 10px; color:white;">Voltar</a>
     <div class="box-container">
         @foreach ($_GET as $item)
             @php
@@ -113,53 +127,57 @@
                     </td>
                 </tr>
                 <tr>
-                    
-                    <td>
-                        código de classificação:
-                        <div class="classification-code">
-                            <div class="value">{{$item[2]}}</div>
-                        </div>
-                    </td>
-                    <td>                        
-                        <div class="qr-code">
-                            @php                                 
-                                $url = route('documents', ['project_id' => $project->id, 'box_search' =>$item[9]])
-                            @endphp
-                            {{QrCode::size(60)->generate($url)}}
+                    <td colspan="2">
+                        <div style="display: flex; justify-content:center; align-items:center; width:100%; margin: 0 auto;">
+                            <div>
+                                Código de classificação:
+                                <div class="classification-code">
+                                    <div class="value code">{{$item[2]}}</div>
+                                </div>                    
+                            </div>
+                            <div class="qr-code" style="margin-left: 20px">
+                                @php                                 
+                                    $url = route('documents', ['project_id' => $project->id, 'box_search' => $item[9]]);
+                                @endphp
+                                {{QrCode::size(60)->generate($url)}}
+                            </div>
                         </div>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        Area: <br>
+                        Área:
                         <div class="value">{{$item[3]}}</div>
                     </td>
                     <td>
-                        Prazo de guarda fase intermediária: <br>
+                        Prazo de guarda intermediária:
                         <div class="value">{{$item[4]}}</div>
                     </td>
                 </tr>            
                 <tr>
                     <td colspan="2">
-                        <div class="value">{{$item[5]}}</div>
+                        <div class="value code">{{$item[5]}}</div>
                     </td>
                 </tr>
 
                 <tr>
                     <td>
+                            Ano de arquivamento:
                         <div class="value">{{$item[6]}}</div>
                     </td>
                     <td>
+                            Localização:
                         <div class="value">{{$item[7]}}</div>
                     </td>
                 </tr>
                 <tr>
                     <td  class="title">
-                        Destinação Final:<br>
+                            Destinação Final:
                         <div class="value">{{$item[8]}}</div>
                     </td>
                     <td class="highlight">
-                        <div class="value">{{$item[9]}}</div>
+                            Caixa:
+                        <div class="value code box">{{$item[9]}}</div>
                     </td>
                 </tr>
             </table>        

@@ -16,6 +16,7 @@ class Project extends Model
 
     public $fillable = [
         'name',
+        'size',
         'image_path'
     ];
 

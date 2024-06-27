@@ -36,6 +36,8 @@ Route::middleware(AuthenticateUser::class)->group(function () {
     
     Route::get('/documents/{id}/files', [DocumentController::class, 'getFiles']);
     Route::get('/documents/{id}/download-all', [DocumentController::class, 'downloadAllFiles'])->name('download.all.files');
+    Route::delete('/documents/files/{id}', [DocumentController::class, 'deleteFile']);
+
     
     Route::get('/user/{id}/projects', [UserController::class, 'user_projects'])->name('user_projects');;
     Route::post('/user/assing-projects', [UserController::class, 'assing_projects'])->name('assing.projects');

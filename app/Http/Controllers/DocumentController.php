@@ -94,7 +94,6 @@ class DocumentController extends Controller
         }
     }
 
-
     public function delete($id)
     {
         $document = Document::find($id);
@@ -107,4 +106,16 @@ class DocumentController extends Controller
         }
         return redirect()->back();
     }
+
+    public function deleteFile($id)
+{
+    $file = DocumentFile::find($id);
+    if ($file) {
+        Storage::disk('public')->delete($file->file_path);
+        $file->delete();
+        return response()->json(['message' => 'Arquivo apagado com sucesso.'], 200);
+    }
+    return response()->json(['message' => 'Arquivo não encontrado.'], 404);
+}
+
 }

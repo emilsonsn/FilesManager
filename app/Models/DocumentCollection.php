@@ -24,6 +24,7 @@ class DocumentCollection extends Model
         'return_author',
         'receiver_author',
         'observations',
+        'tel',
         'type',
         'user_id',
     ];
@@ -32,7 +33,7 @@ class DocumentCollection extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function  documentLoans() {
+    public function documentLoans() {
         return $this->hasMany(DocumentLoan::class, 'document_collection_id', 'id')->with('document');
     }
 

@@ -1,6 +1,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="{{asset('assets/favicon.png')}}">
+
 
   <!-- CSRF Token -->
   <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -84,6 +86,9 @@
                 @if(!$project->documents->count() && $auth->is_admin)
                   <span class="delete" onclick="confirmDelete('{{ route('delete.project', ['id' => $project->id]) }}')"><i class="fa-solid fa-trash"></i></span>
                 @endif
+                @if($auth->is_admin)
+                <span class="edit edit-btn" data-size="{{$project->size}}" data-id="{{$project->id}}" data-name="{{$project->name}}"><i class="fa-solid fa-edit"></i></span>
+                @endif
                   <a href="{{route('documents', ['project_id' => $project->id])}}" class="link-project d-flex">
                       @if($project->image_path)
                           <img src="{{ asset('storage/' . $project->image_path) }}" alt="{{ $project->name }}" class="img-fluid" width="70">
@@ -103,15 +108,19 @@
       <div class="modal-content">
           <div class="modal-header">
               <h5 class="modal-title" id="addProjectModalLabel">Novo Projeto</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
               <form id="addProjectForm" action="{{route('create.project')}}" method="POST" enctype="multipart/form-data">
                   @csrf
+                  <input type="hidden" name="id" id="projectId">
                   <div class="mb-3">
                       <label for="projectName" class="form-label">Nome do Projeto</label>
                       <input type="text" class="form-control" id="projectName" name="name" required>
                   </div>
+                  <div class="mb-3">
+                    <label for="limitSize" class="form-label">Limite de armazenamento (MB)</label>
+                    <input type="number" class="form-control" id="limitSize" name="size" required>
+                </div>
                   <div class="mb-3">
                       <label for="projectImage" class="form-label">Imagem do Projeto</label>
                       <input type="file" class="form-control" id="projectImage" name="image">
@@ -145,5 +154,34 @@
         });
       }
     </script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const addProjectModal = new bootstrap.Modal(document.getElementById('addProjectModal'));
+    const addProjectForm = document.getElementById('addProjectForm');
+
+    // Limpar formulário ao clicar no botão de adicionar
+    document.querySelector('a.card.add').addEventListener('click', function() {
+      addProjectForm.reset();
+      document.getElementById('projectId').value = '';
+    });
+
+    // Preencher formulário ao clicar no botão de editar
+    document.querySelectorAll('.edit-btn').forEach(button => {
+      button.addEventListener('click', function() {
+        const projectId = this.dataset.id;
+        const projectName = this.dataset.name;
+        const size = this.dataset.size;
+
+        document.getElementById('projectId').value = projectId;
+        document.getElementById('projectName').value = projectName;
+        document.getElementById('limitSize').value = size;
+
+        addProjectModal.show();
+      });
+    });
+  });
+</script>
+
 
     

@@ -7,6 +7,8 @@
     use App\Models\Document;
     use App\Models\Project;
     use App\Models\Temporality;
+    use App\Models\DocumentCollection;
+    
     $initial_date = $_GET['initial_date'] ?? null;
     $archive_date = $_GET['archive_date'] ?? null;
 
@@ -20,24 +22,41 @@
     $order_by = $_GET['order_by'] ?? 'id';
     $order_form = $_GET['order_form'] ?? 'desc';
     $tags_search = $_GET['tags_search'] ?? '';
+    $all_search = $_GET['all_search'] ?? '';
+    $holder_search = $_GET['holder_search'] ?? '';
+    $doc_number_search = $_GET['doc_number_search'] ?? '';
     
     $auth = auth()->user();
     $document = Document::orderBy($order_by, $order_form);
-  
-    if($classification_search){      
-        $document->where('classification', $classification_search);
+
+    if($classification_search || $all_search){      
+        $document->where('classification', $classification_search)
+          ->orWhere('classification', 'like', "%$all_search%");
     }
 
-    if($box_search){      
-        $document->where('box', $box_search);
+    if($doc_number_search || $all_search){
+      $document->where('doc_number', "$doc_number_search")
+        ->orWhere('doc_number', "$all_search");
     }
 
-    if($cabinet_search){      
-        $document->where('cabinet', $cabinet_search);
+    if($holder_search || $all_search){
+      $document->where('holder_name', 'like', "%$holder_search%")
+        ->orWhere('holder_name', 'like', "%$all_search%");
     }
 
-    if($drawer_search){      
-        $document->where('drawer', $drawer_search);
+    if($box_search || $all_search){      
+        $document->where('box', $box_search)
+          ->orWhere('box', "$all_search");
+    }
+
+    if($cabinet_search || $all_search){      
+        $document->where('cabinet', $cabinet_search)
+          ->orWhere('cabinet', "$all_search");
+    }
+
+    if($drawer_search || $all_search){      
+        $document->where('drawer', $drawer_search)
+          ->orWhere('drawer', "$all_search");
     }
 
     if($destination_search){      
@@ -46,12 +65,14 @@
         });
     }
 
-    if($tags_search){
-      $document->where('tags', 'like', "%$tags_search%");
+    if($tags_search || $all_search){
+      $document->where('tags', 'like', "%$tags_search%")
+        ->orWhere('tags', "$all_search");
     }
 
-    if($version_search){      
-        $document->where('version', $version_search);
+    if($version_search || $all_search){      
+        $document->where('version', $version_search)
+          ->orWhere('version', "$all_search");
     }
 
     if ($loan_situation_search) {
@@ -78,14 +99,17 @@
     $temporalitys = [];
 
     if($auth->read_doc){
-      $documents = $document->where('project_id', $project_id)->get();
+      $documents = $document->where('project_id', $project_id);
+      $uniqueBoxes = Document::where('project_id', $project_id)
+        ->whereNotNull('box')
+        ->distinct()
+        ->pluck('box');      
+
+      $documents = $documents->get();
       $temporalitys = Temporality::get();
     }
 
-    $project = Project::find($project_id);    
-
-    // $url = route('show.document_collection', ['id' => $documentCollection->id]);    
-
+    $project = Project::find($project_id);
   @endphp
     
   @vite(['resources/sass/dashboard.scss'])
@@ -109,30 +133,34 @@
     @endif
 
     <form action="" class="row mb-3">
-      <div class="col-md-2">
+      <div class="col-md-12 mt-2 mt-2">
+        <label for="classification_search">Buscar documento</label>
+        <input value="{{$all_search}}" type="text" id="all_search" name="all_search"  class="form-control">
+      </div>
+      <div class="col-md-2 mt-2">
         <label for="classification_search">Código de classificação</label>
         <input value="{{$classification_search}}" type="text" id="classification_search" name="classification_search"  class="form-control">
       </div>
-      <div class="col-md-2">
+      <div class="col-md-2 mt-2">
         <label for="box_search">Caixa</label>
         <input value="{{$box_search}}" type="text" id="box_search" name="box_search" class="form-control">
       </div>
-      <div class="col-md-2">
+      <div class="col-md-2 mt-2">
         <label for="cabinet_search">Armário</label>
         <input value="{{$cabinet_search}}" type="text" id="cabinet_search" name="cabinet_search"class="form-control">
       </div>
-      <div class="col-md-2">
+      <div class="col-md-2 mt-2">
         <label for="search">Gavetas</label>
         <input value="{{$drawer_search}}" type="text" id="drawer_search" name="drawer_search" class="form-control">
       </div>
-      <div class="col-md-2">
+      <div class="col-md-2 mt-2">
         <label for="search">Destinação final</label>
         <select class="form-control" name="destination_search" id="">         
           <option value="">Selecione uma opção</option> 
           <option {{$destination_search == 'Permanente' ? 'selected' : ''}} value="Permanente">Permanente</option>          
           <option {{$destination_search == 'Eliminação' ? 'selected' : ''}} value="Eliminação">Eliminação</option>
         </select>      </div>
-      <div class="col-md-2">
+      <div class="col-md-2 mt-2">
         <label for="search">Versão do documento</label>
         <select class="form-control" name="version_search" id="">          
           <option value="">Selecione uma opção</option>
@@ -141,7 +169,7 @@
           <option {{$version_search == 'Híbrido' ? 'selected' : ''}} value="Híbrido">Híbrido</option>
         </select>
       </div>
-      <div class="col-md-2">
+      <div class="col-md-2 mt-2">
         <label for="search">Situação do empréstimo</label>
         <select class="form-control" name="loan_situation_search" id="">          
           <option value="">Selecione uma opção</option>
@@ -149,22 +177,30 @@
           <option {{$loan_situation_search == 'Devolvido' ? 'selected' : ''}} value="Devolvido">Devolvido</option>          
         </select>
       </div>
-      <div class="col-md-2">
+      <div class="col-md-2 mt-2">
+        <label for="classification_search">Número do documento</label>
+        <input value="{{$doc_number_search}}" type="text" id="doc_number_search" name="doc_number_search"  class="form-control">
+      </div>
+      <div class="col-md-2 mt-2">
+        <label for="classification_search">Nome do titular</label>
+        <input value="{{$holder_search}}" type="text" id="holder_search" name="holder_search"  class="form-control">
+      </div>
+      <div class="col-md-2 mt-2">
         <label for="tags_search">Tags</label>
         <input value="{{$tags_search}}" type="text" id="tags_search" name="tags_search" class="form-control">
       </div>
-      <div class="col-md-2">
+      <div class="col-md-2 mt-2">
         <label for="initial_date_filter">Data inicial</label>
         <input value="{{$initial_date}}" type="date" id="initial_date_filter" name="initial_date" class="form-control">
       </div>
-      <div class="col-md-2">
+      <div class="col-md-2 mt-2">
         <label for="archive_date_filter">Data de arquivamento</label>
         <input value="{{$archive_date}}" type="date" id="archive_date_filter" name="archive_date" class="form-control">
       </div>
       <div class="col-md-2 mt-3">
         <input type="submit" class="btn btn-primary mt-4" value="Filtrar">
       </div>
-      <div class="col-12 row">
+      <div class="col-12 row mt-2">
         <div class="col-md-2">
           <label for="order_by">Ordenar por</label>
           <select class="form-control" name="order_by" id="order_by">          
@@ -190,7 +226,6 @@
             <option value="situationAC" {{ $order_by == 'situationAC' ? 'selected' : '' }}>Situação A.C</option>
             <option value="situationAI" {{ $order_by == 'situationAI' ? 'selected' : '' }}>Situação A.I</option>
           </select>
-          
         </div>
         <div class="col-md-2">
           <label for="order_form">Forma de ordenação</label>
@@ -217,7 +252,8 @@
             <th scope="col">Gavetas</th>
             <th scope="col">Quantidade de Pastas</th>
             <th scope="col">Situação A.C</th>
-            <th scope="col">Situação A.I</th>            
+            <th scope="col">Situação A.I</th>     
+            <th scope="col" class="text-center">Status</th>
             <th scope="col">Detalhes</th>
             <th scope="col">Arquivos</th>
             <th scope="col" class="text-center">Ações</th>
@@ -238,6 +274,13 @@
 
               <td class="text-center" style="font-weight: 600; color: {{!$doc->situationAC ? '' : ($doc->situationAC == 'Ativo' ? 'green' : 'red')}} !important;">{{ $doc->situationAC }}</td>
               <td class="text-center" style="font-weight: 600; color: {{!$doc->situationAI ? '' : ($doc->situationAI == 'Ativo' ? 'green' : 'red')}} !important;">{{ $doc->situationAI }}</td>
+              @php
+                  $documentCollection = DocumentCollection::whereNull('return_date')->whereHas('documentLoans', function($query) use($doc){
+                    $query->where('document_id', $doc->id);
+                  })->first();
+                  $type = $documentCollection->type ?? 'Arquivado';
+              @endphp
+              <td class="text-center" style="font-weight: 600; color: {{($type == 'transfer' || $type == 'loan') ? 'red' : ''}} !important;">{{$type == 'transfer' ? 'Transferido' : ($type == 'loan' ? "Emprestado" : $type)}}</td>
               <td class="text-center fs-4">
                 <a href="#" class="edit-document" style="color: rgb(50, 127, 243) !important;" data-edit="1" data-tags="{{$doc->tags}}" data-archive_date="{{$doc->archive_date}}" data-initial_date="{{$doc->initial_date}}" data-id="{{ $doc->id }}" data-observations="{{ $doc->observations }}" data-project_id="{{ $doc->project_id }}" data-temporality_id="{{ $doc->temporality_id }}" data-doc_number="{{ $doc->doc_number }}" data-holder_name="{{ $doc->holder_name }}" data-description="{{ $doc->description }}" data-box="{{ $doc->box }}" data-qtpasta="{{ $doc->qtpasta }}" data-file="{{ $doc->file }}" data-cabinet="{{ $doc->cabinet }}" data-drawer="{{ $doc->drawer }}" data-classification="{{ $doc->classification }}" data-version="{{ $doc->version }}" data-situationac="{{ $doc->situationAC }}" data-situationai="{{ $doc->situationAI }}">
                   <i class="fa-solid fa-circle-info"></i>
@@ -489,7 +532,7 @@
               </div>
               <div class="mb-3 col-md-4">
                 <label for="organization" class="form-label">Organização e Funcionamento</label>
-                <input type="text" class="form-control" id="organization" name="organization" required>
+                <input type="text" class="form-control" id="organization" name="organization" placeholder="Opcional">
               </div>
               <div class="mb-3 col-md-4">
                 <label for="classification_code" class="form-label">Código de Classificação</label>
@@ -520,7 +563,11 @@
               </div>
               <div class="mb-3 col-md-4">
                 <label for="box_number" class="form-label">Número da Caixa</label>
-                <input type="text" class="form-control" id="box_number" name="box_number" required>
+                <select class="form-control" name="box_number" id="box_number">
+                  @foreach ($uniqueBoxes as $uniqueBox)
+                      <option value="{{$uniqueBox}}">{{$uniqueBox}}</option>
+                  @endforeach
+                </select>
               </div>
               <div class="mb-3 col-md-12">
                 <label for="observations" class="form-label">Observações</label>
@@ -881,8 +928,11 @@ document.addEventListener('DOMContentLoaded', function () {
               var listItem = document.createElement('li');
               listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
               listItem.innerHTML = `
-              ${new Date(file.created_at).toLocaleDateString('pt-BR')} - ${file.name}
-                <a href="/storage/${file.file_path}" target="_blank" class="btn btn-sm btn-primary">Abrir</a>
+                ${new Date(file.created_at).toLocaleDateString('pt-BR')} - ${file.name}
+                <div>
+                  <a href="/storage/${file.file_path}" target="_blank" class="btn btn-sm btn-primary">Abrir</a>
+                  <button class="btn btn-sm btn-danger delete-file" data-file-id="${file.id}">Apagar</button>
+                </div>
               `;
               fileList.appendChild(listItem);
             });
@@ -892,6 +942,30 @@ document.addEventListener('DOMContentLoaded', function () {
           // Configure o botão de download para baixar todos os arquivos
           downloadAllFilesButton.href = `/documents/${documentId}/download-all`;
           viewFilesModal.show();
+
+          // Adiciona evento de clique para os botões de exclusão
+          var deleteFileButtons = document.querySelectorAll('.delete-file');
+          deleteFileButtons.forEach(function (deleteButton) {
+            deleteButton.addEventListener('click', function () {
+              var fileId = this.getAttribute('data-file-id');
+              if (confirm('Você tem certeza que deseja apagar este arquivo?')) {
+                fetch(`/documents/files/${fileId}`, {
+                  method: 'DELETE',
+                  headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                  }
+                })
+                .then(response => {
+                  if (response.ok) {
+                    this.closest('li').remove();
+                  } else {
+                    alert('Erro ao apagar o arquivo.');
+                  }
+                })
+                .catch(error => console.error('Erro:', error));
+              }
+            });
+          });
         })
         .catch(error => {
           console.error('Erro ao carregar arquivos:', error);
