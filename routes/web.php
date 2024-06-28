@@ -33,17 +33,18 @@ Route::middleware(AuthenticateUser::class)->group(function () {
     Route::get('loan_form/{id}', [HomeController::class, 'loan_form'])->name('loan_form');
     Route::get('reports', [HomeController::class, 'reports'])->name('reports');
     Route::get('box', [HomeController::class, 'box'])->name('box');
+    Route::get('cabinet', [HomeController::class, 'cabinet'])->name('cabinet');
     
-    Route::get('/documents/{id}/files', [DocumentController::class, 'getFiles']);
-    Route::get('/documents/{id}/download-all', [DocumentController::class, 'downloadAllFiles'])->name('download.all.files');
-    Route::delete('/documents/files/{id}', [DocumentController::class, 'deleteFile']);
+    Route::get('documents/{id}/files', [DocumentController::class, 'getFiles']);
+    Route::get('documents/{id}/download-all', [DocumentController::class, 'downloadAllFiles'])->name('download.all.files');
+    Route::delete('documents/files/{id}', [DocumentController::class, 'deleteFile']);
 
     
-    Route::get('/user/{id}/projects', [UserController::class, 'user_projects'])->name('user_projects');;
-    Route::post('/user/assing-projects', [UserController::class, 'assing_projects'])->name('assing.projects');
-    Route::get('/user/assing/delete', [UserController::class, 'assing_delete'])->name('assing.delete');
+    Route::get('user/{id}/projects', [UserController::class, 'user_projects'])->name('user_projects');;
+    Route::post('user/assing-projects', [UserController::class, 'assing_projects'])->name('assing.projects');
+    Route::get('user/assing/delete', [UserController::class, 'assing_delete'])->name('assing.delete');
     
-    Route::get('/temporality/{id}/volatile_columns', [TemporalityController::class, 'getVolatileColumns']);
+    Route::get('temporality/{id}/volatile_columns', [TemporalityController::class, 'getVolatileColumns']);
     
     
     Route::post('create-project', [ProjectController::class, 'create'])->name('create.project');
@@ -58,12 +59,11 @@ Route::middleware(AuthenticateUser::class)->group(function () {
     Route::get('delete-project/{id}', [ProjectController::class, 'delete'])->name('delete.project');
     Route::get('delete-user/{id}', [UserController::class, 'delete'])->name('delete.user'); // Controlador corrigido
 
-    Route::get('/generate-documents-report', [ReportController::class, 'generateDocumentsReport'])->name('generate.documents.report');
-    Route::get('/generate-loans-report', [ReportController::class, 'generateLoansReport'])->name('generate.loans.report');
+    Route::get('generate-documents-report', [ReportController::class, 'generateDocumentsReport'])->name('generate.documents.report');
+    Route::get('generate-loans-report', [ReportController::class, 'generateLoansReport'])->name('generate.loans.report');
     
 });
 
-Route::get('/show/document/{document_id}', [HomeController::class, 'show_document'])->name('show.document');
-Route::get('/show/document_collection/{id}', [HomeController::class, 'document_collection'])->name('show.document_collection');
-Route::get('/show/box/{box}', [HomeController::class, 'box'])->name('show.box');
+Route::get('show/document/{document_id}', [HomeController::class, 'show_document'])->name('show.document');
+Route::get('show/document_collection/{id}', [HomeController::class, 'document_collection'])->name('show.document_collection');
 

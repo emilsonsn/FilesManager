@@ -69,6 +69,10 @@ class HomeController extends Controller
     return view('prints.box');
   }
 
+  public function cabinet(){
+    return view('prints.cabinet');
+  }
+  
   public function reports(){
     return view('reports');
   }
@@ -80,10 +84,5 @@ class HomeController extends Controller
   public function document_collection($id){
     return view('show.document_collection', ['id' => $id]);
   }
-
-  
-
-  
-
 
 }

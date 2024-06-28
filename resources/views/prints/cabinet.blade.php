@@ -1,6 +1,6 @@
 @php
     use App\Models\Project;
-    $project_id = explode(',',$_GET[0])[10];
+    $project_id = explode(',',$_GET[0])[11];
 
     $project = Project::find($project_id);
 
@@ -101,6 +101,25 @@
         img{
             width: 60px;
         }
+        .last-td{
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 50%;
+            border: none !important;
+        }
+        .last-td div{
+            border-top: none !important;
+        }        
+        table .teste{
+            border: none !important;
+            border-bottom: 1.5px solid black !important;
+            border-right: 1.5px solid black !important;
+        }
+        table .border-rigth{
+            border-right: 1.5px solid black !important;        
+        }
     </style>
 </head>
 <body>
@@ -141,7 +160,7 @@
                             </div>
                             <div class="qr-code" style="margin-left: 20px">
                                 @php                                 
-                                    $url = route('documents', ['project_id' => $project->id, 'box_search' => $item[9]]);
+                                    $url = route('documents', ['project_id' => $project->id, 'drawer_search' => $item[10]]);
                                 @endphp
                                 {{QrCode::size(60)->generate($url)}}
                             </div>
@@ -179,9 +198,15 @@
                             Destinação Final:
                         <div class="value">{{$item[8]}}</div>
                     </td>
-                    <td class="highlight">
-                            Caixa:
-                        <div class="value code box">{{$item[9]}}</div>
+                    <td class="highlight d-flex teste" style="display: flex; height: 100%;">
+                        <div class="last-td border-rigth">
+                            Armario:
+                            <span class="box value code">{{$item[9]}}</span>
+                        </div>
+                        <div class="last-td">
+                            Gaveta:
+                            <span class="box value code">{{$item[10]}}</span>
+                        </div>
                     </td>
                 </tr>
             </table>        

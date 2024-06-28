@@ -29,34 +29,37 @@
     $auth = auth()->user();
     $document = Document::orderBy($order_by, $order_form);
 
-    if($classification_search || $all_search){      
-        $document->where('classification', $classification_search)
-          ->orWhere('classification', 'like', "%$all_search%");
+    if($classification_search){
+        $document->where('classification', $classification_search);    }
+
+    if($doc_number_search){
+      $document->where('doc_number', $doc_number_search);
     }
 
-    if($doc_number_search || $all_search){
-      $document->where('doc_number', "$doc_number_search")
-        ->orWhere('doc_number', "$all_search");
+    if($holder_search){
+      $document->where('holder_name', 'like', "%$holder_search%");
+    }
+    
+    if($all_search){
+      $document->where('holder_name', 'like', "%$all_search%")
+      ->orWhere('box', $all_search)
+      ->orWhere('cabinet', $all_search)
+      ->orWhere('description', $all_search)
+      ->orWhere('drawer', $all_search)
+      ->orWhere('tags', $all_search)
+      ->orWhere('doc_number', $all_search);
     }
 
-    if($holder_search || $all_search){
-      $document->where('holder_name', 'like', "%$holder_search%")
-        ->orWhere('holder_name', 'like', "%$all_search%");
+    if($box_search){      
+        $document->where('box', $box_search);
     }
 
-    if($box_search || $all_search){      
-        $document->where('box', $box_search)
-          ->orWhere('box', "$all_search");
+    if($cabinet_search){      
+        $document->where('cabinet', $cabinet_search);
     }
 
-    if($cabinet_search || $all_search){      
-        $document->where('cabinet', $cabinet_search)
-          ->orWhere('cabinet', "$all_search");
-    }
-
-    if($drawer_search || $all_search){      
-        $document->where('drawer', $drawer_search)
-          ->orWhere('drawer', "$all_search");
+    if($drawer_search){      
+        $document->where('drawer', $drawer_search);
     }
 
     if($destination_search){      
@@ -65,14 +68,13 @@
         });
     }
 
-    if($tags_search || $all_search){
-      $document->where('tags', 'like', "%$tags_search%")
-        ->orWhere('tags', "$all_search");
+    if($tags_search){
+      $document->where('tags', 'like', "%$tags_search%");
     }
 
-    if($version_search || $all_search){      
-        $document->where('version', $version_search)
-          ->orWhere('version', "$all_search");
+    if($version_search){      
+        $document->where('version', $version_search);
+          $document->orWhere('version', "$all_search");
     }
 
     if ($loan_situation_search) {
@@ -114,17 +116,28 @@
     
   @vite(['resources/sass/dashboard.scss'])
   <div class="col-md-10 mt-4 content w-100 h-100">
-    <h1 class="pt-4 d-flex justify-content-space-around">
+    <h1 class="pt-4 d-flex justify-content-space-around" style="flex-wrap: wrap">
       <div>
         @if($project->image_path)      
           <img src="{{ asset('storage/' . $project->image_path) }}" width="70">
         @endif
       </div>
 
+
+
+
+
+
       Documentos
-      <div>
-        <button class="btn btn-sm btn-primary ms-2" id="generateBoxPrint">Gerar impressão de caixa</button>
-      </div>
+
+        <div>
+          <button class="btn btn-sm btn-primary ms-2" id="generateBoxPrint">Gerar impressão de caixa</button>
+        </div>
+        
+        <div>
+          <button class="btn btn-sm btn-primary ms-2" id="generateCabinetPrint">Gerar impressão de Armário</button>
+        </div>
+      
     </h1>
     @if($auth->create_doc)
       <a href="#" class="fs-1 c-green add" data-bs-toggle="modal" data-bs-target="#addDocumentModal">
@@ -150,7 +163,7 @@
         <input value="{{$cabinet_search}}" type="text" id="cabinet_search" name="cabinet_search"class="form-control">
       </div>
       <div class="col-md-2 mt-2">
-        <label for="search">Gavetas</label>
+        <label for="search">Gaveta</label>
         <input value="{{$drawer_search}}" type="text" id="drawer_search" name="drawer_search" class="form-control">
       </div>
       <div class="col-md-2 mt-2">
@@ -531,8 +544,8 @@
                 <input type="text" class="form-control" id="central_archive" name="central_archive" required>
               </div>
               <div class="mb-3 col-md-4">
-                <label for="organization" class="form-label">Organização e Funcionamento</label>
-                <input type="text" class="form-control" id="organization" name="organization" placeholder="Opcional">
+                <label for="organization" class="form-label">Opcional</label>
+                <input type="text" class="form-control" id="organization" name="organization">
               </div>
               <div class="mb-3 col-md-4">
                 <label for="classification_code" class="form-label">Código de Classificação</label>
@@ -540,7 +553,10 @@
               </div>
               <div class="mb-3 col-md-4">
                 <label for="area" class="form-label">Área</label>
-                <input type="text" class="form-control" id="area" name="area" required>
+                <select type="text" class="form-control" id="area" name="area" required>
+                  <option value="MEIO">Meio</option>
+                  <option value="FIM">Fim</option>
+                </select>
               </div>
               <div class="mb-3 col-md-4">
                 <label for="custody_period" class="form-label">Prazo de Guarda</label>
@@ -601,9 +617,100 @@
 
         </div>
       </div>
-    </div>
-    
+    </div>    
   </div>
+
+    <!-- Modal para gerar impressão de armário -->
+  <div class="modal fade" id="generateCabinetPrintModal" tabindex="-1" aria-labelledby="generateCabinetPrintModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="generateCabinetPrintModalLabel">Gerar Impressão do Armário</h5>
+        </div>
+        <div class="modal-body">
+          <form id="cabinetPrintForm">
+            <div class="row">
+              <div class="mb-3 col-md-4">
+                <label for="central_archive_cabinet" class="form-label">Arquivo Central</label>
+                <input type="text" class="form-control" id="central_archive_cabinet" name="central_archive_cabinet" required>
+              </div>
+              <div class="mb-3 col-md-4">
+                <label for="organization_cabinet" class="form-label">Opcional</label>
+                <input type="text" class="form-control" id="organization_cabinet" name="organization_cabinet">
+              </div>
+              <div class="mb-3 col-md-4">
+                <label for="classification_code_cabinet" class="form-label">Código de Classificação</label>
+                <input type="text" class="form-control" id="classification_code_cabinet" name="classification_code_cabinet" required>
+              </div>
+              <div class="mb-3 col-md-4">
+                <label for="area_cabinet" class="form-label">Área</label>
+                <select type="text" class="form-control" id="area_cabinet" name="area_cabinet" required>
+                  <option value="MEIO">Meio</option>
+                  <option value="FIM">Fim</option>
+                </select>
+              </div>
+              <div class="mb-3 col-md-4">
+                <label for="custody_period_cabinet" class="form-label">Prazo de Guarda</label>
+                <input type="text" class="form-control" id="custody_period_cabinet" name="custody_period_cabinet" required>
+              </div>
+              <div class="mb-3 col-md-4">
+                <label for="archive_year_cabinet" class="form-label">Ano de Arquivamento</label>
+                <input type="text" class="form-control" id="archive_year_cabinet" name="archive_year_cabinet" required>
+              </div>
+              <div class="mb-3 col-md-4">
+                <label for="location_cabinet" class="form-label">Localização</label>
+                <input type="text" class="form-control" id="location_cabinet" name="location_cabinet" required>
+              </div>
+              <div class="mb-3 col-md-4">
+                <label for="final_destination_cabinet" class="form-label">Destinação Final</label>
+                <select class="form-control" id="final_destination_cabinet" name="final_destination_cabinet" required>
+                  <option value="Permanente">Permanente</option>
+                  <option value="Eliminação">Eliminação</option>
+                </select>
+              </div>
+              <div class="mb-3 col-md-4">
+                <label for="cabinet_number" class="form-label">Número do Armário</label>
+                <input class="form-control" name="cabinet_number" id="cabinet_number" type="number">
+              </div>
+              <div class="mb-3 col-md-4">
+                <label for="drawer_number" class="form-label">Número da Gaveta</label>
+                <input type="text" class="form-control" id="drawer_number" name="drawer_number" required>
+              </div>
+              <div class="mb-3 col-md-8">
+                <label for="observations_cabinet" class="form-label">Observações</label>
+                <input type="text" class="form-control" id="observations_cabinet" name="observations_cabinet">
+              </div>
+            </div>
+            <button type="button" class="btn btn-primary" id="addCabinetPrint">Adicionar</button>
+            <button type="button" class="btn btn-success" id="printCabinet">Imprimir</button>
+          </form>
+
+          <div class="table-container mt-5" style="overflow-x: scroll">
+            <table class="table table-striped" id="cabinetPrintTable">
+              <thead>
+                <tr>
+                  <th>Arquivo Central</th>
+                  <th>Organização e Funcionamento</th>
+                  <th>Código de Classificação</th>
+                  <th>Área</th>
+                  <th>Prazo de Guarda</th>
+                  <th>Observações</th>
+                  <th>Ano de Arquivamento</th>
+                  <th>Localização</th>
+                  <th>Destinação Final</th>
+                  <th>Número do Armário</th>
+                  <th>Número da Gaveta</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -642,9 +749,11 @@
   function addTableBox(caixas){
     var table = document.getElementById('boxPrintTable').querySelector('tbody');
 
-    var row = table.insertRow();
+    table.innerHTML = '';
 
+    
     caixas.forEach((caixa) => {
+          var row = table.insertRow();
           row.insertCell(0).innerText = caixa[0];
           row.insertCell(1).innerText = caixa[1];
           row.insertCell(2).innerText = caixa[2];
@@ -975,6 +1084,59 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+  document.getElementById('generateCabinetPrint').addEventListener('click', function () {
+    var modal = new bootstrap.Modal(document.getElementById('generateCabinetPrintModal'));
+    modal.show();
+  });
+
+  armarios = []
+  document.getElementById('addCabinetPrint').addEventListener('click', function () {
+    var form = document.getElementById('cabinetPrintForm');
+    armarios.push([
+      form.central_archive_cabinet.value,
+      form.organization_cabinet.value,
+      form.classification_code_cabinet.value,
+      form.area_cabinet.value,
+      form.custody_period_cabinet.value,
+      form.observations_cabinet.value,
+      form.archive_year_cabinet.value,
+      form.location_cabinet.value,
+      form.final_destination_cabinet.value,
+      form.cabinet_number.value,
+      form.drawer_number.value,
+      {{$project_id}}
+    ]);
+    addTableCabinet(armarios);
+    form.reset();
+  });
+
+  function addTableCabinet(armarios) {
+    var table = document.getElementById('cabinetPrintTable').querySelector('tbody');
+    table.innerHTML = '';
+    armarios.forEach((armario) => {
+      var row = table.insertRow();
+      row.insertCell(0).innerText = armario[0];
+      row.insertCell(1).innerText = armario[1];
+      row.insertCell(2).innerText = armario[2];
+      row.insertCell(3).innerText = armario[3];
+      row.insertCell(4).innerText = armario[4];
+      row.insertCell(5).innerText = armario[5];
+      row.insertCell(6).innerText = armario[6];
+      row.insertCell(7).innerText = armario[7];
+      row.insertCell(8).innerText = armario[8];
+      row.insertCell(9).innerText = armario[9];
+      row.insertCell(10).innerText = armario[10];
+    });
+  }
+
+  document.getElementById('printCabinet').addEventListener('click', function () {
+    var queryString = Object.keys(armarios).map(key => key + '=' + encodeURIComponent(armarios[key])).join('&');
+    window.location.href = '/cabinet?' + queryString;
+  });
+});
+
 
   </script>
 

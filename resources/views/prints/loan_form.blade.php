@@ -156,8 +156,8 @@
                         <td colspan="5"><strong>NOME DO RESPONSÁVEL PELA DECOLUÇÃO: {{$documentCollection->receiver_author}}</strong></td>
                     </tr>
                     <tr>
-                        <td colspan="5"><strong>DATA DO EMPRÉSTIMO: {{Carbon::parse($documentCollection->loan_date)->format('d/m/Y')}}</strong></td>
-                        <td colspan="5"><strong>DATA DA DEVOLUÇÃO: {{Carbon::parse($documentCollection->return_date)->format('d/m/Y')}}</strong></td>
+                        <td colspan="5"><strong>DATA DO EMPRÉSTIMO: {{isset($documentCollection->loan_date) ? Carbon::parse($documentCollection->loan_date)->format('d/m/Y') : ''}}</strong></td>
+                        <td colspan="5"><strong>DATA DA DEVOLUÇÃO: {{isset($documentCollection->return_date) ? Carbon::parse($documentCollection->return_date)->format('d/m/Y') : ''}}</strong></td>
                     </tr>
                 </tbody>
             </table>
