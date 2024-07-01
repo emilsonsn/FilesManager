@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Document;
 use App\Models\DocumentFile;
+use App\Traits\WasabiTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
@@ -11,15 +12,17 @@ use ZipArchive;
 
 class DocumentController extends Controller
 {
+
+    use WasabiTrait;
     public function create(Request $request)
     {
 
         $auth = auth()->user();
         $maxSize = ($auth->upload_limit ?? 0) * 1024;
 
-        $request->validate([
-            'files.*' => "required|file|max:$maxSize",
-        ]);
+        // $request->validate([
+        //     'files.*' => "required|file|max:$maxSize",
+        // ]);
 
         $data = $request->all();
         $data['user_id'] = $auth->id;
@@ -37,12 +40,14 @@ class DocumentController extends Controller
 
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $file) {
-                    $filePath = $file->store('documents', 'public');
-                    DocumentFile::create([
-                        'document_id' => $document->id,
-                        'name' => $file->getClientOriginalName(),
-                        'file_path' => $filePath,
-                    ]);
+                    $filePath = $this->uploadToWasabi($file);
+                    if($filePath){
+                        DocumentFile::create([
+                            'document_id' => $document->id,
+                            'name' => $file->getClientOriginalName(),
+                            'file_path' => $filePath,
+                        ]);
+                    }
                 }
             }
 
@@ -58,7 +63,11 @@ class DocumentController extends Controller
     {
         $document = Document::find($id);
         if ($document) {
-            return response()->json($document->files);
+            $files = $document->files;
+            foreach($files as $file){
+                if($file->file_path) $file->file_path = $this->getPresignedUrlWasabi($file->file_path);
+            }
+            return response()->json($files);
         }
         return response()->json([], 404);
     }

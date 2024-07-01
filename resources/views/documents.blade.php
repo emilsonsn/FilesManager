@@ -115,6 +115,10 @@
   @endphp
     
   @vite(['resources/sass/dashboard.scss'])
+
+  <div class="document-loading" id="document-loading" style="display:none;">
+    <img src="https://cdn.pixabay.com/animation/2023/10/08/03/19/03-19-26-213_512.gif" alt="">
+  </div>
   <div class="col-md-10 mt-4 content w-100 h-100">
     <h1 class="pt-4 d-flex justify-content-space-around" style="flex-wrap: wrap">
       <div>
@@ -336,7 +340,7 @@
             <input type="hidden" name="project_id" value="{{$project_id}}">
 
             <div class="row">
-              <div class="mb-3 col-md-3">
+              <div class="mb-3 col-md-4">
                 <label for="temporality_id" class="form-label">Código de classificação</label>
                 <select name="temporality_id" id="temporality_id" class="form-control">
                   <option value="">Selecione uma opção</option>
@@ -345,23 +349,23 @@
                   @endforeach
                 </select>
               </div>
-              <div class="mb-3 col-md-3">
+              <div class="mb-3 col-md-4">
                 <label for="area" class="form-label">Área</label>
                 <input type="text" class="form-control" id="area"  readonly>
               </div>
-              <div class="mb-3 col-md-3">
+              <div class="mb-3 col-md-4">
                 <label for="function" class="form-label">Função</label>
                 <input type="text" class="form-control" id="function"  readonly>
               </div>
-              <div class="mb-3 col-md-3">
+              <div class="mb-3 col-md-4">
                 <label for="sub_function" class="form-label">Sub-função</label>
                 <input type="text" class="form-control" id="sub_function"  readonly>
               </div>
-              <div class="mb-3 col-md-3">
+              <div class="mb-3 col-md-4">
                 <label for="activity" class="form-label">Atividade</label>
                 <input type="text" class="form-control" id="activity"  readonly>
               </div>
-              <div class="mb-3 col-md-3">
+              <div class="mb-3 col-md-4">
                 <label for="tipology" class="form-label">Tipologia</label>
                 <input type="text" class="form-control" id="tipology"  readonly>
               </div>
@@ -392,7 +396,7 @@
                   Data inicial
                   <div onclick="setDates('initial_date')" class="btn btn-sm"><i class="fa-regular fa-calendar-check"></i></div>
                 </label>
-                <input type="date" class="form-control" id="initial_date" name="initial_date" required>
+                <input type="date" class="form-control" id="initial_date" name="initial_date">
               </div>
               <div class="mb-3 col-md-3">
                 <label for="archive_date" class="form-label">
@@ -791,11 +795,11 @@ function setDates(input) {
 
   var expiration_date_A_C = new Date(currentDate);
   expiration_date_A_C.setFullYear(currentDate.getFullYear() + current_custody_period);
-  document.getElementById('expiration_date_A_C').value = expiration_date_A_C.toISOString().split('T')[0];
+  document.getElementById('expiration_date_A_C').value = expiration_date_A_C ? expiration_date_A_C.toISOString().split('T')[0] : '';
 
   var expiration_date_A_I = new Date(currentDate);
   expiration_date_A_I.setFullYear(currentDate.getFullYear() + intermediate_custody_period);
-  document.getElementById('expiration_date_A_I').value = expiration_date_A_I.toISOString().split('T')[0];
+  document.getElementById('expiration_date_A_I').value = expiration_date_A_I ? expiration_date_A_I.toISOString().split('T')[0] : '';
 }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -967,11 +971,11 @@ document.addEventListener('DOMContentLoaded', function () {
         modalForm.querySelector('#intermediate_custody_period').value = temporality.intermediate_custody_period;
         modalForm.querySelector('#final_destination').value = temporality.final_destination;
 
-        var expiration_date_A_C = new Date(new Date(initial_date).setFullYear(new Date(initial_date).getFullYear() + parseInt(temporality.current_custody_period)));
-        var expiration_date_A_I = new Date(new Date(initial_date).setFullYear(new Date(initial_date).getFullYear() + parseInt(temporality.intermediate_custody_period)));
+        var expiration_date_A_C = initial_date ? new Date(new Date(initial_date).setFullYear(new Date(initial_date).getFullYear() + parseInt(temporality.current_custody_period))) : '';
+        var expiration_date_A_I = initial_date ? new Date(new Date(initial_date).setFullYear(new Date(initial_date).getFullYear() + parseInt(temporality.intermediate_custody_period))) : '';
 
-        modalForm.querySelector('#expiration_date_A_C').value = expiration_date_A_C.toISOString().split('T')[0];
-        modalForm.querySelector('#expiration_date_A_I').value = expiration_date_A_I.toISOString().split('T')[0];
+        modalForm.querySelector('#expiration_date_A_C').value = expiration_date_A_C ? expiration_date_A_C.toISOString().split('T')[0] : '';
+        modalForm.querySelector('#expiration_date_A_I').value = expiration_date_A_I ? expiration_date_A_I.toISOString().split('T')[0] : '';
       }
 
       var modalInstance = new bootstrap.Modal(modal);
@@ -1014,6 +1018,10 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
+document.getElementById('submit-button').addEventListener('click', () => {
+  document.getElementById('document-loading').style.display = 'flex';
+});
+
 document.addEventListener('DOMContentLoaded', function () {
   var viewButtons = document.querySelectorAll('.view-files');
   var fileList = document.getElementById('fileList');
@@ -1034,7 +1042,7 @@ document.addEventListener('DOMContentLoaded', function () {
               listItem.innerHTML = `
                 ${new Date(file.created_at).toLocaleDateString('pt-BR')} - ${file.name}
                 <div>
-                  <a href="/storage/${file.file_path}" target="_blank" class="btn btn-sm btn-primary">Abrir</a>
+                  <a href="${file.file_path}" target="_blank" class="btn btn-sm btn-primary">Abrir</a>
                   <button class="btn btn-sm btn-danger delete-file" data-file-id="${file.id}">Apagar</button>
                 </div>
               `;
