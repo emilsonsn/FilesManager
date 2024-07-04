@@ -30,20 +30,25 @@ class UpToWasabi extends Command
      */
     public function handle()
     {
-        $documentFiles = DocumentFile::where('file_path', 'like', 'documents/%')->get();
-
-        foreach ($documentFiles as $documentFile) {
-            $localPath = $documentFile->file_path;
-            $fileContents = Storage::disk('public')->get($localPath);
-
-            $wasabiPath = $this->uploadToWasabi($fileContents);
-
-            $documentFile->file_path = $wasabiPath;
-            $documentFile->save();
-
-            // Storage::disk('public')->delete($localPath);
-        }
-
-        $this->info('Files have been migrated to Wasabi.');
+        // $documentFiles = DocumentFile::where('file_path', 'like', 'documents/%')->get();
+    
+        // foreach ($documentFiles as $documentFile) {
+        //     $localPath = $documentFile->file_path;
+        //     $fileContents = Storage::disk('public')->get($localPath);
+    
+        //     $fileName = basename($localPath);
+        //     $wasabiPath = $this->uploadToWasabi($fileContents, "/{$fileName}");
+    
+        //     if ($wasabiPath) {
+        //         $documentFile->file_path = $fileName;
+        //         $documentFile->save();
+        //         // Storage::disk('public')->delete($localPath);
+        //     } else {
+        //         $this->error("Failed to upload: $localPath");
+        //     }
+        // }
+    
+        // $this->info('Files have been migrated to Wasabi.');
     }
+    
 }
