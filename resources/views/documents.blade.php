@@ -104,10 +104,10 @@
     $temporalitys = [];
 
     if($auth->read_doc){
-      $uniqueBoxes = Document::where('project_id', $project_id)
-        ->whereNotNull('box')
-        ->distinct()
-        ->pluck('box');      
+      // $uniqueBoxes = Document::where('project_id', $project_id)
+      //   ->whereNotNull('box')
+      //   ->distinct()
+      //   ->pluck('box');      
       
         $documents = $document->where('project_id', $project_id)->paginate(15);
 
@@ -595,11 +595,12 @@
               </div>
               <div class="mb-3 col-md-4">
                 <label for="box_number" class="form-label">Número da Caixa</label>
-                <select class="form-control" name="box_number" id="box_number">
+                <input type="text" class="form-control" name="box_number" id="box_number">
+                {{-- <select class="form-control" name="box_number" id="box_number">
                   @foreach ($uniqueBoxes as $uniqueBox)
                       <option value="{{$uniqueBox}}">{{$uniqueBox}}</option>
                   @endforeach
-                </select>
+                </select> --}}
               </div>
               <div class="mb-3 col-md-12">
                 <label for="observations" class="form-label">Observações</label>
