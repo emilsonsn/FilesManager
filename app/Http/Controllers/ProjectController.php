@@ -38,7 +38,6 @@ class ProjectController extends Controller
             'description' => "Deletou um projeto $project->description"
         ]);
 
-
         $project->delete();
         return redirect('dashboard');
     }

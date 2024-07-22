@@ -20,17 +20,21 @@
     $version_search = $_GET['version_search'] ?? null;
     $loan_situation_search = $_GET['loan_situation_search'] ?? null;
     $order_by = $_GET['order_by'] ?? 'id';
-    $order_form = $_GET['order_form'] ?? 'desc';
+    $order_form = $_GET['order_form'] ?? 'asc';
     $tags_search = $_GET['tags_search'] ?? '';
     $all_search = $_GET['all_search'] ?? '';
     $holder_search = $_GET['holder_search'] ?? '';
     $doc_number_search = $_GET['doc_number_search'] ?? '';
     
     $auth = auth()->user();
+    $documents = [];
     $document = Document::orderBy($order_by, $order_form);
 
     if($classification_search){
-        $document->where('classification', $classification_search);    }
+        $document->whereHas('temporality',function($query) use($classification_search) {
+          $query->where('code', $classification_search);
+        });
+    }
 
     if($doc_number_search){
       $document->where('doc_number', $doc_number_search);
@@ -44,7 +48,7 @@
       $document->where('holder_name', 'like', "%$all_search%")
       ->orWhere('box', $all_search)
       ->orWhere('cabinet', $all_search)
-      ->orWhere('description', $all_search)
+      ->orWhere('description','like', "%$all_search%")
       ->orWhere('drawer', $all_search)
       ->orWhere('tags', $all_search)
       ->orWhere('doc_number', $all_search);
@@ -97,18 +101,17 @@
         $document->whereDate('archive_date', $initial_date);
     }
 
-    $documents = [];
     $temporalitys = [];
 
     if($auth->read_doc){
-      $documents = $document->where('project_id', $project_id);
       $uniqueBoxes = Document::where('project_id', $project_id)
         ->whereNotNull('box')
         ->distinct()
         ->pluck('box');      
+      
+        $documents = $document->where('project_id', $project_id)->paginate(15);
 
-      $documents = $documents->get();
-      $temporalitys = Temporality::get();
+        $temporalitys = Temporality::get();
     }
 
     $project = Project::find($project_id);
@@ -260,13 +263,14 @@
             <th scope="col">Nome do Titular</th>
             <th scope="col">Descrição</th>
             <th scope="col">Caixa</th>
-            <th scope="col">Arḿario</th>
+            <th scope="col">Armário</th>
             <th scope="col">Gavetas</th>
             <th scope="col">Quantidade de Pastas</th>
             <th scope="col">Situação A.C</th>
-            <th scope="col">Situação A.I</th>     
+            <th scope="col">Situação A.I</th>
             <th scope="col" class="text-center">Status</th>
             <th scope="col">Detalhes</th>
+            <th scope="col">Copiar</th>
             <th scope="col">Arquivos</th>
             <th scope="col" class="text-center">Ações</th>
           </tr>
@@ -283,7 +287,7 @@
               <td class="text-center">{{ $doc->cabinet ?? '----' }}</td>
               <td class="text-center">{{ $doc->drawer ?? '----' }}</td>
               <td class="text-center">{{ $doc->qtpasta ?? '----' }}</td>
-
+    
               <td class="text-center" style="font-weight: 600; color: {{!$doc->situationAC ? '' : ($doc->situationAC == 'Ativo' ? 'green' : 'red')}} !important;">{{ $doc->situationAC }}</td>
               <td class="text-center" style="font-weight: 600; color: {{!$doc->situationAI ? '' : ($doc->situationAI == 'Ativo' ? 'green' : 'red')}} !important;">{{ $doc->situationAI }}</td>
               @php
@@ -294,8 +298,17 @@
               @endphp
               <td class="text-center" style="font-weight: 600; color: {{($type == 'transfer' || $type == 'loan') ? 'red' : ''}} !important;">{{$type == 'transfer' ? 'Transferido' : ($type == 'loan' ? "Emprestado" : $type)}}</td>
               <td class="text-center fs-4">
+              @if($auth->edit_doc)
                 <a href="#" class="edit-document" style="color: rgb(50, 127, 243) !important;" data-edit="1" data-tags="{{$doc->tags}}" data-archive_date="{{$doc->archive_date}}" data-initial_date="{{$doc->initial_date}}" data-id="{{ $doc->id }}" data-observations="{{ $doc->observations }}" data-project_id="{{ $doc->project_id }}" data-temporality_id="{{ $doc->temporality_id }}" data-doc_number="{{ $doc->doc_number }}" data-holder_name="{{ $doc->holder_name }}" data-description="{{ $doc->description }}" data-box="{{ $doc->box }}" data-qtpasta="{{ $doc->qtpasta }}" data-file="{{ $doc->file }}" data-cabinet="{{ $doc->cabinet }}" data-drawer="{{ $doc->drawer }}" data-classification="{{ $doc->classification }}" data-version="{{ $doc->version }}" data-situationac="{{ $doc->situationAC }}" data-situationai="{{ $doc->situationAI }}">
                   <i class="fa-solid fa-circle-info"></i>
+                </a>
+                @else
+                  -----
+                @endif
+              </td>
+              <td class="text-center fs-4">
+                <a style="color: rgb(85, 85, 85) !important; cursor: pointer;">
+                  <i class="fa-solid fa-copy"></i>
                 </a>
               </td>
               <td>
@@ -323,7 +336,11 @@
           @endforeach
         </tbody>
       </table>
+      <div class="d-flex justify-content-center">
+        {{$documents->links()}}
+      </div>      
     </div>
+    
   </div>
 
   <!-- Modal -->
@@ -1139,6 +1156,80 @@ document.addEventListener('DOMContentLoaded', function () {
     window.location.href = '/cabinet?' + queryString;
   });
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+  var copyButtons = document.querySelectorAll('.fa-copy');
+  var modal = document.getElementById('addDocumentModal');
+  var modalForm = modal.querySelector('form');
+  var temporalitys = @json($temporalitys);
+
+  copyButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      var editButton = button.closest('tr').querySelector('.edit-document');
+      var id = '';
+      var project_id = editButton.getAttribute('data-project_id');
+      var doc_number = editButton.getAttribute('data-doc_number');
+      var temporality_id = editButton.getAttribute('data-temporality_id');
+      var holder_name = editButton.getAttribute('data-holder_name');
+      var description = editButton.getAttribute('data-description');
+      var box = editButton.getAttribute('data-box');
+      var qtpasta = editButton.getAttribute('data-qtpasta');
+      var file = editButton.getAttribute('data-file');
+      var cabinet = editButton.getAttribute('data-cabinet');
+      var observations = editButton.getAttribute('data-observations');
+      var drawer = editButton.getAttribute('data-drawer');
+      var initial_date = editButton.getAttribute('data-initial_date');
+      var archive_date = editButton.getAttribute('data-archive_date');
+      var classification = editButton.getAttribute('data-classification');
+      var version = editButton.getAttribute('data-version');
+      var situationAC = editButton.getAttribute('data-situationac');
+      var situationAI = editButton.getAttribute('data-situationai');    
+      var tags = editButton.getAttribute('data-tags');    
+
+      modalForm.querySelector('[name="id"]').value = id;
+      modalForm.querySelector('[name="project_id"]').value = project_id;
+      modalForm.querySelector('[name="temporality_id"]').value = temporality_id;
+      modalForm.querySelector('[name="holder_name"]').value = holder_name;
+      modalForm.querySelector('[name="description"]').value = description;
+      modalForm.querySelector('[name="box"]').value = box;
+      modalForm.querySelector('[name="qtpasta"]').value = qtpasta;
+      modalForm.querySelector('[name="doc_number"]').value = doc_number;
+      modalForm.querySelector('[name="cabinet"]').value = cabinet;
+      modalForm.querySelector('[name="observations"]').value = observations;
+      modalForm.querySelector('[name="drawer"]').value = drawer;
+      modalForm.querySelector('[name="initial_date"]').value = initial_date;
+      modalForm.querySelector('[name="archive_date"]').value = archive_date;
+      modalForm.querySelector('[name="classification"]').value = classification;
+      modalForm.querySelector('[name="version"]').value = version;
+      modalForm.querySelector('[name="situationAC"]').value = situationAC;
+      modalForm.querySelector('[name="situationAI"]').value = situationAI;
+      modalForm.querySelector('[name="tags"]').value = tags;
+
+      var temporality = temporalitys.find(t => t.id == temporality_id);
+      if (temporality) {
+        modalForm.querySelector('#area').value = temporality.area;
+        modalForm.querySelector('#function').value = temporality.function;
+        modalForm.querySelector('#sub_function').value = temporality.sub_function;
+        modalForm.querySelector('#activity').value = temporality.activity;
+        modalForm.querySelector('#tipology').value = temporality.tipology;
+        modalForm.querySelector('#current_custody_period').value = temporality.current_custody_period;
+        modalForm.querySelector('#intermediate_custody_period').value = temporality.intermediate_custody_period;
+        modalForm.querySelector('#final_destination').value = temporality.final_destination;
+
+        var expiration_date_A_C = initial_date ? new Date(new Date(initial_date).setFullYear(new Date(initial_date).getFullYear() + parseInt(temporality.current_custody_period))) : '';
+        var expiration_date_A_I = initial_date ? new Date(new Date(initial_date).setFullYear(new Date(initial_date).getFullYear() + parseInt(temporality.intermediate_custody_period))) : '';
+
+        modalForm.querySelector('#expiration_date_A_C').value = expiration_date_A_C ? expiration_date_A_C.toISOString().split('T')[0] : '';
+        modalForm.querySelector('#expiration_date_A_I').value = expiration_date_A_I ? expiration_date_A_I.toISOString().split('T')[0] : '';
+      }
+
+      var modalInstance = new bootstrap.Modal(modal);
+      modalInstance.show();
+    });
+  });
+});
+
+
 
 
   </script>

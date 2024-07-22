@@ -72,6 +72,14 @@ class HomeController extends Controller
   public function cabinet(){
     return view('prints.cabinet');
   }
+
+  public function elimination_list(){
+    return view('elimination_list');
+  }
+
+  public function eliminations($project_id){
+    return view('eliminations', ['project_id' => $project_id]);
+  }
   
   public function reports(){
     return view('reports');

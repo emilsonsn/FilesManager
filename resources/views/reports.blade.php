@@ -47,7 +47,7 @@
           <form action="{{ route('generate.documents.report') }}" method="GET">
             <div class="mb-3">
               <label for="project" class="form-label">Projeto</label>
-              <select name="project_id" id="project" class="form-control" disabled>
+              <select name="project_id" id="project" class="form-control" @readonly(true)>
                 <option value="">Selecione um projeto</option>
                 @foreach($projects as $project)
                   <option {{$project->id == session('project_id') ? 'selected' : ''}} value="{{ $project->id }}">{{ $project->name }}</option>

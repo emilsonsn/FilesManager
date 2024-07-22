@@ -21,7 +21,7 @@
 
     <li class="sidebar-item">
       <a href="{{route('documents', ['project_id' => session('project_id')])}}" class="sidebar-link {{ $currentRoute == 'documents' ? 'active-sidebar-link' : '' }}">
-        <i class="fa-solid fa-layer-group"></i>
+        <i class="fa-solid fa-file-lines"></i>
         <span>Documentos</span>
       </a>
     </li>
@@ -47,10 +47,19 @@
     @endif
     
     <li class="sidebar-item">
-      <a href="{{route('alerts')}}" class="sidebar-link {{ $currentRoute == 'alerts' ? 'active-sidebar-link' : '' }}">
-        <i class="fa-solid fa-bell"></i>
-        <span>Alertas</span>
+      <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+         data-bs-target="#elimination" aria-expanded="false" aria-controls="elimination">
+         <i class="fa-solid fa-circle-xmark"></i>
+         <span>Lista de eliminação</span>
       </a>
+      <ul id="elimination" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#elimination">
+        <li class="sidebar-item">
+          <a href="{{route('elimination_list')}}" class="sidebar-link {{ $currentRoute == 'elimination_list' ? 'active-sidebar-link' : '' }}">Listas</a>
+        </li>
+        <li class="sidebar-item">
+          <a href="{{route('eliminations', ['project_id' => session('project_id')])}}" class="sidebar-link {{ $currentRoute == 'eliminations' ? 'active-sidebar-link' : '' }}">Eliminação</a>
+        </li>
+      </ul>
     </li>
 
     <li class="sidebar-item">

@@ -117,14 +117,14 @@ class DocumentController extends Controller
     }
 
     public function deleteFile($id)
-{
-    $file = DocumentFile::find($id);
-    if ($file) {
-        Storage::disk('public')->delete($file->file_path);
-        $file->delete();
-        return response()->json(['message' => 'Arquivo apagado com sucesso.'], 200);
+    {
+        $file = DocumentFile::find($id);
+        if ($file) {
+            Storage::disk('public')->delete($file->file_path);
+            $file->delete();
+            return response()->json(['message' => 'Arquivo apagado com sucesso.'], 200);
+        }
+        return response()->json(['message' => 'Arquivo não encontrado.'], 404);
     }
-    return response()->json(['message' => 'Arquivo não encontrado.'], 404);
-}
 
 }
