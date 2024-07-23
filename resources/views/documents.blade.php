@@ -768,7 +768,6 @@
 
     table.innerHTML = '';
 
-    
     caixas.forEach((caixa) => {
           var row = table.insertRow();
           row.insertCell(0).innerText = caixa[0];

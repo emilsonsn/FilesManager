@@ -149,7 +149,7 @@
                     <option value="">Selecione uma opção</option>
                     @foreach ($eliminationLists as $eliminationList)
                         <option value="{{ $eliminationList->id }}" {{$elimination_list_search == $eliminationList->id ? 'selected' : ''}}>
-                            {{ $eliminationList->id . ' - ' . $eliminationList->organ . ' | ' . $eliminationList->unit }}
+                            {{ $eliminationList->list_number }}
                         </option>
                     @endforeach
                 </select>
@@ -303,7 +303,7 @@
                         <tr
                             class="{{ strpos($elim->situationAC . ' ' . $elim->situationAI, 'Descartado') !== false ? 'tr-grey' : '' }}">
                             <th scope="row">{{ $elim->id }}</th>
-                            <td class="text-center">{{ $elim->elimination_list->id . ' - ' . $elim->elimination_list->organ . ' | ' . $elim->elimination_list->unit }}</td>
+                            <td class="text-center">{{ $elim->elimination_list->list_number }}</td>
                             <td class="text-center">{{ $elim->temporality->code }}</td>
                             <td class="text-center">{{ $elim->doc_number }}</td>
                             <td class="text-center">{{ $elim->holder_name }}</td>
@@ -404,7 +404,7 @@
                                     <option value="">Selecione uma opção</option>
                                     @foreach ($eliminationLists as $eliminationList)
                                         <option value="{{ $eliminationList->id }}">
-                                            {{ $eliminationList->id . ' - ' . $eliminationList->organ . ' | ' . $eliminationList->unit }}
+                                            {{ $eliminationList->list_number }}
                                         </option>
                                     @endforeach
                                 </select>

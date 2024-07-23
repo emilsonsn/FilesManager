@@ -15,6 +15,7 @@ class EliminationList extends Model
     const UPDATED_AT = 'updated_at';
 
     public $fillable = [
+        'list_number',
         'organ',
         'unit',
         'responsible_selection',
@@ -28,6 +29,14 @@ class EliminationList extends Model
     public function files()
     {
         return $this->hasMany(EliminationListFile::class);
+    }
+
+    public function eliminations(){
+        return $this->hasMany(Elimination::class);
+    }
+
+    public function project(){
+        return $this->belongsTo(Project::class);
     }
 
 }

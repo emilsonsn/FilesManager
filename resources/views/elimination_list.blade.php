@@ -11,6 +11,7 @@
     $status = $_GET['status'] ?? null;
     $order_by = $_GET['order_by'] ?? 'id';
     $order_form = $_GET['order_form'] ?? 'asc';
+    $list_id = $_GET['list_id'] ?? null;
 
     $organ_search = $_GET['organ_search'] ?? null;
     $unit_search = $_GET['unit_search'] ?? null;
@@ -22,6 +23,10 @@
 
     $auth = auth()->user();
     $eliminationLists = EliminationList::orderBy($order_by, $order_form);
+
+    if($list_id){
+        $eliminationLists->where('id', $list_id);
+    }
 
     if ($search) {
         $eliminationLists->where(function($query) use ($search) {
@@ -157,6 +162,7 @@
             <thead>
                 <tr>
                     <th scope="col">ID</th>
+                    <th scope="col">Número</th>
                     <th scope="col">Órgão</th>
                     <th scope="col">Unidade</th>
                     <th scope="col">Responsável pela Seleção</th>
@@ -169,8 +175,9 @@
             </thead>
             <tbody>
                 @foreach ($eliminationLists as $list)
-                    <tr>
+                    <tr style="cursor: pointer;">
                         <th scope="row">{{ $list->id }}</th>
+                        <td class="text-center">{{ $list->list_number }}</td>
                         <td class="text-center">{{ $list->organ }}</td>
                         <td class="text-center">{{ $list->unit }}</td>
                         <td class="text-center">{{ $list->responsible_selection }}</td>
@@ -191,11 +198,9 @@
                             <a href="#" class="edit-document" style="color: rgb(50, 127, 243) !important;" data-info="1" data-id="{{ $list->id }}">
                                 <i class="fa-solid fa-circle-info"></i>
                             </a>
-
                             <a href="#" class="edit-document ms-2 me-2" style="color: rgb(25, 85, 175) !important;" data-copy="1" data-id="{{ $list->id }}">
                                 <i class="fa-solid fa-copy"></i>
                             </a>
-
                             @if($auth->edit_doc)
                                 <a href="#" class="edit-document ms-2 me-2" style="color: rgb(0, 0, 0) !important;" data-id="{{ $list->id }}">
                                     <i class="fa-solid fa-pen"></i>
@@ -203,11 +208,14 @@
                             @else
                                 -----
                             @endif
-
-                            <a href="#" >
-                                <i class="fa-solid fa-print me-2"></i>
+                            <a href="#" class="me-2 c-green" data-bs-toggle="collapse" data-bs-target="#collapse{{ $list->id }}" aria-expanded="false" aria-controls="collapse{{ $list->id }}">
+                                <i class="fa-solid fa-eye"></i>
                             </a>
 
+                            <a href="#" class="print-link" data-list="{{$list->id}}">
+                                <i class="fa-solid fa-print me-2"></i>
+                            </a>                            
+                            
                             <a href="#" class="c-blue view-files fs-4" data-id="{{ $list->id }}">
                                 <i class="fa-solid fa-folder-open"></i>
                             </a>
@@ -216,8 +224,44 @@
                             @endif
                         </td>
                     </tr>
+                    <tr class="collapse" id="collapse{{ $list->id }}" style="padding: 5px !important;">
+                        <td colspan="10" style="padding: 5px !important;">
+                            <div class="d-flex flex-wrap" style="width: 100%;">
+                                <div class="row col-12">
+                                    <div class="col-md-1"><strong>ID</strong></div>
+                                    <div class="col-md-1"><strong>Código</strong></div>
+                                    <div class="col-md-1"><strong>Número</strong></div>
+                                    <div class="col-md-1"><strong>Titular</strong></div>
+                                    <div class="col-md-1"><strong>Descrição</strong></div>
+                                    <div class="col-md-1"><strong>Caixa</strong></div>
+                                    <div class="col-md-1"><strong>Armário</strong></div>
+                                    <div class="col-md-1"><strong>Gavetas</strong></div>
+                                    <div class="col-md-1"><strong>qtd. Pastas</strong></div>
+                                    <div class="col-md-1"><strong>Sit. A.C</strong></div>
+                                    <div class="col-md-2"><strong>Sit. A.I</strong></div>
+                                </div>
+                                @foreach ($list->eliminations as $elimination)
+                                    <div class="d-flex justify-content-between col-12 mb-2" style="border-top: 1px solid rgb(226, 226, 226);">
+                                        <div class="col-md-1">#{{ $elimination->id }}</div>
+                                        <div class="col-md-1">{{ $elimination->temporality->code }}</div>
+                                        <div class="col-md-1">{{ $elimination->doc_number }}</div>
+                                        <div class="col-md-1">{{ $elimination->holder_name }}</div>
+                                        <div class="col-md-1">{{ $elimination->description }}</div>
+                                        <div class="col-md-1">{{ $elimination->box  ?? '-------'}}</div>
+                                        <div class="col-md-1">{{ $elimination->cabinet ?? '-------' }}</div>
+                                        <div class="col-md-1">{{ $elimination->drawer ?? '-------' }}</div>
+                                        <div class="col-md-1">{{ $elimination->qtpasta ?? '-------' }}</div>
+                                        <div class="col-md-1">{{ $elimination->situationAC }}</div>
+                                        <div class="col-md-2">{{ $elimination->situationAI }}</div>
+                                    </div>
+                                    
+                                @endforeach
+                            </div>
+                        </td>
+                    </tr>
                 @endforeach
             </tbody>
+            
         </table>
         <div class="d-flex justify-content-center">
             {{$eliminationLists->links()}}
@@ -237,6 +281,10 @@
                 <div class="modal-body">
                     <input type="hidden" name="id">
                     <div class="row">
+                        <div class="mb-3 col-md-12">
+                            <label for="list_number" class="form-label">Nª da lista</label>
+                            <input type="text" class="form-control" id="list_number" name="list_number">
+                        </div>
                         <div class="mb-3 col-md-6">
                             <label for="organ" class="form-label">Órgão/Setor</label>
                             <input type="text" class="form-control" id="organ" name="organ">
@@ -302,6 +350,20 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const printLinks = document.querySelectorAll('.print-link');
+        printLinks.forEach(link => {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+                const listId = this.getAttribute('data-list');
+                const url = `/print/elimination_list/${listId}`;
+                window.open(url, '_blank', 'width=1500,height=600');
+            });
+        });
+    });
+</script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {

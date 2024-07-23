@@ -38,6 +38,8 @@ Route::middleware(AuthenticateUser::class)->group(function () {
     Route::get('cabinet', [HomeController::class, 'cabinet'])->name('cabinet');
     Route::get('elimination_list', [HomeController::class, 'elimination_list'])->name('elimination_list');
     Route::get('eliminations/{project_id}', [HomeController::class, 'eliminations'])->name('eliminations');
+    Route::get('/print/elimination_list/{list_id}', [HomeController::class, 'print_elimination_list'])->name('print.elimination_list');
+
 
     Route::get('documents/{id}/files', [DocumentController::class, 'getFiles']);
     Route::get('documents/{id}/download-all', [DocumentController::class, 'downloadAllFiles'])->name('download.all.files');

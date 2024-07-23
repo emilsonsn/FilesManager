@@ -93,4 +93,8 @@ class HomeController extends Controller
     return view('show.document_collection', ['id' => $id]);
   }
 
+  public function print_elimination_list($list_id){
+    return view('prints.elimination_list', ['list_id' => $list_id]);
+  }
+
 }
