@@ -31,7 +31,7 @@ Route::middleware(AuthenticateUser::class)->group(function () {
     Route::get('users', [HomeController::class, 'users'])->name('users');
     Route::get('logs', [HomeController::class, 'logs'])->name('logs');
     Route::get('alerts', [HomeController::class, 'alerts'])->name('alerts');
-    Route::get('label/{id}', [HomeController::class, 'label'])->name('label');
+    Route::get('labels', [HomeController::class, 'labels'])->name('labels');
     Route::get('loan_form/{id}', [HomeController::class, 'loan_form'])->name('loan_form');
     Route::get('reports', [HomeController::class, 'reports'])->name('reports');
     Route::get('box', [HomeController::class, 'box'])->name('box');

@@ -9,6 +9,8 @@
         use App\Models\Temporality;
         use App\Models\DocumentCollection;
 
+        $documentAll = Document::all();
+
         $initial_date = $_GET['initial_date'] ?? null;
         $archive_date = $_GET['archive_date'] ?? null;
 
@@ -139,6 +141,10 @@
 
             <div>
                 <button class="btn btn-sm btn-primary ms-2" id="generateCabinetPrint">Gerar impressão de Armário</button>
+            </div>
+
+            <div>
+                <button class="btn btn-sm btn-primary ms-2" id="generateMultipleLabels">Gerar multiplas etiquetas de pasta</button>
             </div>
 
         </h1>
@@ -384,7 +390,7 @@
                                     </a>
                                 @endif
                                 <a href="#" class="me-2 print-label"
-                                    data-url="{{ route('label', ['id' => $doc->id]) }}">
+                                    data-url="{{ route('labels', ['ids' => [$doc->id]]) }}">
                                     <i class="fa-solid fa-print"></i>
                                 </a>
                                 <a href="{{ route('document.collections', ['document_id' => $doc->id]) }}">
@@ -826,6 +832,34 @@
         </div>
     </div>
 
+    {{-- Modal para multiplas etiquetas de pasta --}}
+    <div class="modal fade" id="generateMultipleLabelsModal" tabindex="-1" aria-labelledby="generateMultipleLabelsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="generateMultipleLabelsModalLabel">Gerar Múltiplas Etiquetas de Pasta</h5>
+                </div>
+                <div class="modal-body">
+                    <form id="multipleLabelsForm">
+                        <div class="row">
+                            @for($i = 1; $i <= 8; $i++)
+                                <div class="mb-3 col-md-6">
+                                    <label for="document_{{ $i }}" class="form-label">Documento {{ $i }}</label>
+                                    <select name="document_{{ $i }}" id="document_{{ $i }}" class="form-control">
+                                        <option value="">Selecione um documento</option>
+                                        @foreach ($documentAll as $doc)
+                                            <option value="{{ $doc->id }}">{{ $doc->doc_number }} - {{ $doc->holder_name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endfor
+                        </div>
+                        <button type="button" class="btn btn-primary" id="generateMultipleLabelsButton">Gerar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -864,6 +898,28 @@
                 console.log(caixas)
                 addTableBox(caixas);
                 form.reset();
+            });
+
+            document.getElementById('generateMultipleLabels').addEventListener('click', function() {
+                var modal = new bootstrap.Modal(document.getElementById('generateMultipleLabelsModal'));
+                modal.show();
+            });
+
+            document.getElementById('generateMultipleLabelsButton').addEventListener('click', function() {
+                var selectedDocuments = [];
+                for (var i = 1; i <= 8; i++) {
+                    var docId = document.getElementById('document_' + i).value;
+                    if (docId) {
+                        selectedDocuments.push(docId);
+                    }
+                }
+
+                if (selectedDocuments.length > 0) {
+                    var url = '{{ route('labels') }}' + '?ids=' + selectedDocuments.join(',');
+                    window.open(url, '_blank');
+                } else {
+                    alert('Selecione pelo menos um documento.');
+                }
             });
 
             function addTableBox(caixas) {

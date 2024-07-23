@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Document;
 use Illuminate\Http\Request;
 use App\Services\ClientService\ClientService;
 
@@ -57,8 +58,14 @@ class HomeController extends Controller
     return view('alerts');
   }
 
-  public function label($id){
-    return view('prints.label', ['id' => $id]);
+  public function labels(Request $request)
+  {
+      $idArray = $request->input('ids');
+      if(!is_array($idArray)){
+        $idArray = explode(',', $idArray);
+      }
+      $documents = Document::whereIn('id', $idArray)->get();
+      return view('prints.label', compact('documents'));
   }
 
   public function loan_form($id){
