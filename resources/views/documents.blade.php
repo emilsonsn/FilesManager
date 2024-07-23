@@ -848,7 +848,7 @@
                                     <select name="document_{{ $i }}" id="document_{{ $i }}" class="form-control">
                                         <option value="">Selecione um documento</option>
                                         @foreach ($documentAll as $doc)
-                                            <option value="{{ $doc->id }}">{{ $doc->doc_number }} - {{ $doc->holder_name }}</option>
+                                            <option value="{{ $doc->id }}">{{$doc->id}} - {{ $doc->doc_number }} | {{ $doc->holder_name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
