@@ -723,6 +723,7 @@
                         <table class="table table-striped" id="boxPrintTable">
                             <thead>
                                 <tr>
+                                    <th>Deletar</th>
                                     <th>Arquivo Central</th>
                                     <th>Organização e Funcionamento</th>
                                     <th>Código de Classificação</th>
@@ -826,6 +827,7 @@
                         <table class="table table-striped" id="cabinetPrintTable">
                             <thead>
                                 <tr>
+                                    <th>Ação</th> 
                                     <th>Arquivo Central</th>
                                     <th>Organização e Funcionamento</th>
                                     <th>Código de Classificação</th>
@@ -878,618 +880,572 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var printButtons = document.querySelectorAll('.print-label');
-            if(printButtons){
-                printButtons.forEach(function(button) {
-                    button.addEventListener('click', function(event) {
-                        event.preventDefault();
-                        var url = button.getAttribute('data-url');
-                        var width = 1000;
-                        var height = 600;
-                        var left = (screen.width - width) / 2;
-                        var top = (screen.height - height) / 2;
-    
-                        var popup = window.open(url, 'popup', 'width=' + width + ',height=' + height +
-                            ',top=' + top + ',left=' + left + ',scrollbars=no,resizable=no');
-                        popup.addEventListener('load', function() {
-                            popup.print();
-                        });
-                    });
+document.addEventListener('DOMContentLoaded', function() {
+    var printButtons = document.querySelectorAll('.print-label');
+    if(printButtons){
+        printButtons.forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                var url = button.getAttribute('data-url');
+                var width = 1000;
+                var height = 600;
+                var left = (screen.width - width) / 2;
+                var top = (screen.height - height) / 2;
+
+                var popup = window.open(url, 'popup', 'width=' + width + ',height=' + height +
+                    ',top=' + top + ',left=' + left + ',scrollbars=no,resizable=no');
+                popup.addEventListener('load', function() {
+                    popup.print();
                 });
-            }
-
-            document.getElementById('generateBoxPrint').addEventListener('click', function() {
-                var modal = new bootstrap.Modal(document.getElementById('generateBoxPrintModal'));
-                modal.show();
             });
-
-            caixas = []
-            document.getElementById('addBoxPrint').addEventListener('click', function() {
-                var form = document.getElementById('boxPrintForm');
-                caixas.push([form.central_archive.value, form.organization.value, form.classification_code
-                    .value, form.area.value, form.custody_period.value, form.observations.value,
-                    form.archive_year.value, form.location.value, form.final_destination.value, form
-                    .box_number.value, {{ $project_id }}
-                ])
-                console.log(caixas)
-                addTableBox(caixas);
-                form.reset();
-            });
-
-            document.getElementById('generateMultipleLabels').addEventListener('click', function() {
-                var modal = new bootstrap.Modal(document.getElementById('generateMultipleLabelsModal'));
-                modal.show();
-            });
-
-            document.getElementById('generateMultipleLabelsButton').addEventListener('click', function() {
-                var selectedDocuments = [];
-                for (var i = 1; i <= 8; i++) {
-                    var docId = document.getElementById('document_' + i).value;
-                    if (docId) {
-                        selectedDocuments.push(docId);
-                    }
-                }
-
-                if (selectedDocuments.length > 0) {
-                    var url = '{{ route('labels') }}' + '?ids=' + selectedDocuments.join(',');
-                    window.open(url, '_blank');
-                } else {
-                    alert('Selecione pelo menos um documento.');
-                }
-            });
-
-            function addTableBox(caixas) {
-                var table = document.getElementById('boxPrintTable').querySelector('tbody');
-
-                table.innerHTML = '';
-
-                caixas.forEach((caixa) => {
-                    var row = table.insertRow();
-                    row.insertCell(0).innerText = caixa[0];
-                    row.insertCell(1).innerText = caixa[1];
-                    row.insertCell(2).innerText = caixa[2];
-                    row.insertCell(3).innerText = caixa[3];
-                    row.insertCell(4).innerText = caixa[4];
-                    row.insertCell(5).innerText = caixa[5];
-                    row.insertCell(6).innerText = caixa[6];
-                    row.insertCell(7).innerText = caixa[7];
-                    row.insertCell(8).innerText = caixa[8];
-                    row.insertCell(9).innerText = caixa[9];
-                })
-            }
-
-            document.getElementById('printBox').addEventListener('click', function() {
-                var queryString = Object.keys(caixas).map(key => key + '=' + encodeURIComponent(caixas[
-                    key])).join('&');
-                window.location.href = '/box?' + queryString;
-            });
-
-
-
         });
+    }
 
-        function setDates(input) {
-            var initialDateInput = document.querySelector(`input#${input}`);
-            var currentDate = new Date(initialDateInput.value);
+    document.getElementById('generateBoxPrint').addEventListener('click', function() {
+        var modal = new bootstrap.Modal(document.getElementById('generateBoxPrintModal'));
+        modal.show();
+    });
 
-            if (isNaN(currentDate.getTime())) {
-                console.log(1)
-                alert("Por favor, insira uma data inicial válida.");
-                return;
+    var caixas = [];
+    document.getElementById('addBoxPrint').addEventListener('click', function() {
+        var form = document.getElementById('boxPrintForm');
+        caixas.push([form.central_archive.value, form.organization.value, form.classification_code.value, form.area.value, form.custody_period.value, form.observations.value, form.archive_year.value, form.location.value, form.final_destination.value, form.box_number.value, {{ $project_id }}]);
+        addTableBox(caixas);
+        form.reset();
+    });
+
+    document.getElementById('printBox').addEventListener('click', function() {
+        console.log(caixas)
+        var url = '{{ route("box") }}' + '?data=' + encodeURIComponent(JSON.stringify(caixas));
+        var width = 1000;
+        var height = 600;
+        var left = (screen.width - width) / 2;
+        var top = (screen.height - height) / 2;
+
+        var popup = window.open(url, 'popup', 'width=' + width + ',height=' + height +
+            ',top=' + top + ',left=' + left + ',scrollbars=no,resizable=no');
+        popup.addEventListener('load', function() {
+            popup.print();
+        });
+    });
+
+    document.getElementById('printCabinet').addEventListener('click', function() {
+        var url = '{{ route("cabinet") }}' + '?data=' + encodeURIComponent(JSON.stringify(armarios));
+        var width = 1000;
+        var height = 600;
+        var left = (screen.width - width) / 2;
+        var top = (screen.height - height) / 2;
+
+        var popup = window.open(url, 'popup', 'width=' + width + ',height=' + height +
+            ',top=' + top + ',left=' + left + ',scrollbars=no,resizable=no');
+        popup.addEventListener('load', function() {
+            popup.print();
+        });
+    });
+
+    document.getElementById('generateMultipleLabels').addEventListener('click', function() {
+        var modal = new bootstrap.Modal(document.getElementById('generateMultipleLabelsModal'));
+        modal.show();
+    });
+
+    document.getElementById('generateMultipleLabelsButton').addEventListener('click', function() {
+        var selectedDocuments = [];
+        for (var i = 1; i <= 8; i++) {
+            var docId = document.getElementById('document_' + i).value;
+            if (docId) {
+                selectedDocuments.push(docId);
             }
-
-            var current_custody_period = parseInt(document.querySelector('#current_custody_period').value);
-            var intermediate_custody_period = parseInt(document.querySelector('#intermediate_custody_period').value);
-
-            if (isNaN(current_custody_period) || isNaN(intermediate_custody_period)) {
-                alert("Por favor, selecione uma temporalidade válida.");
-                return;
-            }
-
-            var expiration_date_A_C = new Date(currentDate);
-            expiration_date_A_C.setFullYear(currentDate.getFullYear() + current_custody_period);
-            document.getElementById('expiration_date_A_C').value = expiration_date_A_C ? expiration_date_A_C.toISOString()
-                .split('T')[0] : '';
-
-            var expiration_date_A_I = new Date(currentDate);
-            expiration_date_A_I.setFullYear(currentDate.getFullYear() + intermediate_custody_period);
-            document.getElementById('expiration_date_A_I').value = expiration_date_A_I ? expiration_date_A_I.toISOString()
-                .split('T')[0] : '';
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            var viewButtons = document.querySelectorAll('.view-files');
-            var fileList = document.getElementById('fileList');
-            var viewFilesModal = new bootstrap.Modal(document.getElementById('viewFilesModal'));
+        if (selectedDocuments.length > 0) {
+            var url = '{{ route('labels') }}' + '?ids=' + selectedDocuments.join(',');
+            window.open(url, '_blank');
+        } else {
+            alert('Selecione pelo menos um documento.');
+        }
+    });
 
-            viewButtons.forEach(function(button) {
-                button.addEventListener('click', function() {
-                    var documentId = button.getAttribute('data-id');
-                    fetch(`/documents/${documentId}/files`)
-                        .then(response => response.json())
-                        .then(data => {
-                            fileList.innerHTML = '';
-                            if (data.length > 0) {
-                                data.forEach(file => {
-                                    var listItem = document.createElement('li');
-                                    listItem.className =
-                                        'list-group-item d-flex justify-content-between align-items-center';
-                                    listItem.innerHTML = `
-                                    ${new Date(file.created_at).toLocaleDateString('pt-BR')} - ${file.name}
-                                    <a href="/storage/${file.file_path}" target="_blank" class="btn btn-sm btn-primary">Abrir</a>
-                                    `;
-                                    fileList.appendChild(listItem);
-                                });
-                            } else {
-                                fileList.innerHTML =
-                                    '<li class="list-group-item">Nenhum arquivo encontrado</li>';
-                            }
-                            viewFilesModal.show();
-                        })
-                        .catch(error => {
-                            console.error('Erro ao carregar arquivos:', error);
-                            fileList.innerHTML =
-                                '<li class="list-group-item">Erro ao carregar arquivos</li>';
-                            viewFilesModal.show();
-                        });
-                });
-            });
+    function addTableBox(caixas) {
+        var table = document.getElementById('boxPrintTable').querySelector('tbody');
+
+        table.innerHTML = '';
+
+        caixas.forEach((caixa, index) => {
+            var row = table.insertRow();
+            var deleteCell = row.insertCell(0);
+            deleteCell.innerHTML = `<button class="btn btn-danger btn-sm delete-box-row" data-index="${index}">Deletar</button>`;
+            row.insertCell(1).innerText = caixa[0];
+            row.insertCell(2).innerText = caixa[1];
+            row.insertCell(3).innerText = caixa[2];
+            row.insertCell(4).innerText = caixa[3];
+            row.insertCell(5).innerText = caixa[4];
+            row.insertCell(6).innerText = caixa[5];
+            row.insertCell(7).innerText = caixa[6];
+            row.insertCell(8).innerText = caixa[7];
+            row.insertCell(9).innerText = caixa[8];
+            row.insertCell(10).innerText = caixa[9];
         });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            var editButtons = document.querySelectorAll('.edit-document');
-            var addDocumentButton = document.querySelector('.add');
-            var modal = document.getElementById('addDocumentModal');
-            var modalForm = modal.querySelector('form');
-            var temporalitys = @json($temporalitys);
+        document.querySelectorAll('.delete-box-row').forEach(button => {
+            button.addEventListener('click', function() {
+                var index = this.getAttribute('data-index');
+                caixas.splice(index, 1);
+                addTableBox(caixas);
+            });
+        });
+    }
 
-            if(addDocumentButton){
-                addDocumentButton.addEventListener('click', function() {
-                    modalForm.reset(); // Limpa todos os campos do formulário
-                    const token = modalForm.querySelectorAll('input[name="_token"]')[0].value
-                    modalForm.querySelectorAll('input[name="id"]')[0].value = '';
-                    modalForm.querySelectorAll('select').forEach(function(select) {
-                        select.value = ''; // Reseta os selects
-                    });
-                    modalForm.querySelectorAll('textarea').forEach(function(textarea) {
-                        textarea.value = ''; // Limpa textareas
-                    });
-                    document.getElementById('area').value = '';
-                    document.getElementById('function').value = '';
-                    document.getElementById('sub_function').value = '';
-                    document.getElementById('activity').value = '';
-                    document.getElementById('tipology').value = '';
-                    document.getElementById('current_custody_period').value = '';
-                    document.getElementById('intermediate_custody_period').value = '';
-                    document.getElementById('final_destination').value = '';
-                    toggleFields();
+    function setDates(input) {
+        var initialDateInput = document.querySelector(`input#${input}`);
+        var currentDate = new Date(initialDateInput.value);
 
-                    document.getElementById('submit-button').style.display = 'block';
-                        modalForm.querySelectorAll('input, select, textarea').forEach(function(
-                            element) {
-                            element.removeAttribute('disabled');
-                    });
+        if (isNaN(currentDate.getTime())) {
+            console.log(1)
+            alert("Por favor, insira uma data inicial válida.");
+            return;
+        }
 
-                    modalForm.querySelectorAll('input[name="_token"]')[0].value = token
+        var current_custody_period = parseInt(document.querySelector('#current_custody_period').value);
+        var intermediate_custody_period = parseInt(document.querySelector('#intermediate_custody_period').value);
+
+        if (isNaN(current_custody_period) || isNaN(intermediate_custody_period)) {
+            alert("Por favor, selecione uma temporalidade válida.");
+            return;
+        }
+
+        var expiration_date_A_C = new Date(currentDate);
+        expiration_date_A_C.setFullYear(currentDate.getFullYear() + current_custody_period);
+        document.getElementById('expiration_date_A_C').value = expiration_date_A_C ? expiration_date_A_C.toISOString().split('T')[0] : '';
+
+        var expiration_date_A_I = new Date(currentDate);
+        expiration_date_A_I.setFullYear(currentDate.getFullYear() + intermediate_custody_period);
+        document.getElementById('expiration_date_A_I').value = expiration_date_A_I ? expiration_date_A_I.toISOString().split('T')[0] : '';
+    }
+
+    var viewButtons = document.querySelectorAll('.view-files');
+    var fileList = document.getElementById('fileList');
+    var viewFilesModal = new bootstrap.Modal(document.getElementById('viewFilesModal'));
+
+    viewButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            var documentId = button.getAttribute('data-id');
+            fetch(`/documents/${documentId}/files`)
+                .then(response => response.json())
+                .then(data => {
+                    fileList.innerHTML = '';
+                    if (data.length > 0) {
+                        data.forEach(file => {
+                            var listItem = document.createElement('li');
+                            listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+                            listItem.innerHTML = `${new Date(file.created_at).toLocaleDateString('pt-BR')} - ${file.name} <a href="/storage/${file.file_path}" target="_blank" class="btn btn-sm btn-primary">Abrir</a>`;
+                            fileList.appendChild(listItem);
+                        });
+                    } else {
+                        fileList.innerHTML = '<li class="list-group-item">Nenhum arquivo encontrado</li>';
+                    }
+                    viewFilesModal.show();
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar arquivos:', error);
+                    fileList.innerHTML = '<li class="list-group-item">Erro ao carregar arquivos</li>';
+                    viewFilesModal.show();
+                });
+        });
+    });
+
+    var editButtons = document.querySelectorAll('.edit-document');
+    var addDocumentButton = document.querySelector('.add');
+    var modal = document.getElementById('addDocumentModal');
+    var modalForm = modal.querySelector('form');
+    var temporalitys = @json($temporalitys);
+
+    if(addDocumentButton){
+        addDocumentButton.addEventListener('click', function() {
+            modalForm.reset(); // Limpa todos os campos do formulário
+            const token = modalForm.querySelectorAll('input[name="_token"]')[0].value;
+            modalForm.querySelectorAll('input[name="id"]')[0].value = '';
+            modalForm.querySelectorAll('select').forEach(function(select) {
+                select.value = ''; // Reseta os selects
+            });
+            modalForm.querySelectorAll('textarea').forEach(function(textarea) {
+                textarea.value = ''; // Limpa textareas
+            });
+            document.getElementById('area').value = '';
+            document.getElementById('function').value = '';
+            document.getElementById('sub_function').value = '';
+            document.getElementById('activity').value = '';
+            document.getElementById('tipology').value = '';
+            document.getElementById('current_custody_period').value = '';
+            document.getElementById('intermediate_custody_period').value = '';
+            document.getElementById('final_destination').value = '';
+            toggleFields();
+
+            document.getElementById('submit-button').style.display = 'block';
+                modalForm.querySelectorAll('input, select, textarea').forEach(function(
+                    element) {
+                    element.removeAttribute('disabled');
+            });
+
+            modalForm.querySelectorAll('input[name="_token"]')[0].value = token;
+        });
+    }
+
+    function toggleFields() {
+        var typeSelect = document.getElementById('type');
+        var boxFields = document.getElementById('boxFields');
+        var cabinetFields = document.getElementById('cabinetFields');
+
+        if (typeSelect.value == '1') {
+            boxFields.style.display = 'block';
+            cabinetFields.style.display = 'none';
+            document.getElementById('cabinet').value = '';
+            document.getElementById('drawer').value = '';
+        } else if (typeSelect.value == '2') {
+            boxFields.style.display = 'none';
+            cabinetFields.style.display = 'flex';
+            document.getElementById('box').value = '';
+            document.getElementById('qtpasta').value = '';
+        } else {
+            boxFields.style.display = 'none';
+            cabinetFields.style.display = 'none';
+            document.getElementById('box').value = '';
+            document.getElementById('qtpasta').value = '';
+            document.getElementById('cabinet').value = '';
+            document.getElementById('drawer').value = '';
+        }
+    }
+
+    document.getElementById('type').addEventListener('change', toggleFields);
+    toggleFields(); // Inicializa o estado dos campos
+
+    editButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            var id = button.getAttribute('data-id');
+            var project_id = button.getAttribute('data-project_id');
+            var doc_number = button.getAttribute('data-doc_number');
+            var temporality_id = button.getAttribute('data-temporality_id');
+            var holder_name = button.getAttribute('data-holder_name');
+            var description = button.getAttribute('data-description');
+            var box = button.getAttribute('data-box');
+            var qtpasta = button.getAttribute('data-qtpasta');
+            var file = button.getAttribute('data-file');
+            var cabinet = button.getAttribute('data-cabinet');
+            var observations = button.getAttribute('data-observations');
+            var drawer = button.getAttribute('data-drawer');
+            var initial_date = button.getAttribute('data-initial_date');
+            var archive_date = button.getAttribute('data-archive_date');
+            var classification = button.getAttribute('data-classification');
+            var version = button.getAttribute('data-version');
+            var situationAC = button.getAttribute('data-situationac');
+            var situationAI = button.getAttribute('data-situationai');
+            var expiration_ac = button.getAttribute('data-expiration_ac');
+            var expiration_ai = button.getAttribute('data-expiration_ai');
+            
+            var tags = button.getAttribute('data-tags');
+            var edit = button.getAttribute('data-edit');
+
+            toggleFields();
+
+            var temporality = temporalitys.find(t => t.id == temporality_id);
+            if (temporality) {
+                modalForm.querySelector('#area').value = temporality.area;
+                modalForm.querySelector('#function').value = temporality.function;
+                modalForm.querySelector('#sub_function').value = temporality.sub_function;
+                modalForm.querySelector('#activity').value = temporality.activity;
+                modalForm.querySelector('#tipology').value = temporality.tipology;
+                modalForm.querySelector('#current_custody_period').value = temporality.current_custody_period;
+                modalForm.querySelector('#intermediate_custody_period').value = temporality.intermediate_custody_period;
+                modalForm.querySelector('#final_destination').value = temporality.final_destination;
+
+                var expiration_date_A_C = initial_date ? new Date(new Date(initial_date).setFullYear(new Date(initial_date).getFullYear() + parseInt(temporality.current_custody_period))) : '';
+                var expiration_date_A_I = initial_date ? new Date(new Date(initial_date).setFullYear(new Date(initial_date).getFullYear() + parseInt(temporality.intermediate_custody_period))) : '';
+
+                modalForm.querySelector('#expiration_date_A_C').value = expiration_date_A_C ? expiration_date_A_C.toISOString().split('T')[0] : '';
+                modalForm.querySelector('#expiration_date_A_I').value = expiration_date_A_I ? expiration_date_A_I.toISOString().split('T')[0] : '';
+            }
+            modalForm.querySelector('[name="id"]').value = id;
+            modalForm.querySelector('[name="project_id"]').value = project_id;
+            modalForm.querySelector('[name="temporality_id"]').value = temporality_id;
+            modalForm.querySelector('[name="holder_name"]').value = holder_name;
+            modalForm.querySelector('[name="description"]').value = description;
+            modalForm.querySelector('[name="box"]').value = box;
+            modalForm.querySelector('[name="qtpasta"]').value = qtpasta;
+            modalForm.querySelector('[name="doc_number"]').value = doc_number;
+            modalForm.querySelector('[name="cabinet"]').value = cabinet;
+            modalForm.querySelector('[name="observations"]').value = observations;
+            modalForm.querySelector('[name="drawer"]').value = drawer;
+            modalForm.querySelector('[name="initial_date"]').value = initial_date;
+            modalForm.querySelector('[name="archive_date"]').value = archive_date;
+            modalForm.querySelector('[name="classification"]').value = classification;
+            modalForm.querySelector('[name="version"]').value = version;
+            modalForm.querySelector('[name="situationAC"]').value = situationAC;
+            modalForm.querySelector('[name="situationAI"]').value = situationAI;
+            modalForm.querySelector('[name="expiration_date_A_C"]').value = expiration_ac;
+            modalForm.querySelector('[name="expiration_date_A_I"]').value = expiration_ai;
+            modalForm.querySelector('[name="tags"]').value = tags;
+
+            if (box) {
+                document.getElementById('type').value = '1';
+            } else if (cabinet) {
+                document.getElementById('type').value = '2';
+            } else {
+                document.getElementById('type').value = '';
+            }
+
+            if (edit) {
+                document.getElementById('submit-button').style.display = 'none';
+                modalForm.querySelectorAll('input, select, textarea').forEach(function(element) {
+                    element.setAttribute('disabled', 'true');
+                });
+            } else {
+                document.getElementById('submit-button').style.display = 'block';
+                modalForm.querySelectorAll('input, select, textarea').forEach(function(element) {
+                    element.removeAttribute('disabled');
                 });
             }
 
-            function toggleFields() {
-                var typeSelect = document.getElementById('type');
-                var boxFields = document.getElementById('boxFields');
-                var cabinetFields = document.getElementById('cabinetFields');
-
-                if (typeSelect.value == '1') {
-                    boxFields.style.display = 'block';
-                    cabinetFields.style.display = 'none';
-                    document.getElementById('cabinet').value = '';
-                    document.getElementById('drawer').value = '';
-                } else if (typeSelect.value == '2') {
-                    boxFields.style.display = 'none';
-                    cabinetFields.style.display = 'flex';
-                    document.getElementById('box').value = '';
-                    document.getElementById('qtpasta').value = '';
-                } else {
-                    boxFields.style.display = 'none';
-                    cabinetFields.style.display = 'none';
-                    document.getElementById('box').value = '';
-                    document.getElementById('qtpasta').value = '';
-                    document.getElementById('cabinet').value = '';
-                    document.getElementById('drawer').value = '';
-                }
-            }
-
-            document.getElementById('type').addEventListener('change', toggleFields);
-            toggleFields(); // Inicializa o estado dos campos
-
-            editButtons.forEach(function(button) {
-                button.addEventListener('click', function() {
-                    var id = button.getAttribute('data-id');
-                    var project_id = button.getAttribute('data-project_id');
-                    var doc_number = button.getAttribute('data-doc_number');
-                    var temporality_id = button.getAttribute('data-temporality_id');
-                    var holder_name = button.getAttribute('data-holder_name');
-                    var description = button.getAttribute('data-description');
-                    var box = button.getAttribute('data-box');
-                    var qtpasta = button.getAttribute('data-qtpasta');
-                    var file = button.getAttribute('data-file');
-                    var cabinet = button.getAttribute('data-cabinet');
-                    var observations = button.getAttribute('data-observations');
-                    var drawer = button.getAttribute('data-drawer');
-                    var initial_date = button.getAttribute('data-initial_date');
-                    var archive_date = button.getAttribute('data-archive_date');
-                    var classification = button.getAttribute('data-classification');
-                    var version = button.getAttribute('data-version');
-                    var situationAC = button.getAttribute('data-situationac');
-                    var situationAI = button.getAttribute('data-situationai');
-                    var expiration_ac = button.getAttribute('data-expiration_ac');
-                    var expiration_ai = button.getAttribute('data-expiration_ai');
-                    
-                    var tags = button.getAttribute('data-tags');
-                    var edit = button.getAttribute('data-edit');
-
-                    toggleFields();
-
-                    var temporality = temporalitys.find(t => t.id == temporality_id);
-                    if (temporality) {
-                        modalForm.querySelector('#area').value = temporality.area;
-                        modalForm.querySelector('#function').value = temporality.function;
-                        modalForm.querySelector('#sub_function').value = temporality.sub_function;
-                        modalForm.querySelector('#activity').value = temporality.activity;
-                        modalForm.querySelector('#tipology').value = temporality.tipology;
-                        modalForm.querySelector('#current_custody_period').value = temporality
-                            .current_custody_period;
-                        modalForm.querySelector('#intermediate_custody_period').value = temporality
-                            .intermediate_custody_period;
-                        modalForm.querySelector('#final_destination').value = temporality
-                            .final_destination;
-
-                        var expiration_date_A_C = initial_date ? new Date(new Date(initial_date)
-                            .setFullYear(new Date(initial_date).getFullYear() + parseInt(
-                                temporality.current_custody_period))) : '';
-                        var expiration_date_A_I = initial_date ? new Date(new Date(initial_date)
-                            .setFullYear(new Date(initial_date).getFullYear() + parseInt(
-                                temporality.intermediate_custody_period))) : '';
-
-                        modalForm.querySelector('#expiration_date_A_C').value =
-                            expiration_date_A_C ? expiration_date_A_C.toISOString().split('T')[0] :
-                            '';
-                        modalForm.querySelector('#expiration_date_A_I').value =
-                            expiration_date_A_I ? expiration_date_A_I.toISOString().split('T')[0] :
-                            '';
-                    }
-                    modalForm.querySelector('[name="id"]').value = id;
-                    modalForm.querySelector('[name="project_id"]').value = project_id;
-                    modalForm.querySelector('[name="temporality_id"]').value = temporality_id;
-                    modalForm.querySelector('[name="holder_name"]').value = holder_name;
-                    modalForm.querySelector('[name="description"]').value = description;
-                    modalForm.querySelector('[name="box"]').value = box;
-                    modalForm.querySelector('[name="qtpasta"]').value = qtpasta;
-                    modalForm.querySelector('[name="doc_number"]').value = doc_number;
-                    modalForm.querySelector('[name="cabinet"]').value = cabinet;
-                    modalForm.querySelector('[name="observations"]').value = observations;
-                    modalForm.querySelector('[name="drawer"]').value = drawer;
-                    modalForm.querySelector('[name="initial_date"]').value = initial_date;
-                    modalForm.querySelector('[name="archive_date"]').value = archive_date;
-                    modalForm.querySelector('[name="classification"]').value = classification;
-                    modalForm.querySelector('[name="version"]').value = version;
-                    modalForm.querySelector('[name="situationAC"]').value = situationAC;
-                    modalForm.querySelector('[name="situationAI"]').value = situationAI;
-                    modalForm.querySelector('[name="expiration_date_A_C"]').value = expiration_ac;
-                    modalForm.querySelector('[name="expiration_date_A_I"]').value = expiration_ai;
-                    modalForm.querySelector('[name="tags"]').value = tags;
-
-                    if (box) {
-                        document.getElementById('type').value = '1';
-                    } else if (cabinet) {
-                        document.getElementById('type').value = '2';
-                    } else {
-                        document.getElementById('type').value = '';
-                    }
-
-                    if (edit) {
-                        document.getElementById('submit-button').style.display = 'none';
-                        modalForm.querySelectorAll('input, select, textarea').forEach(function(
-                            element) {
-                            element.setAttribute('disabled', 'true');
+            fetch(`/documents/${id}/files`)
+                .then(response => response.json())
+                .then(data => {
+                    var fileList = document.getElementById('fileListEdit');
+                    fileList.innerHTML = '';
+                    if (data.length > 0) {
+                        data.forEach(file => {
+                            var listItem = document.createElement('li');
+                            listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+                            listItem.innerHTML = `<div>${file.name}</div> <a href="${file.file_path}" target="_blank" class="btn btn-sm btn-primary">Ver</a>`;
+                            fileList.appendChild(listItem);
                         });
                     } else {
-                        document.getElementById('submit-button').style.display = 'block';
-                        modalForm.querySelectorAll('input, select, textarea').forEach(function(
-                            element) {
-                            element.removeAttribute('disabled');
-                        });
-                    }
-
-                    fetch(`/documents/${id}/files`)
-                        .then(response => response.json())
-                        .then(data => {
-                            var fileList = document.getElementById('fileListEdit');
-                            fileList.innerHTML = '';
-                            if (data.length > 0) {
-                                data.forEach(file => {
-                                    var listItem = document.createElement('li');
-                                    listItem.className =
-                                        'list-group-item d-flex justify-content-between align-items-center';
-                                    listItem.innerHTML = `
-                            <div>${file.name}</div>
-                            <a href="${file.file_path}" target="_blank" class="btn btn-sm btn-primary">Ver</a>
-                        `;
-                                    fileList.appendChild(listItem);
-                                });
-                            } else {
-                                fileList.innerHTML =
-                                    '<li class="list-group-item">Nenhum arquivo encontrado</li>';
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Erro ao carregar arquivos:', error);
-                            var fileList = document.getElementById('fileListEdit');
-                            fileList.innerHTML =
-                                '<li class="list-group-item">Erro ao carregar arquivos</li>';
-                        });
-
-                    var modalInstance = new bootstrap.Modal(modal);
-                    modalInstance.show();
-                });
-            });
-
-            document.getElementById('temporality_id').addEventListener('change', function() {
-                var temporality_id = this.value;
-                var temporality = temporalitys.find(t => t.id == temporality_id);
-                if (temporality) {
-                    document.getElementById('area').value = temporality.area;
-                    document.getElementById('function').value = temporality.function;
-                    document.getElementById('sub_function').value = temporality.sub_function;
-                    modalForm.querySelector('#activity').value = temporality.activity;
-                    modalForm.querySelector('#tipology').value = temporality.tipology;
-                    document.getElementById('current_custody_period').value = temporality
-                        .current_custody_period;
-                    document.getElementById('intermediate_custody_period').value = temporality
-                        .intermediate_custody_period;
-                    document.getElementById('final_destination').value = temporality.final_destination;
-                }
-            });
-
-            $('.delete-document').on('click', function(e) {
-                e.preventDefault();
-                var deleteUrl = $(this).attr('href');
-
-                Swal.fire({
-                    title: 'Você tem certeza?',
-                    text: "Você não poderá reverter isso!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Sim, exclua isso!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = deleteUrl;
+                        fileList.innerHTML = '<li class="list-group-item">Nenhum arquivo encontrado</li>';
                     }
                 })
-            });
+                .catch(error => {
+                    console.error('Erro ao carregar arquivos:', error);
+                    var fileList = document.getElementById('fileListEdit');
+                    fileList.innerHTML = '<li class="list-group-item">Erro ao carregar arquivos</li>';
+                });
+
+            var modalInstance = new bootstrap.Modal(modal);
+            modalInstance.show();
         });
+    });
 
-        document.getElementById('submit-button').addEventListener('click', () => {
-            document.getElementById('document-loading').style.display = 'flex';
-        });
+    document.getElementById('temporality_id').addEventListener('change', function() {
+        var temporality_id = this.value;
+        var temporality = temporalitys.find(t => t.id == temporality_id);
+        if (temporality) {
+            document.getElementById('area').value = temporality.area;
+            document.getElementById('function').value = temporality.function;
+            document.getElementById('sub_function').value = temporality.sub_function;
+            modalForm.querySelector('#activity').value = temporality.activity;
+            modalForm.querySelector('#tipology').value = temporality.tipology;
+            document.getElementById('current_custody_period').value = temporality.current_custody_period;
+            document.getElementById('intermediate_custody_period').value = temporality.intermediate_custody_period;
+            document.getElementById('final_destination').value = temporality.final_destination;
+        }
+    });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            var viewButtons = document.querySelectorAll('.view-files');
-            var fileList = document.getElementById('fileList');
-            var viewFilesModal = new bootstrap.Modal(document.getElementById('viewFilesModal'));
-            var downloadAllFilesButton = document.getElementById('downloadAllFiles');
+    $('.delete-document').on('click', function(e) {
+        e.preventDefault();
+        var deleteUrl = $(this).attr('href');
 
-            viewButtons.forEach(function(button) {
-                button.addEventListener('click', function() {
-                    var documentId = button.getAttribute('data-id');
-                    fetch(`/documents/${documentId}/files`)
-                        .then(response => response.json())
-                        .then(data => {
-                            fileList.innerHTML = '';
-                            if (data.length > 0) {
-                                data.forEach(file => {
-                                    var listItem = document.createElement('li');
-                                    listItem.className =
-                                        'list-group-item d-flex justify-content-between align-items-center';
-                                    listItem.innerHTML = `
-                                        ${new Date(file.created_at).toLocaleDateString('pt-BR')} - ${file.name}
-                                        <div>
-                                        <a href="${file.file_path}" target="_blank" class="btn btn-sm btn-primary">Abrir</a>
-                                        <button class="btn btn-sm btn-danger delete-file" data-file-id="${file.id}">Apagar</button>
-                                        </div>
-                                    `;
-                                    fileList.appendChild(listItem);
-                                });
-                            } else {
-                                fileList.innerHTML =
-                                    '<li class="list-group-item">Nenhum arquivo encontrado</li>';
-                            }
-                            // Configure o botão de download para baixar todos os arquivos
-                            downloadAllFilesButton.href =
-                                `/documents/${documentId}/download-all`;
-                            viewFilesModal.show();
+        Swal.fire({
+            title: 'Você tem certeza?',
+            text: "Você não poderá reverter isso!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sim, exclua isso!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = deleteUrl;
+            }
+        })
+    });
 
-                            // Adiciona evento de clique para os botões de exclusão
-                            var deleteFileButtons = document.querySelectorAll('.delete-file');
-                            deleteFileButtons.forEach(function(deleteButton) {
-                                deleteButton.addEventListener('click', function() {
-                                    var fileId = this.getAttribute(
-                                        'data-file-id');
-                                    if (confirm(
-                                            'Você tem certeza que deseja apagar este arquivo?'
-                                            )) {
-                                        fetch(`/documents/files/${fileId}`, {
-                                                method: 'DELETE',
-                                                headers: {
-                                                    'X-CSRF-TOKEN': document
-                                                        .querySelector(
-                                                            'meta[name="csrf-token"]'
-                                                            ).getAttribute(
-                                                            'content')
-                                                }
-                                            })
-                                            .then(response => {
-                                                if (response.ok) {
-                                                    this.closest('li')
-                                                        .remove();
-                                                } else {
-                                                    alert(
-                                                        'Erro ao apagar o arquivo.');
-                                                }
-                                            })
-                                            .catch(error => console.error(
-                                                'Erro:', error));
-                                    }
-                                });
-                            });
-                        })
-                        .catch(error => {
-                            console.error('Erro ao carregar arquivos:', error);
-                            fileList.innerHTML =
-                                '<li class="list-group-item">Erro ao carregar arquivos</li>';
-                            viewFilesModal.show();
+    document.getElementById('submit-button').addEventListener('click', () => {
+        document.getElementById('document-loading').style.display = 'flex';
+    });
+
+    var viewButtons = document.querySelectorAll('.view-files');
+    var fileList = document.getElementById('fileList');
+    var viewFilesModal = new bootstrap.Modal(document.getElementById('viewFilesModal'));
+    var downloadAllFilesButton = document.getElementById('downloadAllFiles');
+
+    viewButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            var documentId = button.getAttribute('data-id');
+            fetch(`/documents/${documentId}/files`)
+                .then(response => response.json())
+                .then(data => {
+                    fileList.innerHTML = '';
+                    if (data.length > 0) {
+                        data.forEach(file => {
+                            var listItem = document.createElement('li');
+                            listItem.className = 'list-group-item d-flex justify-content-between align-items-center';
+                            listItem.innerHTML = `${new Date(file.created_at).toLocaleDateString('pt-BR')} - ${file.name} <div> <a href="${file.file_path}" target="_blank" class="btn btn-sm btn-primary">Abrir</a> <button class="btn btn-sm btn-danger delete-file" data-file-id="${file.id}">Apagar</button> </div>`;
+                            fileList.appendChild(listItem);
                         });
+                    } else {
+                        fileList.innerHTML = '<li class="list-group-item">Nenhum arquivo encontrado</li>';
+                    }
+                    downloadAllFilesButton.href = `/documents/${documentId}/download-all`;
+                    viewFilesModal.show();
+
+                    var deleteFileButtons = document.querySelectorAll('.delete-file');
+                    deleteFileButtons.forEach(function(deleteButton) {
+                        deleteButton.addEventListener('click', function() {
+                            var fileId = this.getAttribute('data-file-id');
+                            if (confirm('Você tem certeza que deseja apagar este arquivo?')) {
+                                fetch(`/documents/files/${fileId}`, {
+                                        method: 'DELETE',
+                                        headers: {
+                                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                                        }
+                                    })
+                                    .then(response => {
+                                        if (response.ok) {
+                                            this.closest('li').remove();
+                                        } else {
+                                            alert('Erro ao apagar o arquivo.');
+                                        }
+                                    })
+                                    .catch(error => console.error('Erro:', error));
+                            }
+                        });
+                    });
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar arquivos:', error);
+                    fileList.innerHTML = '<li class="list-group-item">Erro ao carregar arquivos</li>';
+                    viewFilesModal.show();
                 });
-            });
+        });
+    });
+
+    document.getElementById('generateCabinetPrint').addEventListener('click', function() {
+        var modal = new bootstrap.Modal(document.getElementById('generateCabinetPrintModal'));
+        modal.show();
+    });
+
+    var armarios = [];
+    document.getElementById('addCabinetPrint').addEventListener('click', function() {
+        var form = document.getElementById('cabinetPrintForm');
+        armarios.push([
+            form.central_archive_cabinet.value,
+            form.organization_cabinet.value,
+            form.classification_code_cabinet.value,
+            form.area_cabinet.value,
+            form.custody_period_cabinet.value,
+            form.observations_cabinet.value,
+            form.archive_year_cabinet.value,
+            form.location_cabinet.value,
+            form.final_destination_cabinet.value,
+            form.cabinet_number.value,
+            form.drawer_number.value,
+            {{ $project_id }}
+        ]);
+        addTableCabinet(armarios);
+        form.reset();
+    });
+
+    function addTableCabinet(armarios) {
+        var table = document.getElementById('cabinetPrintTable').querySelector('tbody');
+        table.innerHTML = '';
+        armarios.forEach((armario, index) => {
+            var row = table.insertRow();
+            var deleteCell = row.insertCell(0);
+            deleteCell.innerHTML = `<button class="btn btn-danger btn-sm delete-cabinet-row" data-index="${index}">Deletar</button>`;
+            row.insertCell(1).innerText = armario[0];
+            row.insertCell(2).innerText = armario[1];
+            row.insertCell(3).innerText = armario[2];
+            row.insertCell(4).innerText = armario[3];
+            row.insertCell(5).innerText = armario[4];
+            row.insertCell(6).innerText = armario[5];
+            row.insertCell(7).innerText = armario[6];
+            row.insertCell(8).innerText = armario[7];
+            row.insertCell(9).innerText = armario[8];
+            row.insertCell(10).innerText = armario[9];
+            row.insertCell(11).innerText = armario[10];
         });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('generateCabinetPrint').addEventListener('click', function() {
-                var modal = new bootstrap.Modal(document.getElementById('generateCabinetPrintModal'));
-                modal.show();
-            });
-
-            armarios = []
-            document.getElementById('addCabinetPrint').addEventListener('click', function() {
-                var form = document.getElementById('cabinetPrintForm');
-                armarios.push([
-                    form.central_archive_cabinet.value,
-                    form.organization_cabinet.value,
-                    form.classification_code_cabinet.value,
-                    form.area_cabinet.value,
-                    form.custody_period_cabinet.value,
-                    form.observations_cabinet.value,
-                    form.archive_year_cabinet.value,
-                    form.location_cabinet.value,
-                    form.final_destination_cabinet.value,
-                    form.cabinet_number.value,
-                    form.drawer_number.value,
-                    {{ $project_id }}
-                ]);
+        document.querySelectorAll('.delete-cabinet-row').forEach(button => {
+            button.addEventListener('click', function() {
+                var index = this.getAttribute('data-index');
+                armarios.splice(index, 1);
                 addTableCabinet(armarios);
-                form.reset();
             });
+        });
+    }
 
-            function addTableCabinet(armarios) {
-                var table = document.getElementById('cabinetPrintTable').querySelector('tbody');
-                table.innerHTML = '';
-                armarios.forEach((armario) => {
-                    var row = table.insertRow();
-                    row.insertCell(0).innerText = armario[0];
-                    row.insertCell(1).innerText = armario[1];
-                    row.insertCell(2).innerText = armario[2];
-                    row.insertCell(3).innerText = armario[3];
-                    row.insertCell(4).innerText = armario[4];
-                    row.insertCell(5).innerText = armario[5];
-                    row.insertCell(6).innerText = armario[6];
-                    row.insertCell(7).innerText = armario[7];
-                    row.insertCell(8).innerText = armario[8];
-                    row.insertCell(9).innerText = armario[9];
-                    row.insertCell(10).innerText = armario[10];
-                });
+    var copyButtons = document.querySelectorAll('.fa-copy');
+    copyButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            var editButton = button.closest('tr').querySelector('.edit-document');
+            var id = '';
+            var project_id = editButton.getAttribute('data-project_id');
+            var doc_number = editButton.getAttribute('data-doc_number');
+            var temporality_id = editButton.getAttribute('data-temporality_id');
+            var holder_name = editButton.getAttribute('data-holder_name');
+            var description = editButton.getAttribute('data-description');
+            var box = editButton.getAttribute('data-box');
+            var qtpasta = editButton.getAttribute('data-qtpasta');
+            var file = editButton.getAttribute('data-file');
+            var cabinet = editButton.getAttribute('data-cabinet');
+            var observations = editButton.getAttribute('data-observations');
+            var drawer = editButton.getAttribute('data-drawer');
+            var initial_date = editButton.getAttribute('data-initial_date');
+            var archive_date = editButton.getAttribute('data-archive_date');
+            var classification = editButton.getAttribute('data-classification');
+            var version = editButton.getAttribute('data-version');
+            var situationAC = editButton.getAttribute('data-situationac');
+            var situationAI = editButton.getAttribute('data-situationai');
+            var tags = editButton.getAttribute('data-tags');
+
+            modalForm.querySelector('[name="id"]').value = id;
+            modalForm.querySelector('[name="project_id"]').value = project_id;
+            modalForm.querySelector('[name="temporality_id"]').value = temporality_id;
+            modalForm.querySelector('[name="holder_name"]').value = holder_name;
+            modalForm.querySelector('[name="description"]').value = description;
+            modalForm.querySelector('[name="box"]').value = box;
+            modalForm.querySelector('[name="qtpasta"]').value = qtpasta;
+            modalForm.querySelector('[name="doc_number"]').value = doc_number;
+            modalForm.querySelector('[name="cabinet"]').value = cabinet;
+            modalForm.querySelector('[name="observations"]').value = observations;
+            modalForm.querySelector('[name="drawer"]').value = drawer;
+            modalForm.querySelector('[name="initial_date"]').value = initial_date;
+            modalForm.querySelector('[name="archive_date"]').value = archive_date;
+            modalForm.querySelector('[name="classification"]').value = classification;
+            modalForm.querySelector('[name="version"]').value = version;
+            modalForm.querySelector('[name="situationAC"]').value = situationAC;
+            modalForm.querySelector('[name="situationAI"]').value = situationAI;
+            modalForm.querySelector('[name="tags"]').value = tags;
+
+            var temporality = temporalitys.find(t => t.id == temporality_id);
+            if (temporality) {
+                modalForm.querySelector('#area').value = temporality.area;
+                modalForm.querySelector('#function').value = temporality.function;
+                modalForm.querySelector('#sub_function').value = temporality.sub_function;
+                modalForm.querySelector('#activity').value = temporality.activity;
+                modalForm.querySelector('#tipology').value = temporality.tipology;
+                modalForm.querySelector('#current_custody_period').value = temporality.current_custody_period;
+                modalForm.querySelector('#intermediate_custody_period').value = temporality.intermediate_custody_period;
+                modalForm.querySelector('#final_destination').value = temporality.final_destination;
+
+                var expiration_date_A_C = initial_date ? new Date(new Date(initial_date).setFullYear(new Date(initial_date).getFullYear() + parseInt(temporality.current_custody_period))) : '';
+                var expiration_date_A_I = initial_date ? new Date(new Date(initial_date).setFullYear(new Date(initial_date).getFullYear() + parseInt(temporality.intermediate_custody_period))) : '';
+
+                modalForm.querySelector('#expiration_date_A_C').value = expiration_date_A_C ? expiration_date_A_C.toISOString().split('T')[0] : '';
+                modalForm.querySelector('#expiration_date_A_I').value = expiration_date_A_I ? expiration_date_A_I.toISOString().split('T')[0] : '';
             }
 
-            document.getElementById('printCabinet').addEventListener('click', function() {
-                var queryString = Object.keys(armarios).map(key => key + '=' + encodeURIComponent(armarios[
-                    key])).join('&');
-                window.location.href = '/cabinet?' + queryString;
-            });
+            var modalInstance = new bootstrap.Modal(modal);
+            modalInstance.show();
         });
+    });
+});
+</script>
 
-        document.addEventListener('DOMContentLoaded', function() {
-            var copyButtons = document.querySelectorAll('.fa-copy');
-            var modal = document.getElementById('addDocumentModal');
-            var modalForm = modal.querySelector('form');
-            var temporalitys = @json($temporalitys);
-
-            copyButtons.forEach(function(button) {
-                button.addEventListener('click', function() {
-                    var editButton = button.closest('tr').querySelector('.edit-document');
-                    var id = '';
-                    var project_id = editButton.getAttribute('data-project_id');
-                    var doc_number = editButton.getAttribute('data-doc_number');
-                    var temporality_id = editButton.getAttribute('data-temporality_id');
-                    var holder_name = editButton.getAttribute('data-holder_name');
-                    var description = editButton.getAttribute('data-description');
-                    var box = editButton.getAttribute('data-box');
-                    var qtpasta = editButton.getAttribute('data-qtpasta');
-                    var file = editButton.getAttribute('data-file');
-                    var cabinet = editButton.getAttribute('data-cabinet');
-                    var observations = editButton.getAttribute('data-observations');
-                    var drawer = editButton.getAttribute('data-drawer');
-                    var initial_date = editButton.getAttribute('data-initial_date');
-                    var archive_date = editButton.getAttribute('data-archive_date');
-                    var classification = editButton.getAttribute('data-classification');
-                    var version = editButton.getAttribute('data-version');
-                    var situationAC = editButton.getAttribute('data-situationac');
-                    var situationAI = editButton.getAttribute('data-situationai');
-                    var tags = editButton.getAttribute('data-tags');
-
-                    modalForm.querySelector('[name="id"]').value = id;
-                    modalForm.querySelector('[name="project_id"]').value = project_id;
-                    modalForm.querySelector('[name="temporality_id"]').value = temporality_id;
-                    modalForm.querySelector('[name="holder_name"]').value = holder_name;
-                    modalForm.querySelector('[name="description"]').value = description;
-                    modalForm.querySelector('[name="box"]').value = box;
-                    modalForm.querySelector('[name="qtpasta"]').value = qtpasta;
-                    modalForm.querySelector('[name="doc_number"]').value = doc_number;
-                    modalForm.querySelector('[name="cabinet"]').value = cabinet;
-                    modalForm.querySelector('[name="observations"]').value = observations;
-                    modalForm.querySelector('[name="drawer"]').value = drawer;
-                    modalForm.querySelector('[name="initial_date"]').value = initial_date;
-                    modalForm.querySelector('[name="archive_date"]').value = archive_date;
-                    modalForm.querySelector('[name="classification"]').value = classification;
-                    modalForm.querySelector('[name="version"]').value = version;
-                    modalForm.querySelector('[name="situationAC"]').value = situationAC;
-                    modalForm.querySelector('[name="situationAI"]').value = situationAI;
-                    modalForm.querySelector('[name="tags"]').value = tags;
-
-                    var temporality = temporalitys.find(t => t.id == temporality_id);
-                    if (temporality) {
-                        modalForm.querySelector('#area').value = temporality.area;
-                        modalForm.querySelector('#function').value = temporality.function;
-                        modalForm.querySelector('#sub_function').value = temporality.sub_function;
-                        modalForm.querySelector('#activity').value = temporality.activity;
-                        modalForm.querySelector('#tipology').value = temporality.tipology;
-                        modalForm.querySelector('#current_custody_period').value = temporality
-                            .current_custody_period;
-                        modalForm.querySelector('#intermediate_custody_period').value = temporality
-                            .intermediate_custody_period;
-                        modalForm.querySelector('#final_destination').value = temporality
-                            .final_destination;
-
-                        var expiration_date_A_C = initial_date ? new Date(new Date(initial_date)
-                            .setFullYear(new Date(initial_date).getFullYear() + parseInt(
-                                temporality.current_custody_period))) : '';
-                        var expiration_date_A_I = initial_date ? new Date(new Date(initial_date)
-                            .setFullYear(new Date(initial_date).getFullYear() + parseInt(
-                                temporality.intermediate_custody_period))) : '';
-
-                        modalForm.querySelector('#expiration_date_A_C').value =
-                            expiration_date_A_C ? expiration_date_A_C.toISOString().split('T')[0] :
-                            '';
-                        modalForm.querySelector('#expiration_date_A_I').value =
-                            expiration_date_A_I ? expiration_date_A_I.toISOString().split('T')[0] :
-                            '';
-                    }
-
-                    var modalInstance = new bootstrap.Modal(modal);
-                    modalInstance.show();
-                });
-            });
-        });
-    </script>
 @endsection

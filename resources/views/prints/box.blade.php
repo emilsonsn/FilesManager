@@ -1,7 +1,8 @@
 @php
     use App\Models\Project;
-    $project_id = explode(',',$_GET[0])[10];
-
+    $data = json_decode($_GET['data']);
+    $project_id = $data[0][10];
+    
     $project = Project::find($project_id);
 
 @endphp
@@ -105,10 +106,7 @@
 </head>
 <body>
     <div class="box-container">
-        @foreach ($_GET as $item)
-            @php
-                $item = explode(',', $item);
-            @endphp
+        @foreach ($data as $item)
             <table>
                 <tr>
                     <td>
