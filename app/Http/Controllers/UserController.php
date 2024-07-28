@@ -31,7 +31,12 @@ class UserController extends Controller
                 'edit_collection'=> false,
                 'delete_collection'=> false,
                 'is_active'=> false,
-                'create_projects' => false
+                'create_projects' => false,
+                'create_elimination' => false,
+                'read_elimination' => false,
+                'edit_elimination' => false,
+                'delete_elimination' => false,
+                'print_generate' => false,
             ];
 
             $user = User::find($request['id']);

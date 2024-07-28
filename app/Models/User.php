@@ -34,6 +34,11 @@ class User extends Authenticatable
         'edit_collection',
         'delete_collection',
         'create_projects',
+        'edit_elimination',
+        'read_elimination',
+        'create_elimination',
+        'delete_elimination',
+        'print_generate',
         'upload_limit',
         'is_active'
     ];

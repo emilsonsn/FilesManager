@@ -64,7 +64,32 @@
                   <a href="#" class="me-2 projects" data-id="{{ $user->id }}" data-bs-toggle="modal" data-bs-target="#projectsModal">
                     <i class="fa-solid fa-house-chimney-medical"></i>
                   </a>
-                  <a href="#" class="edit-user" data-create_projects="{{$user->create_projects}}" data-id="{{ $user->id }}" data-upload_limit="{{ $user->upload_limit }}" data-active="{{ $user->is_active }}" data-name="{{ $user->name }}" data-email="{{ $user->email }}" data-is_admin="{{ $user->is_admin }}" data-read_doc="{{ $user->read_doc }}" data-create_doc="{{ $user->create_doc }}" data-edit_doc="{{ $user->edit_doc }}" data-delete_doc="{{ $user->delete_doc }}" data-read_temporality="{{ $user->read_temporality }}" data-create_temporality="{{ $user->create_temporality }}" data-edit_temporality="{{ $user->edit_temporality }}" data-delete_temporality="{{ $user->delete_temporality }}" data-read_collection="{{ $user->read_collection }}" data-create_collection="{{ $user->create_collection }}" data-edit_collection="{{ $user->edit_collection }}" data-delete_collection="{{ $user->delete_collection }}">
+                  <a href="#" class="edit-user"
+                  data-create_projects="{{$user->create_projects}}"
+                  data-id="{{ $user->id }}"
+                  data-upload_limit="{{ $user->upload_limit }}"
+                  data-active="{{ $user->is_active }}"
+                  data-name="{{ $user->name }}"
+                  data-email="{{ $user->email }}"
+                  data-is_admin="{{ $user->is_admin }}"
+                  data-read_doc="{{ $user->read_doc }}"
+                  data-create_doc="{{ $user->create_doc }}"
+                  data-edit_doc="{{ $user->edit_doc }}"
+                  data-delete_doc="{{ $user->delete_doc }}"
+                  data-read_temporality="{{ $user->read_temporality }}"
+                  data-create_temporality="{{ $user->create_temporality }}"
+                  data-edit_temporality="{{ $user->edit_temporality }}"
+                  data-delete_temporality="{{ $user->delete_temporality }}"
+                  data-read_collection="{{ $user->read_collection }}"
+                  data-create_collection="{{ $user->create_collection }}"
+                  data-edit_collection="{{ $user->edit_collection }}"
+                  data-delete_collection="{{ $user->delete_collection }}"
+                  data-read_elimination="{{ $user->read_elimination }}"
+                  data-create_elimination="{{ $user->create_elimination }}"
+                  data-edit_elimination="{{ $user->edit_elimination }}"
+                  data-delete_elimination="{{ $user->delete_elimination }}"
+                  data-print_generate="{{ $user->print_generate }}"
+                  >
                     <i class="fa-solid fa-pen"></i>
                   </a>
                   <a href="{{route('delete.user', ['id' => $user->id])}}" class="delete-user"><i class="fa-solid fa-trash ms-3"></i></a>
@@ -107,8 +132,8 @@
             </div>
             <div class="mb-3">
               <label for="permissions" class="form-label">Permissões</label>
-              <div class="row">                
-                @foreach([ 'is_active' => 'Acesso ao sistema', 'create_projects' => 'Criar projetos', 'read_doc' => 'Ler Documentos', 'create_doc' => 'Criar Documentos', 'edit_doc' => 'Editar Documentos', 'delete_doc' => 'Deletar Documentos', 'read_temporality' => 'Ler Temporalidades', 'create_temporality' => 'Criar Temporalidades', 'edit_temporality' => 'Editar Temporalidades', 'delete_temporality' => 'Deletar Temporalidades', 'read_collection' => 'Ler Coleções', 'create_collection' => 'Criar Coleções', 'edit_collection' => 'Editar Coleções', 'delete_collection' => 'Deletar Coleções'] as $field => $label)
+              <div class="row">                            
+                @foreach([ 'is_active' => 'Acesso ao sistema', 'create_projects' => 'Criar projetos', 'read_doc' => 'Ler Documentos', 'create_doc' => 'Criar Documentos', 'edit_doc' => 'Editar Documentos', 'delete_doc' => 'Deletar Documentos', 'read_temporality' => 'Ler Temporalidades', 'create_temporality' => 'Criar Temporalidades', 'edit_temporality' => 'Editar Temporalidades', 'delete_temporality' => 'Deletar Temporalidades', 'read_collection' => 'Ler Coleções', 'create_collection' => 'Criar Coleções', 'edit_collection' => 'Editar Coleções', 'delete_collection' => 'Deletar Coleções', 'read_elimination' => 'Ler eliminações', 'create_elimination' => 'Criar eliminação' ,'edit_elimination'=> 'Editar eliminação' ,'delete_elimination' => 'Deletar eliminação' , 'print_generate' => 'Botões de etiqueta de documento' ] as $field => $label)
                   <div class="col-md-6">
                     <div class="form-check">
                       <input class="form-check-input" type="checkbox" value="1" id="{{ $field }}" name="{{ $field }}">
@@ -122,7 +147,6 @@
             </div>
           </div>
           <div class="modal-footer">
-            
             <button type="submit" class="btn btn-primary">Salvar</button>
           </div>
         </form>
@@ -240,6 +264,11 @@ document.addEventListener('DOMContentLoaded', function () {
             delete_collection: button.getAttribute('data-delete_collection'),
             is_active: button.getAttribute('data-active'),
             create_projects: button.getAttribute('data-create_projects'),
+            create_elimination: button.getAttribute('data-create_elimination'),
+            edit_elimination: button.getAttribute('data-edit_elimination'),
+            read_elimination: button.getAttribute('data-read_elimination'),
+            delete_elimination: button.getAttribute('data-delete_elimination'),
+            print_generate: button.getAttribute('data-print_generate'),
           };
 
           modalForm.querySelector('[name="id"]').value = id;

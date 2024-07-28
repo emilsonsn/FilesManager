@@ -46,21 +46,23 @@
       </li>
     @endif
     
-    <li class="sidebar-item">
-      <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-         data-bs-target="#elimination" aria-expanded="false" aria-controls="elimination">
-         <i class="fa-solid fa-circle-xmark"></i>
-         <span>Lista de eliminação</span>
-      </a>
-      <ul id="elimination" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#elimination">
-        <li class="sidebar-item">
-          <a href="{{route('elimination_list')}}" class="sidebar-link {{ $currentRoute == 'elimination_list' ? 'active-sidebar-link' : '' }}">Listas</a>
-        </li>
-        <li class="sidebar-item">
-          <a href="{{route('eliminations', ['project_id' => session('project_id')])}}" class="sidebar-link {{ $currentRoute == 'eliminations' ? 'active-sidebar-link' : '' }}">Eliminação</a>
-        </li>
-      </ul>
-    </li>
+    @if($auth->read_elimination)
+      <li class="sidebar-item">
+        <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+          data-bs-target="#elimination" aria-expanded="false" aria-controls="elimination">
+          <i class="fa-solid fa-circle-xmark"></i>
+          <span>Lista de eliminação</span>
+        </a>
+        <ul id="elimination" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#elimination">
+          <li class="sidebar-item">
+            <a href="{{route('elimination_list')}}" class="sidebar-link {{ $currentRoute == 'elimination_list' ? 'active-sidebar-link' : '' }}">Listas</a>
+          </li>
+          <li class="sidebar-item">
+            <a href="{{route('eliminations', ['project_id' => session('project_id')])}}" class="sidebar-link {{ $currentRoute == 'eliminations' ? 'active-sidebar-link' : '' }}">Eliminação</a>
+          </li>
+        </ul>
+      </li>
+    @endif
 
     <li class="sidebar-item">
       <a href="{{route('reports')}}" class="sidebar-link {{ $currentRoute == 'reports' ? 'active-sidebar-link' : '' }}">

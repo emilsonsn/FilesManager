@@ -85,7 +85,7 @@
         Listas de Eliminação
     </h1>
 
-    @if($auth->create_doc)
+    @if($auth->create_elimination)
         <a href="#" class="fs-1 c-green add" data-bs-toggle="modal" data-bs-target="#addDocumentModal">
             <i class="fa-solid fa-circle-plus"></i>
         </a>
@@ -201,25 +201,25 @@
                             <a href="#" class="edit-document ms-2 me-2" style="color: rgb(25, 85, 175) !important;" data-copy="1" data-id="{{ $list->id }}">
                                 <i class="fa-solid fa-copy"></i>
                             </a>
-                            @if($auth->edit_doc)
+                            @if($auth->edit_elimination)
                                 <a href="#" class="edit-document ms-2 me-2" style="color: rgb(0, 0, 0) !important;" data-id="{{ $list->id }}">
                                     <i class="fa-solid fa-pen"></i>
+                                </a>
+                                <a href="#" class="me-2 c-green" data-bs-toggle="collapse" data-bs-target="#collapse{{ $list->id }}" aria-expanded="false" aria-controls="collapse{{ $list->id }}">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+    
+                                <a href="#" class="print-link" data-list="{{$list->id}}">
+                                    <i class="fa-solid fa-print me-2"></i>
+                                </a>                            
+                                
+                                <a href="#" class="c-blue view-files fs-4" data-id="{{ $list->id }}">
+                                    <i class="fa-solid fa-folder-open"></i>
                                 </a>
                             @else
                                 -----
                             @endif
-                            <a href="#" class="me-2 c-green" data-bs-toggle="collapse" data-bs-target="#collapse{{ $list->id }}" aria-expanded="false" aria-controls="collapse{{ $list->id }}">
-                                <i class="fa-solid fa-eye"></i>
-                            </a>
-
-                            <a href="#" class="print-link" data-list="{{$list->id}}">
-                                <i class="fa-solid fa-print me-2"></i>
-                            </a>                            
-                            
-                            <a href="#" class="c-blue view-files fs-4" data-id="{{ $list->id }}">
-                                <i class="fa-solid fa-folder-open"></i>
-                            </a>
-                            @if($auth->delete_doc)
+                            @if($auth->delete_elimination)
                                 <a href="{{route('delete.elimination-list', ['id' => $list->id])}}" class="delete-document"><i class="fa-solid fa-trash ms-3"></i></a>
                             @endif
                         </td>
@@ -263,9 +263,10 @@
             </tbody>
             
         </table>
-        <div class="d-flex justify-content-center">
-            {{$eliminationLists->links()}}
+        <div class="d-flex justify-content-center">            
+            {{ count($eliminationLists) ? $eliminationLists->appends(request()->query())->links() : '' }}
         </div>
+
     </div>
 </div>
 

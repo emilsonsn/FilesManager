@@ -12,10 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->boolean('read_elimination')->after('create_projects');
-            $table->boolean('create_elimination')->after('read_elimination');
-            $table->boolean('delete_elimination')->after('create_elimination');
-            $table->boolean('print_generate')->after('delete_elimination');
+            $table->boolean('read_elimination')->after('create_projects')->default(false);
+            $table->boolean('create_elimination')->after('read_elimination')->default(false);
+            $table->boolean('edit_elimination')->after('create_elimination')->default(false);
+            $table->boolean('delete_elimination')->after('edit_elimination')->default(false);
+            $table->boolean('print_generate')->after('delete_elimination')->default(false);
         });
     }
 
@@ -25,7 +26,13 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            //
+            $table->dropColumn([
+                'read_elimination',
+                'create_elimination',
+                'edit_elimination',
+                'delete_elimination',
+                'print_generate',
+            ]);
         });
     }
 };

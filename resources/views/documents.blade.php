@@ -135,17 +135,19 @@
 
             Documentos
 
-            <div>
-                <button class="btn btn-sm btn-primary ms-2" id="generateBoxPrint">Gerar impressão de caixa</button>
-            </div>
+            @if($auth->print_generate)
+                <div>
+                    <button class="btn btn-sm btn-primary ms-2" id="generateBoxPrint">Gerar impressão de caixa</button>
+                </div>
 
-            <div>
-                <button class="btn btn-sm btn-primary ms-2" id="generateCabinetPrint">Gerar impressão de Armário</button>
-            </div>
+                <div>
+                    <button class="btn btn-sm btn-primary ms-2" id="generateCabinetPrint">Gerar impressão de Armário</button>
+                </div>
 
-            <div>
-                <button class="btn btn-sm btn-primary ms-2" id="generateMultipleLabels">Gerar multiplas etiquetas de pasta</button>
-            </div>
+                <div>
+                    <button class="btn btn-sm btn-primary ms-2" id="generateMultipleLabels">Gerar multiplas etiquetas de pasta</button>
+                </div>
+            @endif
 
         </h1>
         @if ($auth->create_doc)
@@ -420,8 +422,8 @@
                 </tbody>
             </table>
             <div class="d-flex justify-content-center">
-                {{ count($documents) ? $documents->links() : '' }}
-            </div>
+                {{ count($documents) ? $documents->appends(request()->query())->links() : '' }}
+            </div>            
         </div>
 
     </div>

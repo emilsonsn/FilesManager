@@ -132,7 +132,7 @@
         <h1 class="pt-4 d-flex justify-content-space-around" style="flex-wrap: wrap">
             Documentos de Eliminação
         </h1>
-        @if ($auth->create_doc)
+        @if ($auth->create_elimination)
             <a href="#" class="fs-1 c-green add" data-bs-toggle="modal" data-bs-target="#addDocumentModal">
                 <i class="fa-solid fa-circle-plus"></i>
             </a>
@@ -320,7 +320,7 @@
                                 style="font-weight: 600; color: {{ !$elim->situationAI ? '' : ($elim->situationAI == 'Ativo' ? 'green' : 'red') }} !important;">
                                 {{ $elim->situationAI }}</td>
                             <td class="text-center fs-4">
-                                @if ($auth->edit_doc)
+                                @if ($auth->edit_elimination)
                                     <a href="#" class="edit-document ms-2 me-2" style="color: rgb(50, 127, 243) !important;"
                                         data-edit="1" data-tags="{{ $elim->tags }}"
                                         data-archive_date="{{ $elim->archive_date }}"
@@ -339,14 +339,9 @@
                                         data-elimination-list="{{$elim->elimination_list_id}}">
                                         <i class="fa-solid fa-circle-info"></i>
                                     </a>
-                                @else
-                                    -----
-                                @endif
-                                <a data-elimination-list="{{$elim->elimination_list_id}}" style="color: rgb(85, 85, 85) !important; cursor: pointer;" class="ms-2 me-2">
-                                    <i class="fa-solid fa-copy"></i>
-                                </a>
-
-                                @if ($auth->edit_doc)
+                                    <a data-elimination-list="{{$elim->elimination_list_id}}" style="color: rgb(85, 85, 85) !important; cursor: pointer;" class="ms-2 me-2">
+                                        <i class="fa-solid fa-copy"></i>
+                                    </a>
                                     <a href="#" class="me-2 edit-document ms-2 me-2" data-tags="{{ $elim->tags }}"
                                         data-archive_date="{{ $elim->archive_date }}"
                                         data-initial_date="{{ $elim->initial_date }}" data-id="{{ $elim->id }}"
@@ -364,9 +359,11 @@
                                         data-elimination-list="{{$elim->elimination_list_id}}">
                                         <i class="fa-solid fa-pen"></i>
                                     </a>
+                                @else
+                                    -----
                                 @endif
 
-                                @if ($auth->delete_doc)
+                                @if ($auth->delete_elimination)
                                     <a href="{{ route('delete.elimination', ['id' => $elim->id]) }}"
                                         class="delete-document">
                                         <i class="fa-solid fa-trash ms-2 me-2"></i>
@@ -378,7 +375,7 @@
                 </tbody>
             </table>
             <div class="d-flex justify-content-center">
-                {{ $eliminations->links() }}
+                {{ count($eliminations) ? $eliminations->appends(request()->query())->links() : '' }}
             </div>
         </div>
     </div>
