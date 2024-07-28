@@ -90,7 +90,7 @@
                         </tr>
                         <tr>
                             <td style="padding-left: 10px;">ANO DE ARQUIVAMENTO:</td>
-                            <td>{{ Carbon::parse($document->archive_date)->year }}</td>
+                            <td>{{ $document->archive_date ? Carbon::parse($document->archive_date)->year : '-----' }}</td>
                         </tr>
                         @if($document->box)
                             <tr>

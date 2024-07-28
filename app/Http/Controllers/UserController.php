@@ -18,6 +18,10 @@ class UserController extends Controller
             }
 
             $resetPermissions = [
+                'read_doc' => false,
+                'create_doc' => false,
+                'edit_doc' => false,
+                'delete_doc' => false,
                 'read_temporality'=> false,
                 'create_temporality'=> false,
                 'edit_temporality'=> false,

@@ -338,7 +338,7 @@
                                 style="font-weight: 600; color: {{ $type == 'transfer' || $type == 'loan' ? 'red' : '' }} !important;">
                                 {{ $type == 'transfer' ? 'Transferido' : ($type == 'loan' ? 'Emprestado' : $type) }}</td>
                             <td class="text-center fs-4">
-                                @if ($auth->edit_doc)
+                                @if ($auth->read_doc)
                                     <a href="#" class="edit-document" style="color: rgb(50, 127, 243) !important;"
                                         data-edit="1" data-tags="{{ $doc->tags }}"
                                         data-archive_date="{{ $doc->archive_date }}"
@@ -352,8 +352,12 @@
                                         data-qtpasta="{{ $doc->qtpasta }}" data-file="{{ $doc->file }}"
                                         data-cabinet="{{ $doc->cabinet }}" data-drawer="{{ $doc->drawer }}"
                                         data-classification="{{ $doc->classification }}"
-                                        data-version="{{ $doc->version }}" data-situationac="{{ $doc->situationAC }}"
-                                        data-situationai="{{ $doc->situationAI }}">
+                                        data-version="{{ $doc->version }}"
+                                        data-situationac="{{ $doc->situationAC }}"
+                                        data-situationai="{{ $doc->situationAC }}"
+                                        data-expiration_ac="{{ $doc->expiration_date_A_C }}"
+                                        data-expiration_ai="{{ $doc->expiration_date_A_I }}"
+                                        >
                                         <i class="fa-solid fa-circle-info"></i>
                                     </a>
                                 @else
@@ -361,14 +365,19 @@
                                 @endif
                             </td>
                             <td class="text-center fs-4">
-                                <a style="color: rgb(85, 85, 85) !important; cursor: pointer;">
-                                    <i class="fa-solid fa-copy"></i>
-                                </a>
+                                @if ($auth->edit_doc)
+                                    <a style="color: rgb(85, 85, 85) !important; cursor: pointer;">
+                                        <i class="fa-solid fa-copy"></i>
+                                    </a>
+                                @endif
                             </td>
+
                             <td>
-                                <a href="#" class="c-blue view-files fs-4" data-id="{{ $doc->id }}">
-                                    <i class="fa-solid fa-folder-open"></i>
-                                </a>
+                                @if ($auth->edit_doc)
+                                    <a href="#" class="c-blue view-files fs-4" data-id="{{ $doc->id }}">
+                                        <i class="fa-solid fa-folder-open"></i>
+                                    </a>
+                                @endif
                             </td>
                             <td class="text-center">
                                 @if ($auth->edit_doc)
@@ -384,18 +393,23 @@
                                         data-qtpasta="{{ $doc->qtpasta }}" data-file="{{ $doc->file }}"
                                         data-cabinet="{{ $doc->cabinet }}" data-drawer="{{ $doc->drawer }}"
                                         data-classification="{{ $doc->classification }}"
-                                        data-version="{{ $doc->version }}" data-situationac="{{ $doc->situationAC }}"
-                                        data-situationai="{{ $doc->situationAI }}">
+                                        data-version="{{ $doc->version }}"
+                                        data-situationac="{{ $doc->situationAC }}"
+                                        data-situationai="{{ $doc->situationAI }}"
+                                        data-expiration_ac="{{ $doc->expiration_date_A_C }}"
+                                        data-expiration_ai="{{ $doc->expiration_date_A_I }}">
                                         <i class="fa-solid fa-pen"></i>
                                     </a>
                                 @endif
-                                <a href="#" class="me-2 print-label"
-                                    data-url="{{ route('labels', ['ids' => [$doc->id]]) }}">
-                                    <i class="fa-solid fa-print"></i>
-                                </a>
-                                <a href="{{ route('document.collections', ['document_id' => $doc->id]) }}">
-                                    <i class="fa-solid fa-box-open"></i>
-                                </a>
+                                @if ($auth->edit_doc)
+                                    <a href="#" class="me-2 print-label"
+                                        data-url="{{ route('labels', ['ids' => [$doc->id]]) }}">
+                                        <i class="fa-solid fa-print"></i>
+                                    </a>
+                                    <a href="{{ route('document.collections', ['document_id' => $doc->id]) }}">
+                                        <i class="fa-solid fa-box-open"></i>
+                                    </a>
+                                @endif
                                 @if ($auth->delete_doc)
                                     <a href="{{ route('delete.document', ['id' => $doc->id]) }}"
                                         class="delete-document"><i class="fa-solid fa-trash ms-3"></i></a>
@@ -406,7 +420,7 @@
                 </tbody>
             </table>
             <div class="d-flex justify-content-center">
-                {{ $documents->links() }}
+                {{ count($documents) ? $documents->links() : '' }}
             </div>
         </div>
 
@@ -864,23 +878,24 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var printButtons = document.querySelectorAll('.print-label');
-
-            printButtons.forEach(function(button) {
-                button.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    var url = button.getAttribute('data-url');
-                    var width = 1000;
-                    var height = 600;
-                    var left = (screen.width - width) / 2;
-                    var top = (screen.height - height) / 2;
-
-                    var popup = window.open(url, 'popup', 'width=' + width + ',height=' + height +
-                        ',top=' + top + ',left=' + left + ',scrollbars=no,resizable=no');
-                    popup.addEventListener('load', function() {
-                        popup.print();
+            if(printButtons){
+                printButtons.forEach(function(button) {
+                    button.addEventListener('click', function(event) {
+                        event.preventDefault();
+                        var url = button.getAttribute('data-url');
+                        var width = 1000;
+                        var height = 600;
+                        var left = (screen.width - width) / 2;
+                        var top = (screen.height - height) / 2;
+    
+                        var popup = window.open(url, 'popup', 'width=' + width + ',height=' + height +
+                            ',top=' + top + ',left=' + left + ',scrollbars=no,resizable=no');
+                        popup.addEventListener('load', function() {
+                            popup.print();
+                        });
                     });
                 });
-            });
+            }
 
             document.getElementById('generateBoxPrint').addEventListener('click', function() {
                 var modal = new bootstrap.Modal(document.getElementById('generateBoxPrintModal'));
@@ -999,9 +1014,9 @@
                                     listItem.className =
                                         'list-group-item d-flex justify-content-between align-items-center';
                                     listItem.innerHTML = `
-                ${new Date(file.created_at).toLocaleDateString('pt-BR')} - ${file.name}
-                <a href="/storage/${file.file_path}" target="_blank" class="btn btn-sm btn-primary">Abrir</a>
-              `;
+                                    ${new Date(file.created_at).toLocaleDateString('pt-BR')} - ${file.name}
+                                    <a href="/storage/${file.file_path}" target="_blank" class="btn btn-sm btn-primary">Abrir</a>
+                                    `;
                                     fileList.appendChild(listItem);
                                 });
                             } else {
@@ -1027,27 +1042,36 @@
             var modalForm = modal.querySelector('form');
             var temporalitys = @json($temporalitys);
 
-            addDocumentButton.addEventListener('click', function() {
-                modalForm.reset(); // Limpa todos os campos do formulário
-                const token = modalForm.querySelectorAll('input[name="_token"]')[0].value
-                modalForm.querySelectorAll('input[name="id"]')[0].value = '';
-                modalForm.querySelectorAll('select').forEach(function(select) {
-                    select.value = ''; // Reseta os selects
+            if(addDocumentButton){
+                addDocumentButton.addEventListener('click', function() {
+                    modalForm.reset(); // Limpa todos os campos do formulário
+                    const token = modalForm.querySelectorAll('input[name="_token"]')[0].value
+                    modalForm.querySelectorAll('input[name="id"]')[0].value = '';
+                    modalForm.querySelectorAll('select').forEach(function(select) {
+                        select.value = ''; // Reseta os selects
+                    });
+                    modalForm.querySelectorAll('textarea').forEach(function(textarea) {
+                        textarea.value = ''; // Limpa textareas
+                    });
+                    document.getElementById('area').value = '';
+                    document.getElementById('function').value = '';
+                    document.getElementById('sub_function').value = '';
+                    document.getElementById('activity').value = '';
+                    document.getElementById('tipology').value = '';
+                    document.getElementById('current_custody_period').value = '';
+                    document.getElementById('intermediate_custody_period').value = '';
+                    document.getElementById('final_destination').value = '';
+                    toggleFields();
+
+                    document.getElementById('submit-button').style.display = 'block';
+                        modalForm.querySelectorAll('input, select, textarea').forEach(function(
+                            element) {
+                            element.removeAttribute('disabled');
+                    });
+
+                    modalForm.querySelectorAll('input[name="_token"]')[0].value = token
                 });
-                modalForm.querySelectorAll('textarea').forEach(function(textarea) {
-                    textarea.value = ''; // Limpa textareas
-                });
-                document.getElementById('area').value = '';
-                document.getElementById('function').value = '';
-                document.getElementById('sub_function').value = '';
-                document.getElementById('activity').value = '';
-                document.getElementById('tipology').value = '';
-                document.getElementById('current_custody_period').value = '';
-                document.getElementById('intermediate_custody_period').value = '';
-                document.getElementById('final_destination').value = '';
-                toggleFields();
-                modalForm.querySelectorAll('input[name="_token"]')[0].value = token
-            });
+            }
 
             function toggleFields() {
                 var typeSelect = document.getElementById('type');
@@ -1097,52 +1121,13 @@
                     var version = button.getAttribute('data-version');
                     var situationAC = button.getAttribute('data-situationac');
                     var situationAI = button.getAttribute('data-situationai');
+                    var expiration_ac = button.getAttribute('data-expiration_ac');
+                    var expiration_ai = button.getAttribute('data-expiration_ai');
+                    
                     var tags = button.getAttribute('data-tags');
                     var edit = button.getAttribute('data-edit');
 
-                    if (box) {
-                        document.getElementById('type').value = '1';
-                    } else if (cabinet) {
-                        document.getElementById('type').value = '2';
-                    } else {
-                        document.getElementById('type').value = '';
-                    }
-
-                    if (edit) {
-                        document.getElementById('submit-button').style.display = 'none';
-                        modalForm.querySelectorAll('input, select, textarea').forEach(function(
-                            element) {
-                            element.setAttribute('disabled', 'true');
-                        });
-                    } else {
-                        document.getElementById('submit-button').style.display = 'block';
-                        modalForm.querySelectorAll('input, select, textarea').forEach(function(
-                            element) {
-                            element.removeAttribute('disabled');
-                        });
-                    }
-
-
                     toggleFields();
-
-                    modalForm.querySelector('[name="id"]').value = id;
-                    modalForm.querySelector('[name="project_id"]').value = project_id;
-                    modalForm.querySelector('[name="temporality_id"]').value = temporality_id;
-                    modalForm.querySelector('[name="holder_name"]').value = holder_name;
-                    modalForm.querySelector('[name="description"]').value = description;
-                    modalForm.querySelector('[name="box"]').value = box;
-                    modalForm.querySelector('[name="qtpasta"]').value = qtpasta;
-                    modalForm.querySelector('[name="doc_number"]').value = doc_number;
-                    modalForm.querySelector('[name="cabinet"]').value = cabinet;
-                    modalForm.querySelector('[name="observations"]').value = observations;
-                    modalForm.querySelector('[name="drawer"]').value = drawer;
-                    modalForm.querySelector('[name="initial_date"]').value = initial_date;
-                    modalForm.querySelector('[name="archive_date"]').value = archive_date;
-                    modalForm.querySelector('[name="classification"]').value = classification;
-                    modalForm.querySelector('[name="version"]').value = version;
-                    modalForm.querySelector('[name="situationAC"]').value = situationAC;
-                    modalForm.querySelector('[name="situationAI"]').value = situationAI;
-                    modalForm.querySelector('[name="tags"]').value = tags;
 
                     var temporality = temporalitys.find(t => t.id == temporality_id);
                     if (temporality) {
@@ -1171,6 +1156,48 @@
                         modalForm.querySelector('#expiration_date_A_I').value =
                             expiration_date_A_I ? expiration_date_A_I.toISOString().split('T')[0] :
                             '';
+                    }
+                    modalForm.querySelector('[name="id"]').value = id;
+                    modalForm.querySelector('[name="project_id"]').value = project_id;
+                    modalForm.querySelector('[name="temporality_id"]').value = temporality_id;
+                    modalForm.querySelector('[name="holder_name"]').value = holder_name;
+                    modalForm.querySelector('[name="description"]').value = description;
+                    modalForm.querySelector('[name="box"]').value = box;
+                    modalForm.querySelector('[name="qtpasta"]').value = qtpasta;
+                    modalForm.querySelector('[name="doc_number"]').value = doc_number;
+                    modalForm.querySelector('[name="cabinet"]').value = cabinet;
+                    modalForm.querySelector('[name="observations"]').value = observations;
+                    modalForm.querySelector('[name="drawer"]').value = drawer;
+                    modalForm.querySelector('[name="initial_date"]').value = initial_date;
+                    modalForm.querySelector('[name="archive_date"]').value = archive_date;
+                    modalForm.querySelector('[name="classification"]').value = classification;
+                    modalForm.querySelector('[name="version"]').value = version;
+                    modalForm.querySelector('[name="situationAC"]').value = situationAC;
+                    modalForm.querySelector('[name="situationAI"]').value = situationAI;
+                    modalForm.querySelector('[name="expiration_date_A_C"]').value = expiration_ac;
+                    modalForm.querySelector('[name="expiration_date_A_I"]').value = expiration_ai;
+                    modalForm.querySelector('[name="tags"]').value = tags;
+
+                    if (box) {
+                        document.getElementById('type').value = '1';
+                    } else if (cabinet) {
+                        document.getElementById('type').value = '2';
+                    } else {
+                        document.getElementById('type').value = '';
+                    }
+
+                    if (edit) {
+                        document.getElementById('submit-button').style.display = 'none';
+                        modalForm.querySelectorAll('input, select, textarea').forEach(function(
+                            element) {
+                            element.setAttribute('disabled', 'true');
+                        });
+                    } else {
+                        document.getElementById('submit-button').style.display = 'block';
+                        modalForm.querySelectorAll('input, select, textarea').forEach(function(
+                            element) {
+                            element.removeAttribute('disabled');
+                        });
                     }
 
                     fetch(`/documents/${id}/files`)
@@ -1266,12 +1293,12 @@
                                     listItem.className =
                                         'list-group-item d-flex justify-content-between align-items-center';
                                     listItem.innerHTML = `
-                ${new Date(file.created_at).toLocaleDateString('pt-BR')} - ${file.name}
-                <div>
-                  <a href="${file.file_path}" target="_blank" class="btn btn-sm btn-primary">Abrir</a>
-                  <button class="btn btn-sm btn-danger delete-file" data-file-id="${file.id}">Apagar</button>
-                </div>
-              `;
+                                        ${new Date(file.created_at).toLocaleDateString('pt-BR')} - ${file.name}
+                                        <div>
+                                        <a href="${file.file_path}" target="_blank" class="btn btn-sm btn-primary">Abrir</a>
+                                        <button class="btn btn-sm btn-danger delete-file" data-file-id="${file.id}">Apagar</button>
+                                        </div>
+                                    `;
                                     fileList.appendChild(listItem);
                                 });
                             } else {
