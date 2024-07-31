@@ -34,12 +34,12 @@
 
         if ($classification_search) {
             $document->whereHas('temporality', function ($query) use ($classification_search) {
-                $query->where('code', $classification_search);
+                $query->where('code','like' ,"%$classification_search%");
             });
         }
 
         if ($doc_number_search) {
-            $document->where('doc_number', $doc_number_search);
+            $document->where('doc_number', "like",  "%$doc_number_search%");
         }
 
         if ($holder_search) {
@@ -49,29 +49,29 @@
         if ($all_search) {
             $document
                 ->where('holder_name', 'like', "%$all_search%")
-                ->orWhere('box', $all_search)
-                ->orWhere('cabinet', $all_search)
+                ->orWhere('box', 'like',"%$all_search%")
+                ->orWhere('cabinet', "like" ,"%$all_search%")
                 ->orWhere('description', 'like', "%$all_search%")
-                ->orWhere('drawer', $all_search)
-                ->orWhere('tags', $all_search)
-                ->orWhere('doc_number', $all_search);
+                ->orWhere('drawer', "like", "%$all_search%")
+                ->orWhere('tags', "like", "%$all_search%")
+                ->orWhere('doc_number', "like","%$all_search%");
         }
 
         if ($box_search) {
-            $document->where('box', $box_search);
+            $document->where('box', "like", "%$box_search%");
         }
 
         if ($cabinet_search) {
-            $document->where('cabinet', $cabinet_search);
+            $document->where('cabinet', "like", "%$cabinet_search%");
         }
 
         if ($drawer_search) {
-            $document->where('drawer', $drawer_search);
+            $document->where('drawer', "like", "%$drawer_search%");
         }
 
         if ($destination_search) {
             $document->whereHas('temporality', function ($query) use ($destination_search) {
-                $query->where('final_destination', $destination_search);
+                $query->where('final_destination', "like", "%$destination_search%");
             });
         }
 
@@ -81,7 +81,6 @@
 
         if ($version_search) {
             $document->where('version', $version_search);
-            $document->orWhere('version', "$all_search");
         }
 
         if ($loan_situation_search) {
@@ -356,7 +355,7 @@
                                         data-classification="{{ $doc->classification }}"
                                         data-version="{{ $doc->version }}"
                                         data-situationac="{{ $doc->situationAC }}"
-                                        data-situationai="{{ $doc->situationAC }}"
+                                        data-situationai="{{ $doc->situationAI }}"
                                         data-expiration_ac="{{ $doc->expiration_date_A_C }}"
                                         data-expiration_ai="{{ $doc->expiration_date_A_I }}"
                                         >
@@ -879,11 +878,11 @@
         </div>
     </div>
 
-    <script>
-document.addEventListener('DOMContentLoaded', function() {
-    var printButtons = document.querySelectorAll('.print-label');
-    if(printButtons){
-        printButtons.forEach(function(button) {
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var printButtons = document.querySelectorAll('.print-label');
+        if(printButtons){
+            printButtons.forEach(function(button) {
             button.addEventListener('click', function(event) {
                 event.preventDefault();
                 var url = button.getAttribute('data-url');
@@ -901,10 +900,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    document.getElementById('generateBoxPrint').addEventListener('click', function() {
-        var modal = new bootstrap.Modal(document.getElementById('generateBoxPrintModal'));
-        modal.show();
-    });
+    const generateBoxPrintBtn = document.getElementById('generateBoxPrint')
+    if(generateBoxPrintBtn){
+        generateBoxPrintBtn.addEventListener('click', function() {
+            var modal = new bootstrap.Modal(document.getElementById('generateBoxPrintModal'));
+            modal.show();
+        });
+    }
 
     var caixas = [];
     document.getElementById('addBoxPrint').addEventListener('click', function() {
@@ -943,10 +945,13 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    document.getElementById('generateMultipleLabels').addEventListener('click', function() {
-        var modal = new bootstrap.Modal(document.getElementById('generateMultipleLabelsModal'));
-        modal.show();
-    });
+    const generateMultipleLabelsBtn = document.getElementById('generateMultipleLabels');
+    if(generateMultipleLabelsBtn){
+        generateMultipleLabelsBtn.addEventListener('click', function() {
+            var modal = new bootstrap.Modal(document.getElementById('generateMultipleLabelsModal'));
+            modal.show();
+        });
+    }
 
     document.getElementById('generateMultipleLabelsButton').addEventListener('click', function() {
         var selectedDocuments = [];
@@ -1115,7 +1120,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    document.getElementById('type').addEventListener('change', toggleFields);
+    document.getElementById('type').addEventListener('change', toggleFields());
     toggleFields(); // Inicializa o estado dos campos
 
     editButtons.forEach(function(button) {
@@ -1144,9 +1149,8 @@ document.addEventListener('DOMContentLoaded', function() {
             var tags = button.getAttribute('data-tags');
             var edit = button.getAttribute('data-edit');
 
-            toggleFields();
-
             var temporality = temporalitys.find(t => t.id == temporality_id);
+
             if (temporality) {
                 modalForm.querySelector('#area').value = temporality.area;
                 modalForm.querySelector('#function').value = temporality.function;
@@ -1163,6 +1167,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 modalForm.querySelector('#expiration_date_A_C').value = expiration_date_A_C ? expiration_date_A_C.toISOString().split('T')[0] : '';
                 modalForm.querySelector('#expiration_date_A_I').value = expiration_date_A_I ? expiration_date_A_I.toISOString().split('T')[0] : '';
             }
+
             modalForm.querySelector('[name="id"]').value = id;
             modalForm.querySelector('[name="project_id"]').value = project_id;
             modalForm.querySelector('[name="temporality_id"]').value = temporality_id;
@@ -1191,6 +1196,8 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 document.getElementById('type').value = '';
             }
+
+            toggleFields();
 
             if (edit) {
                 document.getElementById('submit-button').style.display = 'none';
@@ -1324,11 +1331,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
         });
     });
+    
+    const generateCabinetPrintBtn = document.getElementById('generateCabinetPrint');
 
-    document.getElementById('generateCabinetPrint').addEventListener('click', function() {
-        var modal = new bootstrap.Modal(document.getElementById('generateCabinetPrintModal'));
-        modal.show();
-    });
+    if(generateCabinetPrintBtn){
+        generateCabinetPrintBtn.addEventListener('click', function() {
+            var modal = new bootstrap.Modal(document.getElementById('generateCabinetPrintModal'));
+            modal.show();
+        });
+    }
 
     var armarios = [];
     document.getElementById('addCabinetPrint').addEventListener('click', function() {

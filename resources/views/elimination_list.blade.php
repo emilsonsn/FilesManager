@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-@vite(['resources/js/tags.js'])
 
 @php
     use App\Models\EliminationList;
@@ -468,6 +467,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     if(!copy){
                         modalForm.querySelector('[name="id"]').value = data.id;
                     }
+                    modalForm.querySelector('[name="list_number"]').value = data.list_number;
                     modalForm.querySelector('[name="organ"]').value = data.organ;
                     modalForm.querySelector('[name="unit"]').value = data.unit;
                     modalForm.querySelector('[name="responsible_selection"]').value = data.responsible_selection;

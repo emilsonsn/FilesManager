@@ -174,7 +174,7 @@
                 <a href="#" class="me-2 print-loan_form" data-url="{{ route('loan_form', ['id' => $collection->id]) }}">
                   <i class="fa-solid fa-print"></i>
                 </a>
-                @if($auth->edit_collection)
+                @if(($auth->edit_collection && !$collection->return_date) || $auth->is_admin)
                   <a href="#" class="edit-collection" data-type="{{$collection->type}}" data-observations="{{$collection->observations}}" data-documents="{{json_encode($collection->documentLoans)}}" data-sector="{{$collection->sector}}" data-gender="{{$collection->gender}}" data-id="{{ $collection->id }}" data-loan_date="{{ $collection->loan_date }}" data-loan_author="{{ $collection->loan_author }}" data-loan_receiver="{{ $collection->loan_receiver }}" data-return_date="{{ $collection->return_date }}" data-tel="{{$collection->tel}}" data-return_author="{{ $collection->return_author }}" data-receiver_author="{{ $collection->receiver_author }}" data-user_id="{{ $collection->user_id }}">
                     <i class="fa-solid fa-pen"></i>
                   </a>

@@ -65,6 +65,13 @@
     @endif
 
     <li class="sidebar-item">
+      <a href="{{route('alerts')}}" class="sidebar-link {{ $currentRoute == 'alerts' ? 'active-sidebar-link' : '' }}">
+        <i class="fa-solid fa-bell"></i>
+        <span>Alertas</span>
+      </a>
+    </li>
+
+    <li class="sidebar-item">
       <a href="{{route('reports')}}" class="sidebar-link {{ $currentRoute == 'reports' ? 'active-sidebar-link' : '' }}">
         <i class="fa-solid fa-file-lines"></i>
         <span>Relatórios</span>
