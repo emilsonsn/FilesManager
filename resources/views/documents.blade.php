@@ -879,6 +879,121 @@
     </div>
 
 <script>
+    // Functions
+
+    function addTableBox(caixas) {
+        var table = document.getElementById('boxPrintTable').querySelector('tbody');
+
+        table.innerHTML = '';
+
+        caixas.forEach((caixa, index) => {
+            var row = table.insertRow();
+            var deleteCell = row.insertCell(0);
+            deleteCell.innerHTML = `<button class="btn btn-danger btn-sm delete-box-row" data-index="${index}">Deletar</button>`;
+            row.insertCell(1).innerText = caixa[0];
+            row.insertCell(2).innerText = caixa[1];
+            row.insertCell(3).innerText = caixa[2];
+            row.insertCell(4).innerText = caixa[3];
+            row.insertCell(5).innerText = caixa[4];
+            row.insertCell(6).innerText = caixa[5];
+            row.insertCell(7).innerText = caixa[6];
+            row.insertCell(8).innerText = caixa[7];
+            row.insertCell(9).innerText = caixa[8];
+            row.insertCell(10).innerText = caixa[9];
+        });
+
+        document.querySelectorAll('.delete-box-row').forEach(button => {
+            button.addEventListener('click', function() {
+                var index = this.getAttribute('data-index');
+                caixas.splice(index, 1);
+                addTableBox(caixas);
+            });
+        });
+    }
+
+    function setDates(input) {
+        var initialDateInput = document.querySelector(`input#${input}`);
+        var currentDate = new Date(initialDateInput.value);
+
+        if (isNaN(currentDate.getTime())) {
+            console.log(1)
+            alert("Por favor, insira uma data inicial válida.");
+            return;
+        }
+
+        var current_custody_period = parseInt(document.querySelector('#current_custody_period').value);
+        var intermediate_custody_period = parseInt(document.querySelector('#intermediate_custody_period').value);
+
+        if (isNaN(current_custody_period) || isNaN(intermediate_custody_period)) {
+            alert("Por favor, selecione uma temporalidade válida.");
+            return;
+        }
+
+        var expiration_date_A_C = new Date(currentDate);
+        expiration_date_A_C.setFullYear(currentDate.getFullYear() + current_custody_period);
+        document.getElementById('expiration_date_A_C').value = expiration_date_A_C ? expiration_date_A_C.toISOString().split('T')[0] : '';
+
+        var expiration_date_A_I = new Date(currentDate);
+        expiration_date_A_I.setFullYear(currentDate.getFullYear() + intermediate_custody_period);
+        document.getElementById('expiration_date_A_I').value = expiration_date_A_I ? expiration_date_A_I.toISOString().split('T')[0] : '';
+    }
+
+    function toggleFields() {
+        var typeSelect = document.getElementById('type');
+        var boxFields = document.getElementById('boxFields');
+        var cabinetFields = document.getElementById('cabinetFields');
+
+        if (typeSelect.value == '1') {
+            boxFields.style.display = 'block';
+            cabinetFields.style.display = 'none';
+            document.getElementById('cabinet').value = '';
+            document.getElementById('drawer').value = '';
+        } else if (typeSelect.value == '2') {
+            boxFields.style.display = 'none';
+            cabinetFields.style.display = 'flex';
+            document.getElementById('box').value = '';
+            document.getElementById('qtpasta').value = '';
+        } else {
+            boxFields.style.display = 'none';
+            cabinetFields.style.display = 'none';
+            document.getElementById('box').value = '';
+            document.getElementById('qtpasta').value = '';
+            document.getElementById('cabinet').value = '';
+            document.getElementById('drawer').value = '';
+        }
+    }
+
+    function addTableCabinet(armarios) {
+        var table = document.getElementById('cabinetPrintTable').querySelector('tbody');
+        table.innerHTML = '';
+        armarios.forEach((armario, index) => {
+            var row = table.insertRow();
+            var deleteCell = row.insertCell(0);
+            deleteCell.innerHTML = `<button class="btn btn-danger btn-sm delete-cabinet-row" data-index="${index}">Deletar</button>`;
+            row.insertCell(1).innerText = armario[0];
+            row.insertCell(2).innerText = armario[1];
+            row.insertCell(3).innerText = armario[2];
+            row.insertCell(4).innerText = armario[3];
+            row.insertCell(5).innerText = armario[4];
+            row.insertCell(6).innerText = armario[5];
+            row.insertCell(7).innerText = armario[6];
+            row.insertCell(8).innerText = armario[7];
+            row.insertCell(9).innerText = armario[8];
+            row.insertCell(10).innerText = armario[9];
+            row.insertCell(11).innerText = armario[10];
+        });
+
+        document.querySelectorAll('.delete-cabinet-row').forEach(button => {
+            button.addEventListener('click', function() {
+                var index = this.getAttribute('data-index');
+                armarios.splice(index, 1);
+                addTableCabinet(armarios);
+            });
+        });
+    }
+</script>
+
+<script>
     document.addEventListener('DOMContentLoaded', function() {
         var printButtons = document.querySelectorAll('.print-label');
         if(printButtons){
@@ -970,63 +1085,6 @@
         }
     });
 
-    function addTableBox(caixas) {
-        var table = document.getElementById('boxPrintTable').querySelector('tbody');
-
-        table.innerHTML = '';
-
-        caixas.forEach((caixa, index) => {
-            var row = table.insertRow();
-            var deleteCell = row.insertCell(0);
-            deleteCell.innerHTML = `<button class="btn btn-danger btn-sm delete-box-row" data-index="${index}">Deletar</button>`;
-            row.insertCell(1).innerText = caixa[0];
-            row.insertCell(2).innerText = caixa[1];
-            row.insertCell(3).innerText = caixa[2];
-            row.insertCell(4).innerText = caixa[3];
-            row.insertCell(5).innerText = caixa[4];
-            row.insertCell(6).innerText = caixa[5];
-            row.insertCell(7).innerText = caixa[6];
-            row.insertCell(8).innerText = caixa[7];
-            row.insertCell(9).innerText = caixa[8];
-            row.insertCell(10).innerText = caixa[9];
-        });
-
-        document.querySelectorAll('.delete-box-row').forEach(button => {
-            button.addEventListener('click', function() {
-                var index = this.getAttribute('data-index');
-                caixas.splice(index, 1);
-                addTableBox(caixas);
-            });
-        });
-    }
-
-    function setDates(input) {
-        var initialDateInput = document.querySelector(`input#${input}`);
-        var currentDate = new Date(initialDateInput.value);
-
-        if (isNaN(currentDate.getTime())) {
-            console.log(1)
-            alert("Por favor, insira uma data inicial válida.");
-            return;
-        }
-
-        var current_custody_period = parseInt(document.querySelector('#current_custody_period').value);
-        var intermediate_custody_period = parseInt(document.querySelector('#intermediate_custody_period').value);
-
-        if (isNaN(current_custody_period) || isNaN(intermediate_custody_period)) {
-            alert("Por favor, selecione uma temporalidade válida.");
-            return;
-        }
-
-        var expiration_date_A_C = new Date(currentDate);
-        expiration_date_A_C.setFullYear(currentDate.getFullYear() + current_custody_period);
-        document.getElementById('expiration_date_A_C').value = expiration_date_A_C ? expiration_date_A_C.toISOString().split('T')[0] : '';
-
-        var expiration_date_A_I = new Date(currentDate);
-        expiration_date_A_I.setFullYear(currentDate.getFullYear() + intermediate_custody_period);
-        document.getElementById('expiration_date_A_I').value = expiration_date_A_I ? expiration_date_A_I.toISOString().split('T')[0] : '';
-    }
-
     var viewButtons = document.querySelectorAll('.view-files');
     var fileList = document.getElementById('fileList');
     var viewFilesModal = new bootstrap.Modal(document.getElementById('viewFilesModal'));
@@ -1093,31 +1151,6 @@
 
             modalForm.querySelectorAll('input[name="_token"]')[0].value = token;
         });
-    }
-
-    function toggleFields() {
-        var typeSelect = document.getElementById('type');
-        var boxFields = document.getElementById('boxFields');
-        var cabinetFields = document.getElementById('cabinetFields');
-
-        if (typeSelect.value == '1') {
-            boxFields.style.display = 'block';
-            cabinetFields.style.display = 'none';
-            document.getElementById('cabinet').value = '';
-            document.getElementById('drawer').value = '';
-        } else if (typeSelect.value == '2') {
-            boxFields.style.display = 'none';
-            cabinetFields.style.display = 'flex';
-            document.getElementById('box').value = '';
-            document.getElementById('qtpasta').value = '';
-        } else {
-            boxFields.style.display = 'none';
-            cabinetFields.style.display = 'none';
-            document.getElementById('box').value = '';
-            document.getElementById('qtpasta').value = '';
-            document.getElementById('cabinet').value = '';
-            document.getElementById('drawer').value = '';
-        }
     }
 
     document.getElementById('type').addEventListener('change', toggleFields());
@@ -1361,35 +1394,6 @@
         addTableCabinet(armarios);
         form.reset();
     });
-
-    function addTableCabinet(armarios) {
-        var table = document.getElementById('cabinetPrintTable').querySelector('tbody');
-        table.innerHTML = '';
-        armarios.forEach((armario, index) => {
-            var row = table.insertRow();
-            var deleteCell = row.insertCell(0);
-            deleteCell.innerHTML = `<button class="btn btn-danger btn-sm delete-cabinet-row" data-index="${index}">Deletar</button>`;
-            row.insertCell(1).innerText = armario[0];
-            row.insertCell(2).innerText = armario[1];
-            row.insertCell(3).innerText = armario[2];
-            row.insertCell(4).innerText = armario[3];
-            row.insertCell(5).innerText = armario[4];
-            row.insertCell(6).innerText = armario[5];
-            row.insertCell(7).innerText = armario[6];
-            row.insertCell(8).innerText = armario[7];
-            row.insertCell(9).innerText = armario[8];
-            row.insertCell(10).innerText = armario[9];
-            row.insertCell(11).innerText = armario[10];
-        });
-
-        document.querySelectorAll('.delete-cabinet-row').forEach(button => {
-            button.addEventListener('click', function() {
-                var index = this.getAttribute('data-index');
-                armarios.splice(index, 1);
-                addTableCabinet(armarios);
-            });
-        });
-    }
 
     var copyButtons = document.querySelectorAll('.fa-copy');
     copyButtons.forEach(function(button) {
