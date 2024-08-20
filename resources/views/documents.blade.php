@@ -525,7 +525,7 @@
 
                             <div class="mb-3 col-md-3">
                                 <label for="type" class="form-label">Tipo de arquivamento</label>
-                                <select class="form-control" id="type" name="type">
+                                <select onchange="toggleFields()" class="form-control" id="type" name="type">
                                     <option value="">Selecione uma opção</option>
                                     <option value="1">Caixa</option>
                                     <option value="2">Armário</option>
@@ -938,31 +938,6 @@
         document.getElementById('expiration_date_A_I').value = expiration_date_A_I ? expiration_date_A_I.toISOString().split('T')[0] : '';
     }
 
-    function toggleFields() {
-        var typeSelect = document.getElementById('type');
-        var boxFields = document.getElementById('boxFields');
-        var cabinetFields = document.getElementById('cabinetFields');
-
-        if (typeSelect.value == '1') {
-            boxFields.style.display = 'block';
-            cabinetFields.style.display = 'none';
-            document.getElementById('cabinet').value = '';
-            document.getElementById('drawer').value = '';
-        } else if (typeSelect.value == '2') {
-            boxFields.style.display = 'none';
-            cabinetFields.style.display = 'flex';
-            document.getElementById('box').value = '';
-            document.getElementById('qtpasta').value = '';
-        } else {
-            boxFields.style.display = 'none';
-            cabinetFields.style.display = 'none';
-            document.getElementById('box').value = '';
-            document.getElementById('qtpasta').value = '';
-            document.getElementById('cabinet').value = '';
-            document.getElementById('drawer').value = '';
-        }
-    }
-
     function addTableCabinet(armarios) {
         var table = document.getElementById('cabinetPrintTable').querySelector('tbody');
         table.innerHTML = '';
@@ -991,6 +966,31 @@
             });
         });
     }
+
+    function toggleFields() {
+            var typeSelect = document.getElementById('type');
+            var boxFields = document.getElementById('boxFields');
+            var cabinetFields = document.getElementById('cabinetFields');
+
+            if (typeSelect.value == '1') {
+                boxFields.style.display = 'block';
+                cabinetFields.style.display = 'none';
+                document.getElementById('cabinet').value = '';
+                document.getElementById('drawer').value = '';
+            } else if (typeSelect.value == '2') {
+                boxFields.style.display = 'none';
+                cabinetFields.style.display = 'flex';
+                document.getElementById('box').value = '';
+                document.getElementById('qtpasta').value = '';
+            } else {
+                boxFields.style.display = 'none';
+                cabinetFields.style.display = 'none';
+                document.getElementById('box').value = '';
+                document.getElementById('qtpasta').value = '';
+                document.getElementById('cabinet').value = '';
+                document.getElementById('drawer').value = '';
+            }
+        }
 </script>
 
 <script>
