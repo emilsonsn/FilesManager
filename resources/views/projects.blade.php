@@ -1,5 +1,6 @@
 @php
     $search ??= '';
+    $auth = auth()->user();
 @endphp
 
 <head>
