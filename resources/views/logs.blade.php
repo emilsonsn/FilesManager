@@ -25,8 +25,6 @@
       $logs->whereDate('created_at', $datetime);
     }
 
-    $logs = $logs->orderBy('id', 'desc')->get();
-
     $users = User::get();
   @endphp
 

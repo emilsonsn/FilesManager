@@ -20,6 +20,13 @@
     </li>
 
     <li class="sidebar-item">
+      <a href="{{route('dashboard')}}" class="sidebar-link {{ $currentRoute == 'logs' ? 'active-sidebar-link' : '' }}">
+        <i class="fa-solid fa-gauge"></i>
+        <span>Dashboard</span>
+      </a>
+    </li>
+
+    <li class="sidebar-item">
       <a href="{{route('documents', ['project_id' => session('project_id')])}}" class="sidebar-link {{ $currentRoute == 'documents' ? 'active-sidebar-link' : '' }}">
         <i class="fa-solid fa-file-lines"></i>
         <span>Documentos</span>
