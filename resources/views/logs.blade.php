@@ -25,6 +25,8 @@
       $logs->whereDate('created_at', $datetime);
     }
 
+    $logs = $logs->get();
+
     $users = User::get();
   @endphp
 
