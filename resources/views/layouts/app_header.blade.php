@@ -19,7 +19,7 @@
         </div> --}}
         <div class="d-flex align-items-center gap-3 user-menu" style="cursor: pointer" onclick="menuToggle();">
           <i class="fa-solid fa-user"></i>
-          <span>{{ Auth::user()->name }}</span>
+          <span>{{ Auth::user()?->name }}</span>
           <i class="fa-solid fa-chevron-down"></i>
         </div>
         <div class="menu">

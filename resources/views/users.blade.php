@@ -14,6 +14,14 @@
 
     $users = $users->get();
     $projects = Project::get();
+
+    $approvedUsers = $users->filter(function($u){
+      return $u->is_active == 1 && $u->projects->count() > 0;
+    });
+
+    $pendingUsers = $users->filter(function($u){
+      return !($u->is_active == 1 && $u->projects->count() > 0);
+    });
   @endphp
 
   <style>
@@ -38,67 +46,25 @@
       </div>
     </form>
 
-    <div class="table-container">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th scope="col">ID</th>
-            <th scope="col">Nome</th>
-            <th scope="col">Email</th>
-            <th scope="col">Projetos</th>
-            <th scope="col">Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          @foreach ($users as $user)
-            <tr>
-                <th scope="row">{{ $user->id }}</th>
-                <td>{{ $user->name }}</td>
-                <td>{{ $user->email }}</td>
-                <td>
-                  @foreach ($user->projects as $project)
-                    {{$project->project->name . ' ,'}}
-                  @endforeach
-                </td>
-                <td>
-                  <a href="#" class="me-2 projects" data-id="{{ $user->id }}" data-bs-toggle="modal" data-bs-target="#projectsModal">
-                    <i class="fa-solid fa-house-chimney-medical"></i>
-                  </a>
-                  <a href="#" class="edit-user"
-                  data-create_projects="{{$user->create_projects}}"
-                  data-id="{{ $user->id }}"
-                  data-upload_limit="{{ $user->upload_limit }}"
-                  data-active="{{ $user->is_active }}"
-                  data-name="{{ $user->name }}"
-                  data-email="{{ $user->email }}"
-                  data-is_admin="{{ $user->is_admin }}"
-                  data-read_doc="{{ $user->read_doc }}"
-                  data-create_doc="{{ $user->create_doc }}"
-                  data-edit_doc="{{ $user->edit_doc }}"
-                  data-delete_doc="{{ $user->delete_doc }}"
-                  data-read_temporality="{{ $user->read_temporality }}"
-                  data-create_temporality="{{ $user->create_temporality }}"
-                  data-edit_temporality="{{ $user->edit_temporality }}"
-                  data-delete_temporality="{{ $user->delete_temporality }}"
-                  data-read_collection="{{ $user->read_collection }}"
-                  data-create_collection="{{ $user->create_collection }}"
-                  data-edit_collection="{{ $user->edit_collection }}"
-                  data-delete_collection="{{ $user->delete_collection }}"
-                  data-read_elimination="{{ $user->read_elimination }}"
-                  data-create_elimination="{{ $user->create_elimination }}"
-                  data-edit_elimination="{{ $user->edit_elimination }}"
-                  data-delete_elimination="{{ $user->delete_elimination }}"
-                  data-print_generate="{{ $user->print_generate }}"
-                  >
-                    <i class="fa-solid fa-pen"></i>
-                  </a>
-                  <a href="{{route('delete.user', ['id' => $user->id])}}" class="delete-user"><i class="fa-solid fa-trash ms-3"></i></a>
-                </td>
-                
-            </tr>
-          @endforeach
-        </tbody>
-      </table>
+    <ul class="nav nav-tabs mt-3">
+      <li class="nav-item">
+        <a class="nav-link active" data-bs-toggle="tab" href="#approved">Aprovados</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#pending">Não Aprovados</a>
+      </li>
+    </ul>
+
+    <div class="tab-content mt-3">
+
+      <div class="tab-pane fade show active" id="approved">
+        @include('partials.users-table', ['list' => $approvedUsers])
+      </div>
+
+      <div class="tab-pane fade" id="pending">
+        @include('partials.users-table', ['list' => $pendingUsers])
+      </div>
+
     </div>
   </div>
 

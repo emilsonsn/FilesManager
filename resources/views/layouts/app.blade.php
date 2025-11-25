@@ -50,12 +50,12 @@
 </head>
 
 <body>
-@if (request()->routeIs('login'))
+@if (request()->routeIs(['login', 'register']))
   @yield('content')
 @endif
 @auth
 @include('layouts.app_header')
-<div style="display: flex; height: 100vh; overflow: hidden">
+<div style="display: flex; height: 100vh; overflow-y: scroll">
   @include('layouts.sidebar')
   <div class="main p-3 pb-0 pt-5 w-100 h-100">
       <div id="global-loader">

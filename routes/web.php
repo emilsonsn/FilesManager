@@ -20,10 +20,14 @@ Route::get('/', function () {
 Auth::routes(['register' => false]);
 
 Route::get('/home', function(){
-    return redirect('dashboard');
+    return redirect('projects');
 });
 
+Route::get('register', [HomeController::class, 'register'])->name('register');
+Route::post('register', [UserController::class, 'create'])->name('register.user'); // Controlador corrigido
+
 Route::middleware(AuthenticateUser::class)->group(function () {
+    Route::get('projects', [HomeController::class, 'projects'])->name('projects');
     Route::get('dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
     Route::get('temporalitys', [HomeController::class, 'temporalitys'])->name('temporalitys');
     Route::get('documents/{project_id}', [HomeController::class, 'documents'])->name('documents');

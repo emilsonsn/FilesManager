@@ -13,7 +13,7 @@
 
     
     <li class="sidebar-item">
-      <a href="{{route('dashboard')}}" class="sidebar-link {{ $currentRoute == 'tasks' ? 'active-sidebar-link' : '' }}">
+      <a href="{{route('projects')}}" class="sidebar-link {{ $currentRoute == 'tasks' ? 'active-sidebar-link' : '' }}">
         <i class="fa-solid fa-layer-group"></i>
         <span>Projetos</span>
       </a>
@@ -92,7 +92,7 @@
       <li class="sidebar-item">
         <a href="{{route('logs')}}" class="sidebar-link {{ $currentRoute == 'logs' ? 'active-sidebar-link' : '' }}">
           <i class="fa-solid fa-clipboard-list"></i>
-          <span>Logs</span>
+          <span>Auditoria</span>
         </a>
       </li>
     @endif
@@ -113,7 +113,7 @@
     </a>
   </div>
   {{--<div class="sidebar-footer">
-    <a href="#" class="sidebar-link {{ $currentRoute == 'dashboard' ? 'active-sidebar-link' : '' }}">
+    <a href="#" class="sidebar-link {{ $currentRoute == 'projects' ? 'active-sidebar-link' : '' }}">
       <i class="lni lni-exit"></i>
       <span>Logout</span>
     </a>

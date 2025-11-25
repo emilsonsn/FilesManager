@@ -20,7 +20,7 @@ class EliminationController extends Controller
 
         Log::create([
             'user_id' => auth()->user()->id,
-            'description' => "Criou/Editou uma eliminação"
+            'description' => "Criou/Editou uma eliminação com id {$data['id']}"
         ]);
 
         return redirect()->back();

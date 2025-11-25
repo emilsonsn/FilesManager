@@ -26,7 +26,7 @@ class ProjectController extends Controller
             'description' => "Criou/Editou um projeto"
         ]);
 
-        return redirect()->route('dashboard');
+        return redirect()->route('projects');
     }
     
 
@@ -39,6 +39,6 @@ class ProjectController extends Controller
         ]);
 
         $project->delete();
-        return redirect('dashboard');
+        return redirect('projects');
     }
 }
