@@ -44,12 +44,13 @@
             @endphp
 
             @if ($daysToExpireAC > 0 && $daysToExpireAC <= 90)
+
               <tr>
                 <td class="text-center" scope="row">{{ $document->id }}</td>
                 <td class="text-center">{{ $document->doc_number }}</td>
                 <td class="text-center">{{ Carbon::parse($document->expiration_date_A_C)->format('d/m/Y') }}</td>
                 <td class="text-center">{{ Carbon::parse($document->expiration_date_A_I)->format('d/m/Y') }}</td>
-                <td class="text-center">{{ $daysToExpireAC }} dias para vencer A.C</td>
+                <td class="text-center">{{ round($daysToExpireAC, 2) }} dias para vencer A.C</td>
               </tr>
             @elseif ($daysToExpireAI > 0 && $daysToExpireAI <= 90)
               <tr>
@@ -57,7 +58,7 @@
                 <td class="text-center">{{ $document->doc_number }}</td>
                 <td class="text-center">{{ Carbon::parse($document->expiration_date_A_C)->format('d/m/Y') }}</td>
                 <td class="text-center">{{ Carbon::parse($document->expiration_date_A_I)->format('d/m/Y') }}</td>
-                <td class="text-center">{{ $daysToExpireAI }} dias para vencer A.I</td>
+                <td class="text-center">{{ round($daysToExpireAC, 2) }} dias para vencer A.I</td>
               </tr>
             @endif
           @endforeach

@@ -58,6 +58,9 @@
 <div style="display: flex; height: 100vh; overflow: hidden">
   @include('layouts.sidebar')
   <div class="main p-3 pb-0 pt-5 w-100 h-100">
+      <div id="global-loader">
+          <img src="/assets/loading.gif">
+      </div>
       @yield('content')
   </div>
 </div>
